@@ -1,5 +1,6 @@
-*
-!*.java
-!doc/
-!img/
+/*
+/*/
+!/src/
+!/doc/
+!/img/
 !*.md
