@@ -1,6 +1,9 @@
-/*
-/*/
-!/src/
+*
+!*/
+!/src/**/*.java
 !/doc/
 !/img/
 !*.md
+!.gitignore
+
+/bin/
