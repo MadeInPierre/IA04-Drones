@@ -1,8 +1,8 @@
 *
 !*/
 !/src/**/*.java
-!/doc/
-!/img/
+!/doc/*
+!/img/*
 !*.md
 !.gitignore
 
