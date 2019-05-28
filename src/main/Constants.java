@@ -7,6 +7,12 @@ public class Constants {
 
     // signal stuff
     public static final float SIGNAL_MAP_STEP = .1f;
-    public static final float AIR_SIGNAL_QUALITY = .9f;
+    public static final float MIN_SIGNAL_QUALITY = 2f;
+    public static final float MAX_SIGNAL_QUALITY = 6f;
+    public static final String SIGNAL_IMAGE = "img/signal.bmp";
+    
+    // drone stats
+    public static final float MINIMUM_SIGNAL_STRENGTH = -80f; // dBm
+    public static final float EMITTER_SIGNAL_STRENGTH = 20f; // dBm
 }
 

@@ -7,7 +7,8 @@ import environment.Environment;
 public class Main {
     public static void main(String[] args) {
         System.out.println("Starting the simulation");
-        new Environment();
+        SimState state = new Environment(System.currentTimeMillis());
+        state.start();
     }
 
     public static void runWithoutUI(String[] args) {
