@@ -49,7 +49,6 @@ public class Gui extends GUIState {
 		Environment env = (Environment) state;
 		signalPortrayal.setField(env.getSignalManager().getSignalField());
 		signalPortrayal.setMap(new SimpleColorMap(Constants.MIN_SIGNAL_QUALITY, Constants.MAX_SIGNAL_QUALITY, Color.WHITE, Color.RED));
-		System.out.println(signalPortrayal.getField().toString());
 		display.reset();
 		display.setBackdrop(Color.white);
 		display.repaint();
