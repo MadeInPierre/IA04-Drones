@@ -37,5 +37,6 @@ public class Environment extends SimState {
     public void start() {
     	super.start();
     	
+    	schedule.scheduleRepeating(signalManager);
     }
 }

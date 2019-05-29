@@ -10,32 +10,35 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 
 import javax.imageio.ImageIO;
 
 import agents.drone.DroneAgent;
 import main.Constants;
+import sim.engine.SimState;
+import sim.engine.Steppable;
 import sim.field.grid.DoubleGrid2D;
 
-public class SignalManager {
-	private double[][] qualityMap;
+public class SignalManager implements Steppable {
+	private double[][] originalLossField;
+	private DoubleGrid2D signalLossField;
 	private float step;
-	private DoubleGrid2D qualityField;
 
 	public SignalManager(float width, float height, float step, String signalImage) {
 		int cellsW = (int) Math.ceil(width / step);
 		int cellsH = (int) Math.ceil(height / step);
-		this.qualityMap = new double[cellsW][cellsH];
+		this.originalLossField = new double[cellsW][cellsH];
 		this.step = step;
 		initializeMap(signalImage);
+		this.signalLossField = new DoubleGrid2D(originalLossField);
 		System.out.println("Signal map initialized with " + cellsW + " x " + cellsH + " cells.");
-		System.out.println(this.qualityMap[0][0]);
 	}
 
 	private float getQualityAtPoint(Point2D position) {
 		int x = (int) Math.ceil(position.getX() / this.step);
 		int y = (int) Math.ceil(position.getY() / this.step);
-		return (float) this.qualityMap[x][y];
+		return (float) this.signalLossField.get(x, y);
 	}
 
 	private void initializeMap(String image) {
@@ -43,14 +46,16 @@ public class SignalManager {
 		BufferedImage img;
 		try {
 			img = ImageIO.read(imgPath);
-			assert img.getWidth() == qualityMap.length;
-			assert img.getHeight() == qualityMap[0].length;
+			assert img.getWidth() == signalLossField.getWidth();
+			assert img.getHeight() == signalLossField.getHeight();
+			System.out.println(img.getWidth());
 			for (int x = 0; x < img.getWidth(); x++) {
 				for (int y = 0; y < img.getHeight(); y++) {
 					int r = (img.getRGB(x, y) >> 16) & 0xff;
-					// map 0->255 to signal
-					this.qualityMap[x][y] = Constants.MIN_SIGNAL_QUALITY
-							+ (1 - (float) r / 255f) * (Constants.MAX_SIGNAL_QUALITY - Constants.MIN_SIGNAL_QUALITY);
+					// map red 0->255 to signal MIN -> MAX
+					float q = Constants.MIN_SIGNAL_LOSS
+							+ (float) r / 255f * (Constants.MAX_SIGNAL_LOSS - Constants.MIN_SIGNAL_LOSS);
+					this.originalLossField[x][y] = q;
 				}
 			}
 		} catch (IOException e) {
@@ -91,7 +96,19 @@ public class SignalManager {
 		return ret;
 	}
 
-	public DoubleGrid2D getSignalField() {
-		return new DoubleGrid2D(this.qualityMap);
+	public DoubleGrid2D getSignalLossField() {
+		return signalLossField;
+	}
+
+	@Override
+	public void step(SimState arg0) {
+		Random r = new Random();
+		for (int x = 0; x < signalLossField.getWidth(); x++) {
+			for (int y = 0; y < signalLossField.getHeight(); y++) {
+				double q = originalLossField[x][y] + r.nextGaussian() * Constants.SIGNAL_QUALITY_STD;
+				signalLossField.set(x, y, q);
+			}
+		}
+
 	}
 }
