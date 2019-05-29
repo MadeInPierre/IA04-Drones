@@ -9,11 +9,13 @@ import agents.drone.DroneAgent;
 import main.Constants;
 import sim.engine.SimState;
 import sim.engine.Steppable;
+import sim.field.continuous.Continuous2D;
 
 public class Environment extends SimState {
     private SignalManager signalManager;
     private CollisionManager collisionManager;
     private Map<DroneAgent, Point2D> drones;
+    public Continuous2D yard = new Continuous2D(1,20,20);
 
     public Environment(long seed) {
     	super(seed);
