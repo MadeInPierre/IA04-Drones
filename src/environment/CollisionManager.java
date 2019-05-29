@@ -47,7 +47,7 @@ public class CollisionManager {
         return collisionMap[x][y];
     }
 
-    public boolean isPathColliding(Point2D p1, Point2D p2) {
+    public Point2D firstPathPointColiding(Point2D p1, Point2D p2) {
         int n_points = (int) (p1.distance(p2) / this.step * 10);
         Point2D tmpPoint = new Point2D.Float();
         boolean colliding = false;
@@ -59,6 +59,21 @@ public class CollisionManager {
             if (colliding) { break; }
         }
 
-        return colliding;
+        return colliding ? tmpPoint : null;
+    }
+
+    public DoubleGrid2D getCollisionMap() {
+        int x = collisionMap.length;
+        int y = collisionMap[0].length;
+
+        DoubleGrid2D grid = new DoubleGrid2D(x, y);
+
+        for (int i = 0; i < x; i++) {
+            for (int j = 0; i < y; j++) {
+                grid.set(i, j, collisionMap[i][j] ? 1 : 0);
+            }
+        }
+
+        return grid;
     }
 }
