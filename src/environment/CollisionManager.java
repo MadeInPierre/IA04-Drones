@@ -19,6 +19,7 @@ public class CollisionManager {
         this.collisionMap = new boolean[cellsW][cellsH];
         this.step = step;
         initializeMap(collisionImage);
+        System.out.println(collisionMap[0][0]);
         System.out.println("Collision map initialized with " + cellsW + " x " + cellsH + " cells.");
     }
 
@@ -31,7 +32,7 @@ public class CollisionManager {
             assert img.getHeight() == collisionMap[0].length;
             for (int x = 0; x < img.getWidth(); x++) {
                 for (int y = 0; y < img.getHeight(); y++) {
-                    this.collisionMap[x][y] = (img.getRGB(x, y) >> 16) >= 128;
+                    this.collisionMap[x][y] = ((img.getRGB(x, y) >> 16) & 0xff) >= 128;
                 }
             }
         } catch (IOException e) {
@@ -47,7 +48,7 @@ public class CollisionManager {
         return collisionMap[x][y];
     }
 
-    public Point2D firstPathPointColiding(Point2D p1, Point2D p2) {
+    public Point2D firstPathPointColliding(Point2D p1, Point2D p2) {
         int n_points = (int) (p1.distance(p2) / this.step * 10);
         Point2D tmpPoint = new Point2D.Float();
         boolean colliding = false;
@@ -69,7 +70,7 @@ public class CollisionManager {
         DoubleGrid2D grid = new DoubleGrid2D(x, y);
 
         for (int i = 0; i < x; i++) {
-            for (int j = 0; i < y; j++) {
+            for (int j = 0; j < y; j++) {
                 grid.set(i, j, collisionMap[i][j] ? 1 : 0);
             }
         }

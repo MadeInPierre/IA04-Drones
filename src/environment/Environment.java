@@ -33,6 +33,8 @@ public class Environment extends SimState {
     public SignalManager getSignalManager() {
     	return signalManager;
     }
+
+    public CollisionManager getCollisionManager() { return collisionManager; }
     
     public void start() {
     	super.start();

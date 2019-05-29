@@ -19,6 +19,7 @@ public class Gui extends GUIState {
 	public Display2D display;
 	public JFrame displayFrame;
 	FastValueGridPortrayal2D signalPortrayal = new FastValueGridPortrayal2D();
+	FastValueGridPortrayal2D collisionPortrayal = new FastValueGridPortrayal2D();
 
 	public static void main(String[] args) {
 		Gui vid = new Gui();
@@ -47,9 +48,20 @@ public class Gui extends GUIState {
 
 	public void setupPortrayals() {
 		Environment env = (Environment) state;
+
 		signalPortrayal.setField(env.getSignalManager().getSignalLossField());
 		signalPortrayal.setMap(
-				new SimpleColorMap(Constants.MIN_SIGNAL_LOSS, Constants.MAX_SIGNAL_LOSS, Color.WHITE, Color.RED));
+				new SimpleColorMap(Constants.MIN_SIGNAL_LOSS, Constants.MAX_SIGNAL_LOSS,
+						new Color(0, 0, 0, 0),
+						new Color(1, 0, 0, .5f)));
+
+		collisionPortrayal.setField(env.getCollisionManager().getCollisionMap());
+		collisionPortrayal.setMap(
+				new SimpleColorMap(0, 1,
+						new Color(0, 0, 0, 0),
+						Color.BLACK)
+		);
+
 		display.reset();
 		display.setBackdrop(Color.white);
 		display.repaint();
@@ -63,6 +75,7 @@ public class Gui extends GUIState {
 		displayFrame.setTitle("Environment Display");
 		c.registerFrame(displayFrame);
 		displayFrame.setVisible(true);
+		display.attach(collisionPortrayal, "collision");
 		display.attach(signalPortrayal, "signal");
 	}
 
