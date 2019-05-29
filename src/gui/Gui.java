@@ -1,8 +1,12 @@
 package gui;
 
-import java.awt.Color;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
-import javax.swing.JFrame;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 
 import environment.Environment;
 import main.Constants;
@@ -11,6 +15,7 @@ import sim.display.Controller;
 import sim.display.Display2D;
 import sim.display.GUIState;
 import sim.engine.SimState;
+import sim.portrayal.continuous.ContinuousPortrayal2D;
 import sim.portrayal.grid.FastValueGridPortrayal2D;
 import sim.util.gui.SimpleColorMap;
 
@@ -19,9 +24,12 @@ public class Gui extends GUIState {
 	public Display2D display;
 	public JFrame displayFrame;
 	FastValueGridPortrayal2D signalPortrayal = new FastValueGridPortrayal2D();
+	ContinuousPortrayal2D yardPortrayal;// = new ContinuousPortrayal2D();
+	//protected Environment sim;
 
 	public static void main(String[] args) {
-		Gui vid = new Gui();
+		Environment model = new Environment(System.currentTimeMillis());
+		Gui vid = new Gui(model);
 		Console c = new Console(vid);
 
 		c.setVisible(true);
@@ -33,16 +41,18 @@ public class Gui extends GUIState {
 
 	public Gui(SimState state) {
 		super(state);
+		//sim = (Environment) state;
+		this.yardPortrayal = new ContinuousPortrayal2D();
 	}
 
 	public void start() {
 		super.start();
 		setupPortrayals();
+		setupPortrayals2();
 	}
 
 	public void load(SimState state) {
 		super.load(state);
-		setupPortrayals();
 	}
 
 	public void setupPortrayals() {
@@ -55,6 +65,15 @@ public class Gui extends GUIState {
 		display.repaint();
 	}
 
+	public void setupPortrayals2() {
+		Environment simulation = (Environment) state;
+		yardPortrayal.setField(simulation.yard);
+		display.reset();
+		display.setBackdrop(Color.orange);
+		addBackgroundImage();
+		display.repaint();
+	}
+
 	public void init(Controller c) {
 		super.init(c);
 		display = new Display2D(1000, 1000 * Constants.MAP_HEIGHT / Constants.MAP_WIDTH, this);
@@ -64,6 +83,7 @@ public class Gui extends GUIState {
 		c.registerFrame(displayFrame);
 		displayFrame.setVisible(true);
 		display.attach(signalPortrayal, "signal");
+		display.attach(yardPortrayal, "cave");
 	}
 
 	public void quit() {
@@ -72,6 +92,27 @@ public class Gui extends GUIState {
 			displayFrame.dispose();
 		displayFrame = null;
 		display = null;
+	}
+
+	private void addBackgroundImage() {
+		//Image i = new ImageIcon(getClass().getResource("img/cave.jpg")).getImage();
+		//int w = i.getWidth(null)/5;
+		//int h = i.getHeight(null)/5;
+		//BufferedImage b = display.getGraphicsConfiguration().createCompatibleImage(w,h);
+		try {
+			String image = "img/cave.jpg";
+			File imgPath = new File(image);
+			BufferedImage b = ImageIO.read(imgPath);
+			Graphics g = b.getGraphics();
+			int w = b.getWidth(null)/5;
+			int h = b.getHeight(null)/5;
+			g.drawImage(b, 0, 0, w, h, null);
+			g.dispose();
+			display.setBackdrop(new TexturePaint(b, new Rectangle(0, 0, w, h)));
+		}
+		catch (IOException e){
+
+		}
 	}
 
 }
