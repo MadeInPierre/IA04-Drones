@@ -17,7 +17,8 @@ public class Constants {
     public static final String COLLISION_IMAGE   = "img/collision.bmp";
 
 	// drone stats
-	public static final float MINIMUM_SIGNAL_STRENGTH = -80f; // dBm
-	public static final float EMITTER_SIGNAL_STRENGTH = 20f;  // dBm
-	public static final float HISTORY_DURATION        = 3f;   // duration in steps of the drones' position history
+    public static final float DRONE_SPEED             = .3f;	// map units per step
+	public static final float MINIMUM_SIGNAL_STRENGTH = -80f; 	// dBm
+	public static final float EMITTER_SIGNAL_STRENGTH = 20f;  	// dBm
+	public static final float HISTORY_DURATION        = 3f;   	// duration in steps of the drones' position history
 }

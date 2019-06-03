@@ -1,5 +1,5 @@
 package agents.drone.behaviors;
 
-public class RollbackBehavior {
+public class RollbackBehavior extends FlyingBehavior {
 
 }
