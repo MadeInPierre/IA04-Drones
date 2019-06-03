@@ -62,7 +62,7 @@ public class Gui extends GUIState {
 		super.load(state);
 	}
 
-	public void setupPortrayals() {
+	public void setupPortrayals() { // TODO la performance diminue beaucoup quand on appelle cette methode
 		Environment env = (Environment) state;
 
 		signalPortrayal.setField(env.getSignalManager().getSignalLossField());
@@ -127,10 +127,10 @@ public class Gui extends GUIState {
 			File imgPath = new File(image);
 			BufferedImage b = ImageIO.read(imgPath);
 			Graphics g = b.getGraphics();
-			int w = b.getWidth(null) / 5;
-			int h = b.getHeight(null) / 5;
-			g.drawImage(b, 0, 0, w, h, null);
-			g.dispose();
+			int w = 1000;
+			int h = (int)(1000 * Constants.MAP_HEIGHT / Constants.MAP_WIDTH);
+			//g.drawImage(b, 0, 0, w, h, null);
+			//g.dispose();
 			display.setBackdrop(new TexturePaint(b, new Rectangle(0, 0, w, h)));
 		} catch (IOException e) {
 
