@@ -23,10 +23,12 @@ public class Environment extends SimState {
 	public Environment(long seed) {
 		super(seed);
 		yard = new Continuous2D(.1d, Constants.MAP_WIDTH, Constants.MAP_HEIGHT);
-		yard.setObjectLocation(new DroneAgent(), new Double2D(6, 7));
-		yard.setObjectLocation(new DroneAgent(), new Double2D(12, 7));
-		yard.setObjectLocation(new DroneAgent(), new Double2D(6, 12));
-		yard.setObjectLocation(new DroneAgent(), new Double2D(12, 12));
+		
+		// Add drones
+		yard.setObjectLocation(new DroneAgent(0), new Double2D(6, 7));
+		yard.setObjectLocation(new DroneAgent(1), new Double2D(12, 7));
+		yard.setObjectLocation(new DroneAgent(2), new Double2D(6, 12));
+		yard.setObjectLocation(new DroneAgent(3), new Double2D(12, 12));
 
 		signalManager = new SignalManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.SIGNAL_MAP_STEP,
 				Constants.SIGNAL_IMAGE, this);
