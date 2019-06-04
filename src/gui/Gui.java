@@ -8,6 +8,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import agents.drone.DroneAgent;
 import environment.Environment;
 import main.Constants;
 import sim.display.Console;
@@ -23,6 +24,7 @@ import sim.portrayal.network.EdgeDrawInfo2D;
 import sim.portrayal.network.NetworkPortrayal2D;
 import sim.portrayal.network.SimpleEdgePortrayal2D;
 import sim.portrayal.network.SpatialNetwork2D;
+import sim.portrayal.simple.ImagePortrayal2D;
 import sim.util.gui.SimpleColorMap;
 
 public class Gui extends GUIState {
@@ -101,6 +103,7 @@ public class Gui extends GUIState {
 	public void setupPortrayals2() {
 		Environment simulation = (Environment) state;
 		yardPortrayal.setField(simulation.yard);
+		yardPortrayal.setPortrayalForClass(DroneAgent.class, getDronePortrayal());
 		display.reset();
 		display.setBackdrop(Color.orange);
 		addBackgroundImage();
@@ -148,6 +151,10 @@ public class Gui extends GUIState {
 		} catch (IOException e) {
 
 		}
+	}
+
+	private ImagePortrayal2D getDronePortrayal(){
+		return new ImagePortrayal2D(new ImageIcon("img/drone.png"), 1);
 	}
 
 }
