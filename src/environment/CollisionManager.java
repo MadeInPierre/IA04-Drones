@@ -4,6 +4,9 @@ import main.Constants;
 import sim.field.grid.DoubleGrid2D;
 
 import javax.imageio.ImageIO;
+
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -28,8 +31,16 @@ public class CollisionManager {
         BufferedImage img;
         try {
             img = ImageIO.read(imgPath);
-            assert img.getWidth() == collisionMap.length;
-            assert img.getHeight() == collisionMap[0].length;
+            
+            if (img.getWidth() != collisionMap.length || img.getHeight() != collisionMap[0].length) {
+				Image tmp = img.getScaledInstance(collisionMap.length, collisionMap[0].length, Image.SCALE_DEFAULT);
+			    BufferedImage newImg = new BufferedImage(collisionMap.length, collisionMap[0].length, img.getType());
+			    Graphics2D g2d = newImg.createGraphics();
+			    g2d.drawImage(tmp, 0, 0, null);
+			    g2d.dispose();
+			    img = newImg;
+			}
+            
             for (int x = 0; x < img.getWidth(); x++) {
                 for (int y = 0; y < img.getHeight(); y++) {
                     this.collisionMap[x][y] = ((img.getRGB(x, y) >> 16) & 0xff) >= 128;

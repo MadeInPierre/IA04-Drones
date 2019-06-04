@@ -1,5 +1,7 @@
 package environment;
 
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -33,9 +35,9 @@ public class SignalManager implements Steppable {
 		this.originalLossField = new double[cellsW][cellsH];
 		this.droneNetwork = new Network(false);
 		this.step = step;
+		this.env = env;
 		initializeMap(signalImage);
 		this.signalLossField = new DoubleGrid2D(originalLossField);
-		this.env = env;
 		System.out.println("Signal map initialized with " + cellsW + " x " + cellsH + " cells.");
 
 		buildDroneNetwork();
@@ -61,9 +63,16 @@ public class SignalManager implements Steppable {
 		BufferedImage img;
 		try {
 			img = ImageIO.read(imgPath);
-			assert img.getWidth() == signalLossField.getWidth();
-			assert img.getHeight() == signalLossField.getHeight();
-			System.out.println(img.getWidth());
+			
+			if (img.getWidth() != originalLossField.length || img.getHeight() != originalLossField[0].length) {
+				Image tmp = img.getScaledInstance(originalLossField.length, originalLossField[0].length, Image.SCALE_DEFAULT);
+			    BufferedImage newImg = new BufferedImage(originalLossField.length, originalLossField[0].length, img.getType());
+			    Graphics2D g2d = newImg.createGraphics();
+			    g2d.drawImage(tmp, 0, 0, null);
+			    g2d.dispose();
+			    img = newImg;
+			}
+		    
 			for (int x = 0; x < img.getWidth(); x++) {
 				for (int y = 0; y < img.getHeight(); y++) {
 					int r = (img.getRGB(x, y) >> 16) & 0xff;
