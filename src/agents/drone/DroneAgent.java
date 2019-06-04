@@ -29,6 +29,7 @@ public class DroneAgent {
 	private DroneCommunicator communicator;
 	private DroneFlyingManager flyingManager;
 	
+	private static int idCounter = 0;
 	
 	public void setDroneState(DroneState newState) {
 		droneState = newState;
@@ -52,8 +53,8 @@ public class DroneAgent {
 	
 	// MAIN FUNCTIONS
 	
-	public DroneAgent(int id) {
-		droneID = id;
+	public DroneAgent() {
+		droneID = idCounter++;
 		communicator = new DroneCommunicator();
 		flyingManager = new DroneFlyingManager();
 		
