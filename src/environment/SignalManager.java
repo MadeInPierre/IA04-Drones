@@ -106,9 +106,9 @@ public class SignalManager implements Steppable {
 	public Map<DroneAgent, Float> getDronesInRange(Double2D dronePos, Set<DroneAgent> allDrones) {
 		Map<DroneAgent, Float> ret = new HashMap<DroneAgent, Float>();
 		for (DroneAgent d : allDrones) {
-			float strength = Constants.EMITTER_SIGNAL_STRENGTH - getSignalLoss(dronePos, env.getDronePos(d));
-			if (strength >= Constants.MINIMUM_SIGNAL_STRENGTH)
-				ret.put(d, strength);
+			float loss = getSignalLoss(dronePos, env.getDronePos(d));
+			if (loss < Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
+				ret.put(d, loss);
 		}
 		return ret;
 	}

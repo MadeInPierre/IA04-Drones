@@ -16,6 +16,7 @@ import sim.display.Display2D;
 import sim.display.GUIState;
 import sim.engine.SimState;
 import sim.field.network.Edge;
+import sim.portrayal.DrawInfo2D;
 import sim.portrayal.continuous.ContinuousPortrayal2D;
 import sim.portrayal.grid.FastValueGridPortrayal2D;
 import sim.portrayal.network.EdgeDrawInfo2D;
@@ -69,11 +70,23 @@ public class Gui extends GUIState {
 		signalPortrayal.setMap(new SimpleColorMap(Constants.MIN_SIGNAL_LOSS, Constants.MAX_SIGNAL_LOSS,
 				new Color(1f, 1f, 1f, 0f), new Color(1f, 0f, 0f, .5f)));
 		signalNetworkPortrayal.setField(new SpatialNetwork2D(env.yard, env.getSignalManager().getSignalNetwork()));
-		SimpleEdgePortrayal2D sep = new SimpleEdgePortrayal2D(Color.WHITE, Color.WHITE) {
+		SimpleEdgePortrayal2D sep = new SimpleEdgePortrayal2D() {
 			@Override public String getLabel(Edge e, EdgeDrawInfo2D edi) { return e.getWeight()+""; }
+		    @Override public void draw(Object o, Graphics2D g, DrawInfo2D i) { 
+		    	double w = ((Edge) o).getWeight();
+		    	if (w > Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
+		    		setShape(SHAPE_THIN_LINE);
+		    		this.fromPaint = this.toPaint = new Color(1f, 0f, 0f, 0.5f);
+		    	} else {
+		    		setShape(SHAPE_LINE_BUTT_ENDS);
+		    		float f = (float) (w / Constants.DRONE_MAXIMUM_SIGNAL_LOSS);
+		    		this.fromPaint = this.toPaint = new Color(f, 1 - f, 0f);
+		    	}
+		    	super.draw(o, g, i);
+		    }
+		    @Override protected double getPositiveWeight(Object o, EdgeDrawInfo2D i) { return 1 - ((Edge) o).getWeight() / Constants.DRONE_MAXIMUM_SIGNAL_LOSS; }
 		};
-		sep.setLabelScaling(1);
-		sep.setAdjustsThickness(true);
+		sep.setBaseWidth(0.2f);
 		signalNetworkPortrayal.setPortrayalForAll(sep);
 		
 
