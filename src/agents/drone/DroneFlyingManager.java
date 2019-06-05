@@ -81,7 +81,7 @@ public class DroneFlyingManager {
 		updateHistory(transform);
 
 		// Move the drone in the real world
-		env.translateDrone(new Double2D(transform.x, transform.y));
-		env.rotateDrone(transform.z);
+		env.translateDrone(drone, new Double2D(transform.x, transform.y));
+		env.rotateDrone(drone, (float)transform.z);
 	}
 }
