@@ -1,5 +1,6 @@
 package agents.drone;
 
+import agents.Communicator;
 import sim.util.Double2D;
 
 public class CollisionsSensor {
@@ -9,7 +10,7 @@ public class CollisionsSensor {
 		this.angle = angle;
 	}
 	
-	public float getDistance(Double2D position, DroneCommunicator communicator) {
+	public float getDistance(Double2D position, Communicator communicator) {
 		// TODO
 		return 0;
 	}

@@ -71,14 +71,14 @@ public class Gui extends GUIState {
 		signalPortrayal.setField(env.getSignalManager().getSignalLossField());
 		signalPortrayal.setMap(new SimpleColorMap(Constants.MIN_SIGNAL_LOSS, Constants.MAX_SIGNAL_LOSS,
 				new Color(1f, 1f, 1f, 0f), new Color(1f, 0f, 0f, .5f)));
-		signalNetworkPortrayal.setField(new SpatialNetwork2D(env.yard, env.getSignalManager().getSignalNetwork()));
+		signalNetworkPortrayal.setField(new SpatialNetwork2D(env.getYard(), env.getSignalManager().getSignalNetwork()));
 		SimpleEdgePortrayal2D sep = new SimpleEdgePortrayal2D() {
 			@Override public String getLabel(Edge e, EdgeDrawInfo2D edi) { return e.getWeight()+""; }
 		    @Override public void draw(Object o, Graphics2D g, DrawInfo2D i) { 
 		    	double w = ((Edge) o).getWeight();
 		    	if (w > Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
 		    		setShape(SHAPE_THIN_LINE);
-		    		this.fromPaint = this.toPaint = new Color(1f, 0f, 0f, 0.5f);
+		    		this.fromPaint = this.toPaint = new Color(0f, 0f, 0f, 0.5f);
 		    	} else {
 		    		setShape(SHAPE_LINE_BUTT_ENDS);
 		    		float f = (float) (w / Constants.DRONE_MAXIMUM_SIGNAL_LOSS);
@@ -102,7 +102,7 @@ public class Gui extends GUIState {
 
 	public void setupPortrayals2() {
 		Environment simulation = (Environment) state;
-		yardPortrayal.setField(simulation.yard);
+		yardPortrayal.setField(simulation.getYard());
 		yardPortrayal.setPortrayalForClass(DroneAgent.class, getDronePortrayal());
 		display.reset();
 		display.setBackdrop(Color.orange);
