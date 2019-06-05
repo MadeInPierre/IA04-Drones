@@ -22,7 +22,6 @@ public class CollisionManager {
         this.collisionMap = new boolean[cellsW][cellsH];
         this.step = step;
         initializeMap(collisionImage);
-        System.out.println(collisionMap[0][0]);
         System.out.println("Collision map initialized with " + cellsW + " x " + cellsH + " cells.");
     }
 

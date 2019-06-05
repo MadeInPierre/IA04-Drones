@@ -41,6 +41,7 @@ public class SignalManager implements Steppable {
 		System.out.println("Signal map initialized with " + cellsW + " x " + cellsH + " cells.");
 
 		buildDroneNetwork();
+		updateNetwork();
 	}
 
 	public void buildDroneNetwork() {
@@ -94,7 +95,6 @@ public class SignalManager implements Steppable {
 
 	private float getExponentLoss(Double2D pos1, Double2D pos2) {
 		int n_points = (int) (pos1.distance(pos2) / this.step * 10);
-		Point2D tmpPoint = new Point2D.Float();
 		double x, y;
 		float qualitySum = 0f;
 		for (int i = 0; i < n_points; i++) {
@@ -132,8 +132,8 @@ public class SignalManager implements Steppable {
 
 	@Override
 	public void step(SimState arg0) {
-		// if (arg0.schedule.getSteps() % 50 == 0)
-		// updateGaussianNoise();
+		if (arg0.schedule.getSteps() % 50 == 0)
+			updateGaussianNoise();
 
 		updateNetwork();
 	}
