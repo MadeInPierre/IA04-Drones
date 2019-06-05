@@ -2,6 +2,8 @@ package agents.drone.communication;
 
 public class DroneMessage {
 	/*
+	 * Usage:
+	 * - create message with senderID, destinationID
 	 * - Origin ID
 	 * - Destination ID
 	 * - Performative
@@ -41,7 +43,15 @@ public class DroneMessage {
 		//TODO
 	}
 	
-	public void setQuality(float strength) {
+	public void setStrength(float strength) {
 		this.signalStrength = strength;
+	}
+	
+	public float getStrength() {
+		return signalStrength;
+	}
+	
+	public String getContent() {
+		return content;
 	}
 }

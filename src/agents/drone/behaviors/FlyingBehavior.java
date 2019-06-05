@@ -7,7 +7,7 @@ public class FlyingBehavior {
 		
 	}
 	
-	public Double3D stepPos() {
-		return new Double3D();
+	public Double3D stepTransform() {
+		return new Double3D(0, 0, 0); // Don't move
 	}
 }

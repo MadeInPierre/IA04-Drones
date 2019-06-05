@@ -2,24 +2,25 @@ package agents.drone;
 
 import java.util.ArrayList;
 
+import sim.engine.SimState;
+import sim.engine.Steppable;
 import agents.drone.DroneFlyingManager.FlyingState;
+import environment.Environment;
 import sim.util.Double3D;
 
-public class DroneAgent {
+public class DroneAgent implements Steppable {
 	/* TODO
 	 * 	- Fly manager 
 	 *  - Communicator
 	 * BUGS
 	 * 	- 
-	 */
-	
-	private Double3D secretPosition; // secret position used for simulation management only, unused by the drone's intelligence 
+	 */ 
 	
 	public enum DroneState {
 		IDLE,   			// Nothing to do, waiting for orders
 		ARMED,				// Take off when the next drone is too far away
-		FLYING,				// 
-		CRASHED				// Game over. 
+		FLYING,				// Drone flying and applying it's current FlyingState moving strategy.
+		CRASHED				// Game over :(
 	};
 	private DroneState droneState = DroneState.IDLE; 
 	
@@ -55,17 +56,16 @@ public class DroneAgent {
 	
 	public DroneAgent() {
 		droneID = idCounter++;
-		communicator = new DroneCommunicator();
-		flyingManager = new DroneFlyingManager();
-		
-		secretPosition = new Double3D(0, 0, 0); // drone doesn't know it's absolute pos, starting at (0, 0)
+		communicator = new DroneCommunicator(this);
+		flyingManager = new DroneFlyingManager(this);
 	}
 	
-	public void step() {
+	public void step(SimState state) {
+		Environment env = (Environment)state;
+		
 		// Process messages
 		
 		// Update position
-		secretPosition = flyingManager.stepPos();
-		
+		flyingManager.stepTransform(env);
 	}
 }
