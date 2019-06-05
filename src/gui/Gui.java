@@ -34,7 +34,8 @@ public class Gui extends GUIState {
 	FastValueGridPortrayal2D signalPortrayal = new FastValueGridPortrayal2D();
 	NetworkPortrayal2D signalNetworkPortrayal = new NetworkPortrayal2D();
 	FastValueGridPortrayal2D collisionPortrayal = new FastValueGridPortrayal2D();
-	ContinuousPortrayal2D yardPortrayal;// = new ContinuousPortrayal2D();
+	ContinuousPortrayal2D yardPortrayal = new ContinuousPortrayal2D();
+	ImagePortrayal2D backgroundPortrayal2d;
 	// protected Environment sim;
 
 	public static void main(String[] args) {
@@ -51,8 +52,6 @@ public class Gui extends GUIState {
 
 	public Gui(SimState state) {
 		super(state);
-		// sim = (Environment) state;
-		this.yardPortrayal = new ContinuousPortrayal2D();
 	}
 
 	public void start() {

@@ -35,6 +35,7 @@ public class Environment extends SimState {
 		addDrone(new Double2D(30, 30));
 		
 		operator = new OperatorAgent();
+		schedule.scheduleRepeating(operator);
 		yard.setObjectLocation(operator, new Double2D(0, 30));
 		headDrone = (DroneAgent) yard.getAllObjects().get(0);
 
@@ -112,5 +113,6 @@ public class Environment extends SimState {
 		DroneAgent d = new DroneAgent();
 		yard.setObjectLocation(d, pos);
 		droneAngles.put(d, 0f);
+		schedule.scheduleRepeating(d);
 	}
 }
