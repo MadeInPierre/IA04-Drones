@@ -3,6 +3,7 @@ package agents.drone;
 import java.util.ArrayList;
 
 import agents.CommunicativeAgent;
+import agents.Communicator;
 import agents.drone.DroneFlyingManager.FlyingState;
 import sim.engine.SimState;
 import sim.util.Double3D;
@@ -25,13 +26,10 @@ public class DroneAgent extends CommunicativeAgent{
 	};
 	private DroneState droneState = DroneState.IDLE;
 	
-	private int droneID  = -1; // This drone's ID
 	private int leaderID = -1; // ID of the drone to follow
 	
-	private DroneCommunicator communicator;
 	private DroneFlyingManager flyingManager;
 	
-	private static int idCounter = 0;
 	
 	public void setDroneState(DroneState newState) {
 		droneState = newState;
@@ -45,10 +43,6 @@ public class DroneAgent extends CommunicativeAgent{
 			setDroneState(DroneState.IDLE);
 	}
 	
-	public int getID() {
-		return droneID;
-	}
-	
 	public void setLeaderID(int newID) {
 		leaderID = newID;
 	}
@@ -56,8 +50,6 @@ public class DroneAgent extends CommunicativeAgent{
 	// MAIN FUNCTIONS
 	
 	public DroneAgent() {
-		droneID = idCounter++;
-		communicator = new DroneCommunicator();
 		flyingManager = new DroneFlyingManager();
 		
 		secretPosition = new Double3D(0, 0, 0); // drone doesn't know it's absolute pos, starting at (0, 0)
@@ -65,7 +57,6 @@ public class DroneAgent extends CommunicativeAgent{
 	
 	@Override
 	public void step(SimState state) {
-		// Process messages
 		
 		// Update position
 		secretPosition = flyingManager.stepPos();
