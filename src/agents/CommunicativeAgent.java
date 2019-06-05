@@ -6,8 +6,8 @@ import sim.engine.Steppable;
 public class CommunicativeAgent implements Steppable {
 
 	private static int idCounter = 0;
-	private int agentID;
-	private Communicator communicator;
+	protected int agentID;
+	protected Communicator communicator;
 
 	public CommunicativeAgent() {
 		agentID = idCounter++;
@@ -15,9 +15,8 @@ public class CommunicativeAgent implements Steppable {
 
 	}
 	
-	@Override
 	public void step(SimState state) {
-		
+		System.out.println("ksjdfhg");
 	}
 	
 	public int getID() {

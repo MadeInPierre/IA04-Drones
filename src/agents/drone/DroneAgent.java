@@ -50,6 +50,7 @@ public class DroneAgent extends CommunicativeAgent{
 	public DroneAgent() {
 		super();
 		flyingManager = new DroneFlyingManager(this);
+		flyingManager.setFlyingState(FlyingState.KEEP_SIGNAL_DIST);
 	}
 	
 	@Override
@@ -57,6 +58,6 @@ public class DroneAgent extends CommunicativeAgent{
 		Environment env = (Environment)state;
 		
 		// Update position
-		flyingManager.stepTransform(env);
+		flyingManager.stepTransform(env, communicator);
 	}
 }

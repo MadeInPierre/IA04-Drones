@@ -18,6 +18,8 @@ public class Constants {
 
 	// drone stats
     public static final float DRONE_SPEED             = .3f;	// map units per step
-    public static final float DRONE_MAXIMUM_SIGNAL_LOSS = 40f; //dB
+    public static final float DRONE_MAXIMUM_SIGNAL_LOSS = 40f;  //dB
 	public static final float HISTORY_DURATION        = 3f;   	// duration in steps of the drones' position history
+	public static final float KEEP_DIST_GOAL_SIGNAL_STRENGTH  = -60f;
+	public static final float KEEP_DIST_GOAL_SIGNAL_TOLERANCE = 5f;
 }

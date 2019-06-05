@@ -2,6 +2,7 @@ package agents.drone;
 
 import java.util.ArrayList;
 
+import agents.Communicator;
 import agents.drone.behaviors.FlyingBehavior;
 import agents.drone.behaviors.KeepDistanceBehavior;
 import agents.drone.behaviors.RollbackBehavior;
@@ -20,7 +21,7 @@ public class DroneFlyingManager {
 		WAIT_RECONNECT, 	// Lost connection, waiting for the next drone to come back
 		ROLLBACK,     		// Lost connection, rolling back its position until reconnected
 	};
-	private FlyingState flyingState = FlyingState.IDLE;
+	private FlyingState flyingState;
 	
 	private ArrayList<Double3D> trajectoryHistory; // keeps the last main.Constants.HISTORY_DURATION seconds of the drone's position
 	
@@ -53,6 +54,8 @@ public class DroneFlyingManager {
 	
 	public DroneFlyingManager(DroneAgent drone) {
 		this.drone = drone;
+		setFlyingState(FlyingState.IDLE);
+		trajectoryHistory = new ArrayList<Double3D>();
 	}
 	
 	// Refresh the drone's trajectory, used for disconnection rollbacks
@@ -66,16 +69,15 @@ public class DroneFlyingManager {
 		trajectoryHistory.clear();
 	}
 	
-	public void stepTransform(Environment env) {
+	public void stepTransform(Environment env, Communicator com) {
 		// Process distance sensors
 		Double3D collisionTransform = new Double3D(); // TODO
 		
 		// Apply current movement strategy
-		Double3D behaviorTransform = currentBehavior.stepTransform();
+		Double3D behaviorTransform = currentBehavior.stepTransform(com);
 		
 		// Merge moving decisions for a final transform
-		Double3D transform = new Double3D(0, 0, 0);
-		// TODO
+		Double3D transform = behaviorTransform; // TODO add collisions
 		
 		// Save transform in translation history
 		updateHistory(transform);

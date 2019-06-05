@@ -67,6 +67,9 @@ public class Environment extends SimState {
 	public void start() {
 		super.start();
 		schedule.scheduleRepeating(signalManager);
+		for(Object o : yard.getAllObjects())
+			if(o instanceof DroneAgent)
+				schedule.scheduleRepeating((DroneAgent)o);
 	}
 
 	public Double2D getDronePos(CommunicativeAgent drone) {
@@ -113,6 +116,5 @@ public class Environment extends SimState {
 		DroneAgent d = new DroneAgent();
 		yard.setObjectLocation(d, pos);
 		droneAngles.put(d, 0f);
-		schedule.scheduleRepeating(d);
 	}
 }
