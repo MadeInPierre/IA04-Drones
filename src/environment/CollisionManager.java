@@ -2,12 +2,12 @@ package environment;
 
 import main.Constants;
 import sim.field.grid.DoubleGrid2D;
+import sim.util.Double2D;
 
 import javax.imageio.ImageIO;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -51,20 +51,20 @@ public class CollisionManager {
         }
     }
 
-    public boolean isColliding(Point2D p) {
-        int x = (int) (p.getX() / step);
-        int y = (int) (p.getY() / step);
+    public boolean isColliding(Double2D p) {
+        int x = (int) (p.x / step);
+        int y = (int) (p.y / step);
 
         return collisionMap[x][y];
     }
 
-    public Point2D firstPathPointColliding(Point2D p1, Point2D p2) {
+    public Double2D firstPathPointColliding(Double2D p1, Double2D p2) {
         int n_points = (int) (p1.distance(p2) / this.step * 10);
-        Point2D tmpPoint = new Point2D.Float();
+        Double2D tmpPoint = new Double2D();
         boolean colliding = false;
 
         for (int i = 0; i < n_points; i++) {
-            tmpPoint.setLocation(p1.getX() + i * p2.getX() / n_points, p1.getY() + i * p2.getY() / n_points);
+            tmpPoint = new Double2D(p1.x + i * p2.x / n_points, p1.y + i * p2.y / n_points);
             colliding |= isColliding(tmpPoint);
 
             if (colliding) { break; }

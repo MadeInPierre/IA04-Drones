@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import agents.CommunicativeAgent;
 import agents.drone.DroneFlyingManager.FlyingState;
+import environment.Environment;
 import sim.engine.SimState;
 import sim.util.Double3D;
 
