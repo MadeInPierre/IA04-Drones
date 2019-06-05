@@ -5,7 +5,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import agents.CommunicativeAgent;
 import agents.drone.DroneAgent;
+import agents.operator.OperatorAgent;
 import main.Constants;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
@@ -17,6 +19,8 @@ public class Environment extends SimState {
 	private CollisionManager collisionManager;
 	private Continuous2D yard;
 	private Map<DroneAgent, Float> droneAngles;
+	private DroneAgent headDrone;
+	private OperatorAgent operator;
 
 	public Environment(long seed) {
 		super(seed);
@@ -29,6 +33,10 @@ public class Environment extends SimState {
 		addDrone(new Double2D(6, 12));
 		addDrone(new Double2D(12, 12));
 		addDrone(new Double2D(30, 30));
+		
+		operator = new OperatorAgent();
+		yard.setObjectLocation(operator, new Double2D(0, 30));
+		headDrone = (DroneAgent) yard.getAllObjects().get(0);
 
 		signalManager = new SignalManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.SIGNAL_MAP_STEP,
 				Constants.SIGNAL_IMAGE, this);
@@ -60,7 +68,7 @@ public class Environment extends SimState {
 		schedule.scheduleRepeating(signalManager);
 	}
 
-	public Double2D getDronePos(DroneAgent drone) {
+	public Double2D getDronePos(CommunicativeAgent drone) {
 		return yard.getObjectLocation(drone);
 	}
 
@@ -74,15 +82,28 @@ public class Environment extends SimState {
 	}
 
 	public Set<DroneAgent> getDrones() {
-		Set<DroneAgent> s = (Set<DroneAgent>) yard.getAllObjects().stream().map(obj -> (DroneAgent) obj)
+		Set<DroneAgent> s = (Set<DroneAgent>) yard.getAllObjects().stream().filter(obj -> obj instanceof DroneAgent).map(obj -> (DroneAgent) obj)
+				.collect(Collectors.toSet());
+		return s;
+	}
+	
+	public Set<CommunicativeAgent> getAgents() {
+		Set<CommunicativeAgent> s = (Set<CommunicativeAgent>) yard.getAllObjects().stream().filter(obj -> obj instanceof CommunicativeAgent).map(obj -> (CommunicativeAgent) obj)
 				.collect(Collectors.toSet());
 		return s;
 	}
 
-	public void transformDrone(DroneAgent drone, Double2D translation, float rotation) {
+	public void translateDrone(DroneAgent drone, Double2D translation) {
+		float angle = droneAngles.get(drone);
+		float tx = (float) (Math.cos(angle) * translation.length());
+		float ty = (float) (Math.sin(angle) * translation.length());
+		
 		Double2D oldPos = yard.getObjectLocation(drone);
-		Double2D newPos = new Double2D(oldPos.getX() + translation.getX(), oldPos.getY() + translation.getY());
+		Double2D newPos = new Double2D(oldPos.getX() + tx, oldPos.getY() + ty);
 		yard.setObjectLocation(drone, newPos);
+	}
+	
+	public void rotateDrone(DroneAgent drone, float rotation) {
 		float newAngle = (float) ((droneAngles.get(drone) + rotation) % (Math.PI * 2));
 		droneAngles.put(drone, newAngle);
 	}
