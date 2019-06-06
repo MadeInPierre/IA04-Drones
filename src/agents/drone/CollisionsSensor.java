@@ -22,7 +22,7 @@ public class CollisionsSensor {
 	}
 	
 	// renvoie MAX_VALUE si aucune collision n'est detectée
-	public double getDistance(Environment environment, DroneCommunicator communicator) {
+	public double getDistance(Environment environment, Communicator communicator) {
 		CollisionManager cm  = environment.getCollisionManager();
 		Double2D p1 = environment.getDronePos(agent);
 		float angle = environment.getDroneAngle(agent);
