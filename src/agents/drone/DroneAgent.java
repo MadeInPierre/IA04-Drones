@@ -6,9 +6,10 @@ import agents.Communicator;
 import agents.drone.DroneFlyingManager.FlyingState;
 import environment.Environment;
 import sim.engine.SimState;
+import sim.portrayal.Oriented2D;
 import sim.util.Double3D;
 
-public class DroneAgent extends CommunicativeAgent{
+public class DroneAgent {
 	/* TODO
 	 * 	- Fly manager 
 	 *  - Communicator
@@ -26,6 +27,7 @@ public class DroneAgent extends CommunicativeAgent{
 	
 	private int leaderID = -1; // ID of the drone to follow
 	
+	private CollisionsSensor[] collisionSensors;
 	private DroneFlyingManager flyingManager;
 	
 	
@@ -40,6 +42,14 @@ public class DroneAgent extends CommunicativeAgent{
 		if(newState == FlyingState.IDLE) // force IDLE on both statuses
 			setDroneState(DroneState.IDLE);
 	}
+
+	public int getID() {
+		return droneID;
+	}
+
+	public CollisionsSensor[] getCollisionSensors() {
+		return collisionSensors;
+	}
 	
 	public void setLeaderID(int newID) {
 		leaderID = newID;
@@ -49,11 +59,17 @@ public class DroneAgent extends CommunicativeAgent{
 	
 	public DroneAgent() {
 		super();
+		droneID = idCounter++;
+
 		flyingManager = new DroneFlyingManager(this);
 		flyingManager.setFlyingState(FlyingState.KEEP_SIGNAL_DIST);
+
+		collisionSensors = new CollisionsSensor[4];
+		for (int i = 0; i < 4; i++) {
+			collisionSensors[i] = new CollisionsSensor(this, (float) (2 * Math.PI * i / 4));
+		}
 	}
-	
-	@Override
+
 	public void step(SimState state) {
 		Environment env = (Environment)state;
 		

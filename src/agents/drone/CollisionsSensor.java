@@ -20,6 +20,9 @@ public class CollisionsSensor {
 		this.range = Constants.DRONE_COLLISION_SENSOR_RANGE;
 		this.agent = agent;
 	}
+
+	public float getAngle() { return angle; }
+	public float getRange() { return range; }
 	
 	// renvoie MAX_VALUE si aucune collision n'est detectée
 	public double getDistance(Environment environment, Communicator communicator) {

@@ -25,6 +25,7 @@ import sim.portrayal.network.NetworkPortrayal2D;
 import sim.portrayal.network.SimpleEdgePortrayal2D;
 import sim.portrayal.network.SpatialNetwork2D;
 import sim.portrayal.simple.ImagePortrayal2D;
+import sim.portrayal.simple.OrientedPortrayal2D;
 import sim.util.gui.SimpleColorMap;
 
 public class Gui extends GUIState {
@@ -34,6 +35,7 @@ public class Gui extends GUIState {
 	FastValueGridPortrayal2D signalPortrayal = new FastValueGridPortrayal2D();
 	NetworkPortrayal2D signalNetworkPortrayal = new NetworkPortrayal2D();
 	FastValueGridPortrayal2D collisionPortrayal = new FastValueGridPortrayal2D();
+	CollisionSensorPortrayal collisionSensorPortrayal;
 	ContinuousPortrayal2D yardPortrayal = new ContinuousPortrayal2D();
 	ImagePortrayal2D backgroundPortrayal2d;
 	// protected Environment sim;
@@ -52,6 +54,8 @@ public class Gui extends GUIState {
 
 	public Gui(SimState state) {
 		super(state);
+		collisionSensorPortrayal = new CollisionSensorPortrayal((Environment) state);
+		collisionSensorPortrayal.setField(((Environment) state).getYard());
 	}
 
 	public void start() {
@@ -124,6 +128,7 @@ public class Gui extends GUIState {
 		c.registerFrame(displayFrame);
 		displayFrame.setVisible(true);
 		display.attach(collisionPortrayal, "collision");
+		display.attach(collisionSensorPortrayal, "collision sensors");
 		display.attach(signalPortrayal, "signal");
 		display.attach(yardPortrayal, "cave");
 		display.attach(signalNetworkPortrayal, "signal network");
