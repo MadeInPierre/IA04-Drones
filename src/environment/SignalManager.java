@@ -13,6 +13,7 @@ import java.util.Set;
 
 import javax.imageio.ImageIO;
 
+import agents.CommunicativeAgent;
 import agents.drone.DroneAgent;
 import main.Constants;
 import sim.engine.SimState;
@@ -45,7 +46,7 @@ public class SignalManager implements Steppable {
 	}
 
 	public void buildDroneNetwork() {
-		for (DroneAgent d : env.getDrones()) {
+		for (CommunicativeAgent d : env.getAgents()) {
 			droneNetwork.addNode(d);
 			droneNetwork.addEdge(d, d, null); // will get reversed
 		}
@@ -112,9 +113,9 @@ public class SignalManager implements Steppable {
 		return getPathLoss(lossExponent, distance);
 	}
 
-	public Map<DroneAgent, Float> getDronesInRange(Double2D dronePos, Set<DroneAgent> allDrones) {
-		Map<DroneAgent, Float> ret = new HashMap<DroneAgent, Float>();
-		for (DroneAgent d : allDrones) {
+	public Map<CommunicativeAgent, Float> getDronesInRange(Double2D dronePos, Set<CommunicativeAgent> allDrones) {
+		Map<CommunicativeAgent, Float> ret = new HashMap<CommunicativeAgent, Float>();
+		for (CommunicativeAgent d : allDrones) {
 			float loss = getSignalLoss(dronePos, env.getDronePos(d));
 			if (loss < Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
 				ret.put(d, loss);
@@ -135,10 +136,12 @@ public class SignalManager implements Steppable {
 		if (arg0.schedule.getSteps() % 50 == 0)
 			updateGaussianNoise();
 
+		
 		updateNetwork();
 	}
 
 	private void updateGaussianNoise() {
+		
 		Random r = new Random();
 		for (int x = 0; x < signalLossField.getWidth(); x++) {
 			for (int y = 0; y < signalLossField.getHeight(); y++) {
@@ -158,8 +161,8 @@ public class SignalManager implements Steppable {
 
 		for (int i = 0; i < edges.length; i++) {
 			for (int j = i + 1; j < edges[0].length; j++) {
-				Double2D pos1 = env.getDronePos((DroneAgent) edges[i][j].getFrom());
-				Double2D pos2 = env.getDronePos((DroneAgent) edges[i][j].getTo());
+				Double2D pos1 = env.getDronePos((CommunicativeAgent) edges[i][j].getFrom());
+				Double2D pos2 = env.getDronePos((CommunicativeAgent) edges[i][j].getTo());
 				edges[i][j].setWeight(getSignalLoss(pos1, pos2));
 			}
 		}

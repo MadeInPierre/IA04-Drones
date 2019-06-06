@@ -21,4 +21,6 @@ public class Constants {
     public static final float DRONE_MAXIMUM_SIGNAL_LOSS = 40f; //dB
 	public static final float DRONE_COLLISION_SENSOR_RANGE = 5f;
 	public static final float HISTORY_DURATION        = 3f;   	// duration in steps of the drones' position history
+	public static final float KEEP_DIST_GOAL_SIGNAL_STRENGTH  = -60f;
+	public static final float KEEP_DIST_GOAL_SIGNAL_TOLERANCE = 5f;
 }

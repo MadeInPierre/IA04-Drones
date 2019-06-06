@@ -1,8 +1,8 @@
 package agents.drone;
 
 import java.util.ArrayList;
-
 import agents.CommunicativeAgent;
+import agents.Communicator;
 import agents.drone.DroneFlyingManager.FlyingState;
 import environment.Environment;
 import sim.engine.SimState;
@@ -14,25 +14,20 @@ public class DroneAgent extends CommunicativeAgent{
 	 *  - Communicator
 	 * BUGS
 	 * 	- 
-	 */
-	
-	private Double3D secretPosition; // secret position used for simulation management only, unused by the drone's intelligence 
+	 */ 
 	
 	public enum DroneState {
 		IDLE,   			// Nothing to do, waiting for orders
 		ARMED,				// Take off when the next drone is too far away
-		FLYING,				// 
-		CRASHED				// Game over. 
+		FLYING,				// Drone flying and applying it's current FlyingState moving strategy.
+		CRASHED				// Game over :(
 	};
 	private DroneState droneState = DroneState.IDLE;
 	
-	private int droneID  = -1; // This drone's ID
 	private int leaderID = -1; // ID of the drone to follow
 	
-	private DroneCommunicator communicator;
 	private DroneFlyingManager flyingManager;
 	
-	private static int idCounter = 0;
 	
 	public void setDroneState(DroneState newState) {
 		droneState = newState;
@@ -46,10 +41,6 @@ public class DroneAgent extends CommunicativeAgent{
 			setDroneState(DroneState.IDLE);
 	}
 	
-	public int getID() {
-		return droneID;
-	}
-	
 	public void setLeaderID(int newID) {
 		leaderID = newID;
 	}
@@ -57,19 +48,16 @@ public class DroneAgent extends CommunicativeAgent{
 	// MAIN FUNCTIONS
 	
 	public DroneAgent() {
-		droneID = idCounter++;
-		communicator = new DroneCommunicator();
-		flyingManager = new DroneFlyingManager();
-		
-		secretPosition = new Double3D(0, 0, 0); // drone doesn't know it's absolute pos, starting at (0, 0)
+		super();
+		flyingManager = new DroneFlyingManager(this);
+		flyingManager.setFlyingState(FlyingState.KEEP_SIGNAL_DIST);
 	}
 	
 	@Override
 	public void step(SimState state) {
-		// Process messages
+		Environment env = (Environment)state;
 		
 		// Update position
-		secretPosition = flyingManager.stepPos();
-		
+		flyingManager.stepTransform(env, communicator);
 	}
 }

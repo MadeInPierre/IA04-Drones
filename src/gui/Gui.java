@@ -34,7 +34,8 @@ public class Gui extends GUIState {
 	FastValueGridPortrayal2D signalPortrayal = new FastValueGridPortrayal2D();
 	NetworkPortrayal2D signalNetworkPortrayal = new NetworkPortrayal2D();
 	FastValueGridPortrayal2D collisionPortrayal = new FastValueGridPortrayal2D();
-	ContinuousPortrayal2D yardPortrayal;// = new ContinuousPortrayal2D();
+	ContinuousPortrayal2D yardPortrayal = new ContinuousPortrayal2D();
+	ImagePortrayal2D backgroundPortrayal2d;
 	// protected Environment sim;
 
 	public static void main(String[] args) {
@@ -51,8 +52,6 @@ public class Gui extends GUIState {
 
 	public Gui(SimState state) {
 		super(state);
-		// sim = (Environment) state;
-		this.yardPortrayal = new ContinuousPortrayal2D();
 	}
 
 	public void start() {
@@ -72,8 +71,12 @@ public class Gui extends GUIState {
 		signalPortrayal.setMap(new SimpleColorMap(Constants.MIN_SIGNAL_LOSS, Constants.MAX_SIGNAL_LOSS,
 				new Color(1f, 1f, 1f, 0f), new Color(1f, 0f, 0f, .5f)));
 		signalNetworkPortrayal.setField(new SpatialNetwork2D(env.getYard(), env.getSignalManager().getSignalNetwork()));
-		SimpleEdgePortrayal2D sep = new SimpleEdgePortrayal2D() {
-			@Override public String getLabel(Edge e, EdgeDrawInfo2D edi) { return e.getWeight()+""; }
+		SimpleEdgePortrayal2D sep = new SimpleEdgePortrayal2D(null, Color.WHITE) {
+			@Override public String getLabel(Edge e, EdgeDrawInfo2D edi) { 
+					if (e.getWeight() < Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
+						return String.format("%.1f", e.getWeight());
+					return "";
+				}
 		    @Override public void draw(Object o, Graphics2D g, DrawInfo2D i) { 
 		    	double w = ((Edge) o).getWeight();
 		    	if (w > Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
@@ -86,9 +89,11 @@ public class Gui extends GUIState {
 		    	}
 		    	super.draw(o, g, i);
 		    }
-		    @Override protected double getPositiveWeight(Object o, EdgeDrawInfo2D i) { return 1 - ((Edge) o).getWeight() / Constants.DRONE_MAXIMUM_SIGNAL_LOSS; }
+		    @Override protected double getPositiveWeight(Object o, EdgeDrawInfo2D i) { return Math.max(1 - ((Edge) o).getWeight() / Constants.DRONE_MAXIMUM_SIGNAL_LOSS, 0f); }
 		};
-		sep.setBaseWidth(0.2f);
+		sep.setBaseWidth(0.4f);
+		sep.setLabelScaling(1);
+		sep.setAdjustsThickness(true);		
 		signalNetworkPortrayal.setPortrayalForAll(sep);
 		
 

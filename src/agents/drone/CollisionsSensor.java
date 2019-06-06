@@ -3,6 +3,7 @@ package agents.drone;
 import environment.Environment;
 import environment.CollisionManager;
 import main.Constants;
+import agents.Communicator;
 import sim.util.Double2D;
 
 import java.awt.geom.Point2D;
