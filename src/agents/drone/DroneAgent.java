@@ -16,6 +16,12 @@ public class DroneAgent extends CommunicativeAgent{
 	 * 	- 
 	 */ 
 	
+	public enum DroneRole {
+		HEAD,
+		FOLLOWER
+	};
+	private DroneRole droneRole = DroneRole.FOLLOWER;
+	
 	public enum DroneState {
 		IDLE,   			// Nothing to do, waiting for orders
 		ARMED,				// Take off when the next drone is too far away
@@ -28,6 +34,9 @@ public class DroneAgent extends CommunicativeAgent{
 	
 	private DroneFlyingManager flyingManager;
 	
+	public void setDroneRole(DroneRole newRole) {
+		droneRole = newRole;
+	}
 	
 	public void setDroneState(DroneState newState) {
 		droneState = newState;
@@ -50,7 +59,7 @@ public class DroneAgent extends CommunicativeAgent{
 	public DroneAgent() {
 		super();
 		flyingManager = new DroneFlyingManager(this);
-		flyingManager.setFlyingState(FlyingState.KEEP_SIGNAL_DIST);
+		flyingManager.setFlyingState(FlyingState.SEEK_SIGNAL_DIR);
 	}
 	
 	@Override

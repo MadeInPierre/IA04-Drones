@@ -54,7 +54,7 @@ public class DroneFlyingManager {
 	
 	public DroneFlyingManager(DroneAgent drone) {
 		this.drone = drone;
-		setFlyingState(FlyingState.IDLE);
+		setFlyingState(FlyingState.IDLE); 
 		trajectoryHistory = new ArrayList<Double3D>();
 	}
 	

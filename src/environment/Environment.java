@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import agents.CommunicativeAgent;
 import agents.drone.DroneAgent;
+import agents.drone.DroneAgent.DroneRole;
 import agents.operator.OperatorAgent;
 import main.Constants;
 import sim.engine.SimState;
@@ -38,6 +39,7 @@ public class Environment extends SimState {
 		schedule.scheduleRepeating(operator);
 		yard.setObjectLocation(operator, new Double2D(0, 30));
 		headDrone = (DroneAgent) yard.getAllObjects().get(0);
+		headDrone.setDroneRole(DroneRole.HEAD);
 
 		signalManager = new SignalManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.SIGNAL_MAP_STEP,
 				Constants.SIGNAL_IMAGE, this);
@@ -108,7 +110,7 @@ public class Environment extends SimState {
 	}
 	
 	public void rotateDrone(DroneAgent drone, float rotation) {
-		float newAngle = (float) ((droneAngles.get(drone) + rotation) % (Math.PI * 2));
+		float newAngle = (float) ((droneAngles.get(drone) + rotation));// % (Math.PI * 2));
 		droneAngles.put(drone, newAngle);
 	}
 

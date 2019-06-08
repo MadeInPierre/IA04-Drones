@@ -16,9 +16,9 @@ public class KeepDistanceBehavior extends FlyingBehavior {
 		
 		
 		if(strength < Constants.KEEP_DIST_GOAL_SIGNAL_STRENGTH - Constants.KEEP_DIST_GOAL_SIGNAL_TOLERANCE)
-			transform = transform.add(new Double3D(1, 0, 0)); // go forward if signal is too low
+			transform = transform.add(new Double3D(0.1, 0, 0)); // go forward if signal is too low
 		else if(strength > Constants.KEEP_DIST_GOAL_SIGNAL_STRENGTH + Constants.KEEP_DIST_GOAL_SIGNAL_TOLERANCE)
-			transform = transform.add(new Double3D(-1, 0, 0)); // go forward if signal is too good (probably too close from the leader)
+			transform = transform.add(new Double3D(-0.1, 0, 0)); // go forward if signal is too good (probably too close from the leader)
 		
 		//System.out.println("[KeepDistBehaviour] Got strengh = " + strength + ", chose to move by (" + transform.getX() + ", " + transform.getY() + ", " + transform.getZ() + ")");
 		return transform;
