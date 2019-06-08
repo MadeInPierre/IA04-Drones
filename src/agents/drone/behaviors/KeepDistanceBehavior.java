@@ -15,12 +15,12 @@ public class KeepDistanceBehavior extends FlyingBehavior {
 		float strength = -75; //TODO get from communicator
 		
 		
-		if(strength < Constants.KEEP_DIST_GOAL_SIGNAL_STRENGTH - Constants.KEEP_DIST_GOAL_SIGNAL_TOLERANCE)
-			transform = transform.add(new Double3D(0.1, 0, 0)); // go forward if signal is too low
-		else if(strength > Constants.KEEP_DIST_GOAL_SIGNAL_STRENGTH + Constants.KEEP_DIST_GOAL_SIGNAL_TOLERANCE)
-			transform = transform.add(new Double3D(-0.1, 0, 0)); // go forward if signal is too good (probably too close from the leader)
+		if(strength < Constants.DRONE_IDEAL_SIGNAL_LOSS - Constants.KEEP_DIST_GOAL_SIGNAL_TOLERANCE)
+			transform = transform.add(new Double3D(Constants.DRONE_SPEED, 0, 0)); // go forward if signal is too low
+		else if(strength > Constants.DRONE_IDEAL_SIGNAL_LOSS + Constants.KEEP_DIST_GOAL_SIGNAL_TOLERANCE)
+			transform = transform.add(new Double3D(-1.0 * Constants.DRONE_SPEED, 0, 0)); // go forward if signal is too good (probably too close from the leader)
 		
-		//System.out.println("[KeepDistBehaviour] Got strengh = " + strength + ", chose to move by (" + transform.getX() + ", " + transform.getY() + ", " + transform.getZ() + ")");
+		//System.out.println("[KeepDistBehaviour] Got strength = " + strength + ", chose to move by (" + transform.getX() + ", " + transform.getY() + ", " + transform.getZ() + ")");
 		return transform;
 	}
 }

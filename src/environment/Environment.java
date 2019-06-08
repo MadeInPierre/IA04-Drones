@@ -33,14 +33,14 @@ public class Environment extends SimState {
 		addDrone(new Double2D(12, 7));
 		addDrone(new Double2D(6, 12));
 		addDrone(new Double2D(12, 12));
-		addDrone(new Double2D(30, 30));
+		//addDrone(new Double2D(30, 30));
+		headDrone = (DroneAgent) yard.getAllObjects().get(0);
+		headDrone.setDroneRole(DroneRole.HEAD);
 		
 		operator = new OperatorAgent();
 		schedule.scheduleRepeating(operator);
 		yard.setObjectLocation(operator, new Double2D(0, 30));
-		headDrone = (DroneAgent) yard.getAllObjects().get(0);
-		headDrone.setDroneRole(DroneRole.HEAD);
-
+		
 		signalManager = new SignalManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.SIGNAL_MAP_STEP,
 				Constants.SIGNAL_IMAGE, this);
 		collisionManager = new CollisionManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.COLLISION_MAP_STEP,
@@ -110,7 +110,7 @@ public class Environment extends SimState {
 	}
 	
 	public void rotateDrone(DroneAgent drone, float rotation) {
-		float newAngle = (float) ((droneAngles.get(drone) + rotation));// % (Math.PI * 2));
+		float newAngle = (float) ((droneAngles.get(drone) + rotation) % (Math.PI * 2));
 		droneAngles.put(drone, newAngle);
 	}
 

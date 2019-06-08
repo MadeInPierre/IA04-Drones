@@ -43,9 +43,9 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 			break;
 		}
 		case IN_CIRCLE: {
-			float s = 0;
-			if(step == 13) s = 1; // TODO tmp
-			strengths.add(s); // TODO get current signal measure
+			float s = 0; // TODO get leader's signal
+			if(step == 13) s = 1; // TODO tmp for testing 
+			strengths.add(s); // get current signal measure
 			
 			double da = 2 * Math.PI / N_CIRCLE_STEPS;
 			double tx = CIRCLE_RADIUS - CIRCLE_RADIUS * Math.cos(da);
@@ -72,7 +72,7 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 				// Choose new direction 
 				float max = Collections.max(strengths);
 				int i_max = strengths.indexOf(max);
-				transform = transform.add(new Double3D(0, 0, i_max * 2 * Math.PI / N_CIRCLE_STEPS)); // TODO choose new direction
+				transform = transform.add(new Double3D(0, 0, i_max * 2 * Math.PI / N_CIRCLE_STEPS));
 				
 			}
 			break;
@@ -83,7 +83,7 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 		}
 		}
 		
-		System.out.println("[SeekDirectionBehaviour] chose to move by (" + transform.getX() + ", " + transform.getY() + ", " + transform.getZ() + "), step = " + step);
+		//System.out.println("[SeekDirectionBehaviour] chose to move by (" + transform.getX() + ", " + transform.getY() + ", " + transform.getZ() + "), step = " + step);
 		return transform;
 	}
 }

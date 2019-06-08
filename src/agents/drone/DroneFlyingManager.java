@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import agents.Communicator;
 import agents.drone.behaviors.FlyingBehavior;
+import agents.drone.behaviors.HeadMoveBehavior;
 import agents.drone.behaviors.KeepDistanceBehavior;
 import agents.drone.behaviors.RollbackBehavior;
 import agents.drone.behaviors.SeekDirectionBehavior;
@@ -16,6 +17,7 @@ import sim.util.Double3D;
 public class DroneFlyingManager {
 	public enum FlyingState {
 		IDLE,          		// Drone isn't flying (OperationState != FLYING)
+		HEAD_MOVE,			// Follow the operator's commands
 		SEEK_SIGNAL_DIR,	// Seeking which direction to choose
 		KEEP_SIGNAL_DIST,	// Normal mode: signal direction found, moving in a straight line to keep signal quality
 		WAIT_RECONNECT, 	// Lost connection, waiting for the next drone to come back
@@ -36,6 +38,9 @@ public class DroneFlyingManager {
 		switch(flyingState) {
 		case IDLE:
 			currentBehavior = new FlyingBehavior();
+			break;
+		case HEAD_MOVE:
+			currentBehavior = new HeadMoveBehavior();
 			break;
 		case SEEK_SIGNAL_DIR:
 			currentBehavior = new SeekDirectionBehavior();

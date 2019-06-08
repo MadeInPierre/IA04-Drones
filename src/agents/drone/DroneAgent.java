@@ -3,6 +3,8 @@ package agents.drone;
 import java.util.ArrayList;
 import agents.CommunicativeAgent;
 import agents.Communicator;
+import agents.DroneMessage;
+import agents.DroneMessage.Performative;
 import agents.drone.DroneFlyingManager.FlyingState;
 import environment.Environment;
 import sim.engine.SimState;
@@ -65,6 +67,11 @@ public class DroneAgent extends CommunicativeAgent{
 	@Override
 	public void step(SimState state) {
 		Environment env = (Environment)state;
+		
+		// Send usual status message (used by others for signal strength)
+		DroneMessage msg = new DroneMessage(this, 2, Performative.INFORM);
+		msg.setTitle("status");
+		communicator.sendMessageToDrone(env, msg);
 		
 		// Update position
 		flyingManager.stepTransform(env, communicator);
