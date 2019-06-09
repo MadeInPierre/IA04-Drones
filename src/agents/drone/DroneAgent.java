@@ -37,6 +37,12 @@ public class DroneAgent extends CommunicativeAgent{
 	private DroneFlyingManager flyingManager;
 	
 	public void setDroneRole(DroneRole newRole) {
+		if(droneRole == DroneRole.HEAD && newRole == DroneRole.FOLLOWER)
+			flyingManager.setFlyingState(FlyingState.SEEK_SIGNAL_DIR);
+		if(newRole == DroneRole.HEAD) {
+			flyingManager.setFlyingState(FlyingState.HEAD_MOVE);
+			setLeaderID(-1);
+		}
 		droneRole = newRole;
 	}
 	
@@ -65,7 +71,7 @@ public class DroneAgent extends CommunicativeAgent{
 	public DroneAgent() {
 		super();
 		flyingManager = new DroneFlyingManager(this);
-		flyingManager.setFlyingState(FlyingState.SEEK_SIGNAL_DIR);
+		flyingManager.setFlyingState(FlyingState.SEEK_SIGNAL_DIR); //TODO tmp
 	}
 	
 	@Override

@@ -30,6 +30,8 @@ public class Communicator {
 	}
 	
 	public DroneMessage getLastStatusFrom(int id) {
+		//System.out.println(lastStatuses.keySet().toString());
+		//System.out.println(id);
 		return lastStatuses.get(id);
 	}
 	
@@ -47,14 +49,20 @@ public class Communicator {
 		boolean success = false;
 		for(CommunicativeAgent a : env.getAgents()) {
 			if(a.getID() == msg.getDestinationID() || msg.getDestinationID() == DroneMessage.BROADCAST) {
-				msg.setStrength(env.getSignalManager().getSignalLoss(env.getDronePos(msg.getSender()), env.getDronePos(a)));
-				msg.setStep(env.schedule.getSteps());
+				// Duplicate the message #javaRefs
+				DroneMessage m = new DroneMessage(msg.getSender(), msg.getDestinationID(), msg.getPerformative());
+				m.setTitle(msg.getTitle());
+				m.setContent(msg.getContent());
 				
-				if(msg.getStrength() < Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
-					a.pushMessage(msg);
+				m.setStrength(env.getSignalManager().getSignalLoss(env.getDronePos(m.getSender()), env.getDronePos(a)));
+				//System.out.println("Setting strength to message strength=" + m.getStrength() + " between agent=" + m.getSenderID() + " to agent=" + m.getDestinationID() + "/" + a.getID());
+				m.setStep(env.schedule.getSteps());
+				
+				if(m.getStrength() < Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
+					a.pushMessage(m);
 					success = true;
 				}
-				if(msg.getDestinationID() != DroneMessage.BROADCAST) break;
+				if(m.getDestinationID() != DroneMessage.BROADCAST) break;
 			}
 		}
 		return success;

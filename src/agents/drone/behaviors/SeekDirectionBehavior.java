@@ -1,6 +1,7 @@
 package agents.drone.behaviors;
 
 import agents.Communicator;
+import agents.DroneMessage;
 import agents.drone.DroneAgent;
 import agents.drone.DroneFlyingManager.FlyingState;
 import sim.util.Double3D;
@@ -40,15 +41,17 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 			
 			if(step == N_GOTO_STEPS) {
 				step = 0;
-				transform = transform.add(new Double3D(0, 0, Math.PI / 2));
 				seekState = SeekState.IN_CIRCLE;
 			}
 			break;
 		}
 		case IN_CIRCLE: {
-			float s = 0; // TODO get leader's signal
-			if(step == 13) s = 1; // TODO tmp for testing 
-			strengths.add(s); // get current signal measure
+			// Get signal strength compared to leader
+			DroneMessage lastStatus = com.getLastStatusFrom(drone.getLeaderID());
+			float strength = -1;
+			if(lastStatus != null) strength = lastStatus.getStrength();
+			strengths.add(strength); // get current signal measure
+			//System.out.println("Scanned strength=" + strength);
 			
 			double da = 2 * Math.PI / N_CIRCLE_STEPS;
 			double tx = CIRCLE_RADIUS - CIRCLE_RADIUS * Math.cos(da);
@@ -57,26 +60,24 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 			step++; 
 			if(step == N_CIRCLE_STEPS) {
 				step = 0;
-				transform = transform.add(new Double3D(0, 0, Math.PI / 2));
 				seekState = SeekState.GOTO_CENTER;
 			}
 			break;
 		}
 		case GOTO_CENTER: {
-			double stepDist = (double)CIRCLE_RADIUS / N_GOTO_STEPS;
+			double stepDist = -1.0 * (double)CIRCLE_RADIUS / N_GOTO_STEPS;
 			transform = transform.add(new Double3D(stepDist, 0, 0));
 			step++;
 			
 			if(step == N_GOTO_STEPS) {
 				step = 0;
-				transform = transform.add(new Double3D(0, 0, Math.PI));
 				seekState = SeekState.FINISHED;
 				
 				// Choose new direction 
-				float max = Collections.max(strengths);
-				int i_max = strengths.indexOf(max);
-				transform = transform.add(new Double3D(0, 0, i_max * 2 * Math.PI / N_CIRCLE_STEPS));
-				
+				float dir = Collections.min(strengths);
+				int i_dir = strengths.indexOf(dir);
+				//System.out.println("Found min=" + max + ", i=" + i_max);
+				transform = transform.add(new Double3D(0, 0, i_dir * 2 * Math.PI / N_CIRCLE_STEPS));
 			}
 			break;
 		}
