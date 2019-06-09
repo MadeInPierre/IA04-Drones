@@ -8,9 +8,12 @@ import main.Constants;
 import sim.util.Double3D;
 
 public class KeepDistanceBehavior extends FlyingBehavior {
-	private static final int MAX_STEPS_NO_MSG = 10; // number of steps before considering we disconnected
+	private static final int MAX_STEPS_NO_MSG = 50;  // number of steps before considering we disconnected
+	private static final int MAX_STEPS        = 150; // number of steps before seeking again by default
 	long prevStatusStep = -1;
 	int noStatusSteps = 0;
+	
+	int stepsSinceStart = 0;
 	
 	public KeepDistanceBehavior(DroneAgent drone) {
 		super(drone);
@@ -36,11 +39,13 @@ public class KeepDistanceBehavior extends FlyingBehavior {
 			transform = transform.subtract(new Double3D(Constants.DRONE_SPEED, 0, 0)); // go backward if signal is too good (probably too close from the leader)
 		
 		//System.out.println("[KeepDistBehaviour, drone=" + drone.getID() + "] Got strength = " + strength + ", chose to move by " + transform);
+		stepsSinceStart++;
 		return transform;
 	}
 	
 	public FlyingState transitionTo() {
 		if(noStatusSteps > MAX_STEPS_NO_MSG) return FlyingState.SEEK_SIGNAL_DIR;
+		if(stepsSinceStart > MAX_STEPS) return FlyingState.SEEK_SIGNAL_DIR;
 		return FlyingState.KEEP_SIGNAL_DIST;
 	}
 }

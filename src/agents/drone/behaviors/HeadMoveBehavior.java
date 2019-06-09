@@ -13,7 +13,7 @@ public class HeadMoveBehavior extends FlyingBehavior {
 	}
 	
 	public Double3D stepTransform(Communicator com) {
-		Double3D transform = new Double3D(-0.0, 0, 0);
+		Double3D transform = new Double3D(0.01, 0, 0);
 		return transform;
 	}
 	

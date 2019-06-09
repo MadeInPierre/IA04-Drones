@@ -123,8 +123,8 @@ public class Gui extends GUIState {
 		displayFrame.setTitle("Environment Display");
 		c.registerFrame(displayFrame);
 		displayFrame.setVisible(true);
-		display.attach(collisionPortrayal, "collision");
-		display.attach(signalPortrayal, "signal");
+		display.attach(collisionPortrayal, "collision", false);
+		display.attach(signalPortrayal, "signal", false);
 		display.attach(yardPortrayal, "cave");
 		display.attach(signalNetworkPortrayal, "signal network");
 	}

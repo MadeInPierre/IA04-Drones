@@ -29,7 +29,7 @@ public class Environment extends SimState {
 		droneAngles = new HashMap<DroneAgent, Float>();
 
 		// Add drones
-		addDrone(new Double2D(23, 15)); // Head drone
+		addDrone(new Double2D(20, 14)); // Head drone
 		addDrone(new Double2D(10, 12));
 		//addDrone(new Double2D(6, 12));
 		//addDrone(new Double2D(12, 12));
@@ -43,6 +43,7 @@ public class Environment extends SimState {
 		
 		headDrone = (DroneAgent) yard.getAllObjects().get(0);
 		headDrone.setDroneRole(DroneRole.HEAD);
+		rotateDrone(headDrone, (float)Math.PI / 4); // TODO tmp for tests
 		
 		operator = new OperatorAgent();
 		schedule.scheduleRepeating(operator);
@@ -56,10 +57,10 @@ public class Environment extends SimState {
 		System.out.println("Environment is initialized.");
 	}
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		doLoop(Environment.class, args);
 		System.exit(0);
-	}
+	}*/
 
 	public SignalManager getSignalManager() {
 		return signalManager;

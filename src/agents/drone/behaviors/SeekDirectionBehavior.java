@@ -51,7 +51,7 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 			float strength = -1;
 			if(lastStatus != null) strength = lastStatus.getStrength();
 			strengths.add(strength); // get current signal measure
-			//System.out.println("Scanned strength=" + strength);
+			//System.out.println(strength);
 			
 			double da = 2 * Math.PI / N_CIRCLE_STEPS;
 			double tx = CIRCLE_RADIUS - CIRCLE_RADIUS * Math.cos(da);
