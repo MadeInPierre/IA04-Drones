@@ -1,12 +1,14 @@
 package agents.drone.behaviors;
 
 import agents.Communicator;
+import agents.drone.DroneAgent;
+import agents.drone.DroneFlyingManager.FlyingState;
 import sim.util.Double3D;
 import java.util.ArrayList;
 import java.util.Collections;
 
 public class SeekDirectionBehavior extends FlyingBehavior {
-	private static final float CIRCLE_RADIUS  = 2f;
+	private static final float CIRCLE_RADIUS  = 1f;
 	private static final float N_GOTO_STEPS   = 20;  // Number of steps before reaching circle or center positions 
 	private static final float N_CIRCLE_STEPS = 100; // Number of steps before making a full circle. One signal measure per step.
 	
@@ -21,7 +23,8 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 	private int step = 0;
 	private ArrayList<Float> strengths;
 	
-	public SeekDirectionBehavior() {
+	public SeekDirectionBehavior(DroneAgent drone) {
+		super(drone);
 		strengths = new ArrayList<Float>();
 	}
 	
@@ -78,12 +81,16 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 			break;
 		}
 		case FINISHED: {
-			transform = transform.subtract(new Double3D(0.05, 0, 0));
 			break;
 		}
 		}
 		
 		//System.out.println("[SeekDirectionBehaviour] chose to move by (" + transform.getX() + ", " + transform.getY() + ", " + transform.getZ() + "), step = " + step);
 		return transform;
+	}
+	
+	public FlyingState transitionTo() {
+		if(seekState == SeekState.FINISHED) return FlyingState.KEEP_SIGNAL_DIST;
+		return FlyingState.SEEK_SIGNAL_DIR;
 	}
 }

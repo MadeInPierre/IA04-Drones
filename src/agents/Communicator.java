@@ -1,30 +1,42 @@
 package agents;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import environment.Environment;
 import main.Constants;
 
 public class Communicator {
-	ArrayList<DroneMessage> messages;
+	ArrayList<DroneMessage> inbox;
+	Map<Integer, DroneMessage> lastStatuses;
 	
 	public Communicator() {
-		messages = new ArrayList<DroneMessage>();
+		inbox = new ArrayList<DroneMessage>();
+		lastStatuses = new HashMap<>();
 	}
 	
 	public void pushMessage(DroneMessage msg) {
-		messages.add(msg);
+		if(msg.getTitle() == "status") {
+			//System.out.println("Adding status from " + msg.getSenderID());
+			lastStatuses.put(msg.getSenderID(), msg);
+		}
+		else inbox.add(msg);
 		//System.out.println("Agent " + msg.getDestinationID() + " got message title=" + msg.getTitle() + " at step=" + msg.getStep());
 	}
 	
 	public ArrayList<DroneMessage> getMessages() {
-		return messages;
+		return inbox;
+	}
+	
+	public DroneMessage getLastStatusFrom(int id) {
+		return lastStatuses.get(id);
 	}
 	
 	public void removeMessage(DroneMessage message) {
-		for(DroneMessage m : messages) {
+		for(DroneMessage m : inbox) {
 			if(message == m) {
-				messages.remove(m);
+				inbox.remove(m);
 				break;
 			}
 		}

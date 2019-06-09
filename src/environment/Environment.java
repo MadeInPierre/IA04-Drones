@@ -29,13 +29,18 @@ public class Environment extends SimState {
 		droneAngles = new HashMap<DroneAgent, Float>();
 
 		// Add drones
-		addDrone(new Double2D(6, 7));
+		addDrone(new Double2D(7, 8));
 		addDrone(new Double2D(12, 7));
 		addDrone(new Double2D(6, 12));
 		addDrone(new Double2D(12, 12));
-		//addDrone(new Double2D(30, 30));
+
+		for(int i = 0; i < 4; i++) {
+			DroneAgent d = (DroneAgent) yard.getAllObjects().get(i);
+			d.setLeaderID((i+1) % 4);
+		}
+		
 		headDrone = (DroneAgent) yard.getAllObjects().get(0);
-		headDrone.setDroneRole(DroneRole.HEAD);
+		//headDrone.setDroneRole(DroneRole.HEAD);
 		
 		operator = new OperatorAgent();
 		schedule.scheduleRepeating(operator);

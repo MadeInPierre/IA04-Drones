@@ -52,6 +52,10 @@ public class DroneAgent extends CommunicativeAgent{
 			setDroneState(DroneState.IDLE);
 	}
 	
+	public int getLeaderID() {
+		return leaderID;
+	}
+	
 	public void setLeaderID(int newID) {
 		leaderID = newID;
 	}
@@ -69,9 +73,11 @@ public class DroneAgent extends CommunicativeAgent{
 		Environment env = (Environment)state;
 		
 		// Send usual status message (used by others for signal strength)
-		DroneMessage msg = new DroneMessage(this, 2, Performative.INFORM);
+		DroneMessage msg = new DroneMessage(this, DroneMessage.BROADCAST, Performative.INFORM);
 		msg.setTitle("status");
 		communicator.sendMessageToDrone(env, msg);
+		
+		// Process messages
 		
 		// Update position
 		flyingManager.stepTransform(env, communicator);

@@ -32,27 +32,28 @@ public class DroneFlyingManager {
 	DroneAgent drone;
 	
 	public void setFlyingState(FlyingState newState) {
+		if(newState == flyingState) return; 
 		flyingState = newState;
 		
 		// Change current moving strategy that will be applied from now on
 		switch(flyingState) {
 		case IDLE:
-			currentBehavior = new FlyingBehavior();
+			currentBehavior = new FlyingBehavior(drone);
 			break;
 		case HEAD_MOVE:
-			currentBehavior = new HeadMoveBehavior();
+			currentBehavior = new HeadMoveBehavior(drone);
 			break;
 		case SEEK_SIGNAL_DIR:
-			currentBehavior = new SeekDirectionBehavior();
+			currentBehavior = new SeekDirectionBehavior(drone);
 			break;
 		case KEEP_SIGNAL_DIST:
-			currentBehavior = new KeepDistanceBehavior();
+			currentBehavior = new KeepDistanceBehavior(drone);
 			break;
 		case WAIT_RECONNECT:
-			currentBehavior = new WaitReconnectBehavior();
+			currentBehavior = new WaitReconnectBehavior(drone);
 			break;
 		case ROLLBACK:
-			currentBehavior = new RollbackBehavior();
+			currentBehavior = new RollbackBehavior(drone);
 			break;
 		}
 	}
@@ -79,7 +80,8 @@ public class DroneFlyingManager {
 		Double3D collisionTransform = new Double3D(); // TODO
 		
 		// Apply current movement strategy
-		Double3D behaviorTransform = currentBehavior.stepTransform(com);
+		Double3D behaviorTransform = currentBehavior.stepTransform(com); //TODO get com from drone instead of arg
+		setFlyingState(currentBehavior.transitionTo()); // potentially switch to a new behavior
 		
 		// Merge moving decisions for a final transform
 		Double3D transform = behaviorTransform; // TODO add collisions
