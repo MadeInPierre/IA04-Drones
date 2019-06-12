@@ -1,10 +1,13 @@
 package agents.operator;
 
 import agents.CommunicativeAgent;
+import agents.DroneMessage;
+import agents.drone.DroneAgent;
 import environment.Environment;
 import sim.engine.SimState;
 import sim.engine.Steppable;
 import sim.util.Double2D;
+import sim.util.Double3D;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,6 +19,7 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 	private Environment env;
 	public static double x, y;
 	public boolean forward;
+	public DroneAgent tail;
 
 
 	public OperatorAgent(){
@@ -37,7 +41,7 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 		switch (codeDeLaTouche) // Les valeurs sont contenue dans KeyEvent. Elles commencent par VK_ et finissent par le nom de la touche
 		{
 			case KeyEvent.VK_UP: // si la touche enfoncée est celle du haut
-				y = - 1;
+				y = -1;
 				break;
 			case KeyEvent.VK_LEFT: // si la touche enfoncée est celle de gauche
 				x = -1;
@@ -64,23 +68,35 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 	public void step(SimState state) {
 
 		env = (Environment) state;
-		Double2D newPos;
+		String mesContent;
 
-		Double2D position = env.getYard().getObjectLocation(this);
-
-		if (y != 0){
-			newPos = new Double2D(position.getX(), position.getY() + y);
+		if (y == -1){
+			mesContent = "y " + "-1";
 			y = 0;
 		}
-		else if(x != 0){
-			newPos = new Double2D(position.getX() + x, position.getY());
+		else if (y == 1){
+			mesContent = "y " + "1";
+			y = 0;
+		}
+		else if(x == -1){
+			mesContent = "x " + "-1";
+			x = 0;
+		}
+		else if(x == 1){
+			mesContent = "x " + "1";
 			x = 0;
 		}
 		else {
-			newPos = position;
+			mesContent = "null";
 		}
 
-		env.getYard().setObjectLocation(this, newPos);
+		if (mesContent != "null") {
+			System.out.println(mesContent);
+			DroneMessage msg = new DroneMessage(this, 0, DroneMessage.Performative.INFORM);
+			msg.setTitle("moveHead");
+			msg.setContent(mesContent);
+			communicator.sendMessageToDrone(msg);
+		}
 
 	}
 

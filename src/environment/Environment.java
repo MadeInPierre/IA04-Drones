@@ -34,7 +34,7 @@ public class Environment extends SimState {
 		droneAngles = new HashMap<DroneAgent, Float>();
 
 		// Add drones
-		addDrone(new Double2D(20, 14)); // Head drone
+		addDrone(new Double2D(5, 14)); // Head drone
 		addDrone(new Double2D(10, 12));
 		//addDrone(new Double2D(6, 12));
 		//addDrone(new Double2D(12, 12));
