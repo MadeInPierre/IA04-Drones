@@ -11,7 +11,7 @@ public class CommunicativeAgent implements Steppable {
 
 	public CommunicativeAgent() {
 		agentID = idCounter++;
-		communicator = new Communicator();
+		communicator = new Communicator(this);
 
 	}
 	
@@ -21,5 +21,9 @@ public class CommunicativeAgent implements Steppable {
 	
 	public int getID() {
 		return agentID;
+	}
+	
+	public void receiveMessage(DroneMessage msg) {
+		communicator.receiveMessage(msg);
 	}
 }

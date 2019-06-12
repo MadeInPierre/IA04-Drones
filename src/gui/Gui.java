@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import agents.drone.DroneAgent;
+import agents.operator.OperatorAgent;
 import environment.Environment;
 import main.Constants;
 import sim.display.Console;
@@ -41,7 +42,7 @@ public class Gui extends GUIState {
 	// protected Environment sim;
 
 	public static void main(String[] args) {
-		Environment model = new Environment(System.currentTimeMillis());
+		Environment model = Environment.get();
 		Gui vid = new Gui(model);
 		Console c = new Console(vid);
 
@@ -49,7 +50,7 @@ public class Gui extends GUIState {
 	}
 
 	public Gui() {
-		super(new Environment(System.currentTimeMillis()));
+		super(Environment.get());
 	}
 
 	public Gui(SimState state) {
@@ -113,6 +114,7 @@ public class Gui extends GUIState {
 		Environment simulation = (Environment) state;
 		yardPortrayal.setField(simulation.getYard());
 		yardPortrayal.setPortrayalForClass(DroneAgent.class, getDronePortrayal());
+		yardPortrayal.setPortrayalForClass(OperatorAgent.class, getDronePortrayal());
 		display.reset();
 		display.setBackdrop(Color.orange);
 		addBackgroundImage();
@@ -127,8 +129,8 @@ public class Gui extends GUIState {
 		displayFrame.setTitle("Environment Display");
 		c.registerFrame(displayFrame);
 		displayFrame.setVisible(true);
-		display.attach(collisionPortrayal, "collision");
-		display.attach(signalPortrayal, "signal");
+		display.attach(collisionPortrayal, "collision", false);
+		display.attach(signalPortrayal, "signal", false);
 		display.attach(yardPortrayal, "cave");
 		display.attach(collisionSensorPortrayal, "collision sensors");
 		display.attach(signalNetworkPortrayal, "signal network");

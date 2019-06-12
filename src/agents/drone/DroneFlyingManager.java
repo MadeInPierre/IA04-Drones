@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import agents.Communicator;
 import agents.drone.behaviors.FlyingBehavior;
+import agents.drone.behaviors.HeadMoveBehavior;
 import agents.drone.behaviors.KeepDistanceBehavior;
 import agents.drone.behaviors.RollbackBehavior;
 import agents.drone.behaviors.SeekDirectionBehavior;
@@ -16,6 +17,7 @@ import sim.util.Double3D;
 public class DroneFlyingManager {
 	public enum FlyingState {
 		IDLE,          		// Drone isn't flying (OperationState != FLYING)
+		HEAD_MOVE,			// Follow the operator's commands
 		SEEK_SIGNAL_DIR,	// Seeking which direction to choose
 		KEEP_SIGNAL_DIST,	// Normal mode: signal direction found, moving in a straight line to keep signal quality
 		WAIT_RECONNECT, 	// Lost connection, waiting for the next drone to come back
@@ -30,31 +32,35 @@ public class DroneFlyingManager {
 	DroneAgent drone;
 	
 	public void setFlyingState(FlyingState newState) {
+		if(newState == flyingState) return; 
 		flyingState = newState;
 		
 		// Change current moving strategy that will be applied from now on
 		switch(flyingState) {
 		case IDLE:
-			currentBehavior = new FlyingBehavior();
+			currentBehavior = new FlyingBehavior(drone);
+			break;
+		case HEAD_MOVE:
+			currentBehavior = new HeadMoveBehavior(drone);
 			break;
 		case SEEK_SIGNAL_DIR:
-			currentBehavior = new SeekDirectionBehavior();
+			currentBehavior = new SeekDirectionBehavior(drone);
 			break;
 		case KEEP_SIGNAL_DIST:
-			currentBehavior = new KeepDistanceBehavior();
+			currentBehavior = new KeepDistanceBehavior(drone);
 			break;
 		case WAIT_RECONNECT:
-			currentBehavior = new WaitReconnectBehavior();
+			currentBehavior = new WaitReconnectBehavior(drone);
 			break;
 		case ROLLBACK:
-			currentBehavior = new RollbackBehavior();
+			currentBehavior = new RollbackBehavior(drone);
 			break;
 		}
 	}
 	
 	public DroneFlyingManager(DroneAgent drone) {
 		this.drone = drone;
-		setFlyingState(FlyingState.IDLE);
+		setFlyingState(FlyingState.IDLE); 
 		trajectoryHistory = new ArrayList<Double3D>();
 	}
 	
@@ -69,12 +75,13 @@ public class DroneFlyingManager {
 		trajectoryHistory.clear();
 	}
 	
-	public void stepTransform(Environment env, Communicator com) {
+	public void stepTransform(Communicator com) {
 		// Process distance sensors
 		Double3D collisionTransform = new Double3D(); // TODO
 		
 		// Apply current movement strategy
-		Double3D behaviorTransform = currentBehavior.stepTransform(com);
+		Double3D behaviorTransform = currentBehavior.stepTransform(com); //TODO get com from drone instead of arg
+		setFlyingState(currentBehavior.transitionTo()); // potentially switch to a new behavior
 		
 		// Merge moving decisions for a final transform
 		Double3D transform = behaviorTransform; // TODO add collisions
@@ -83,6 +90,7 @@ public class DroneFlyingManager {
 		updateHistory(transform);
 
 		// Move the drone in the real world
+		Environment env = Environment.get();
 		env.translateDrone(drone, new Double2D(transform.x, transform.y));
 		env.rotateDrone(drone, (float)transform.z);
 	}

@@ -3,6 +3,8 @@ package agents.drone;
 import java.util.ArrayList;
 import agents.CommunicativeAgent;
 import agents.Communicator;
+import agents.DroneMessage;
+import agents.DroneMessage.Performative;
 import agents.drone.DroneFlyingManager.FlyingState;
 import environment.Environment;
 import sim.engine.SimState;
@@ -17,6 +19,12 @@ public class DroneAgent extends CommunicativeAgent {
 	 * 	- 
 	 */ 
 	
+	public enum DroneRole {
+		HEAD,
+		FOLLOWER
+	};
+	private DroneRole droneRole = DroneRole.FOLLOWER;
+	
 	public enum DroneState {
 		IDLE,   			// Nothing to do, waiting for orders
 		ARMED,				// Take off when the next drone is too far away
@@ -30,6 +38,15 @@ public class DroneAgent extends CommunicativeAgent {
 	private CollisionsSensor[] collisionSensors;
 	private DroneFlyingManager flyingManager;
 	
+	public void setDroneRole(DroneRole newRole) {
+		if(droneRole == DroneRole.HEAD && newRole == DroneRole.FOLLOWER)
+			flyingManager.setFlyingState(FlyingState.SEEK_SIGNAL_DIR);
+		if(newRole == DroneRole.HEAD) {
+			flyingManager.setFlyingState(FlyingState.HEAD_MOVE);
+			setLeaderID(-1);
+		}
+		droneRole = newRole;
+	}
 	
 	public void setDroneState(DroneState newState) {
 		droneState = newState;
@@ -47,6 +64,10 @@ public class DroneAgent extends CommunicativeAgent {
 		return collisionSensors;
 	}
 	
+	public int getLeaderID() {
+		return leaderID;
+	}
+	
 	public void setLeaderID(int newID) {
 		leaderID = newID;
 	}
@@ -57,7 +78,7 @@ public class DroneAgent extends CommunicativeAgent {
 		super();
 
 		flyingManager = new DroneFlyingManager(this);
-		flyingManager.setFlyingState(FlyingState.KEEP_SIGNAL_DIST);
+		flyingManager.setFlyingState(FlyingState.SEEK_SIGNAL_DIR); //TODO tmp
 
 		collisionSensors = new CollisionsSensor[4];
 		for (int i = 0; i < 4; i++) {
@@ -66,9 +87,19 @@ public class DroneAgent extends CommunicativeAgent {
 	}
 
 	public void step(SimState state) {
-		Environment env = (Environment)state;
+		
+		// Send usual status message (used by others for signal strength)
+		DroneMessage msg = new DroneMessage(this, DroneMessage.BROADCAST, Performative.INFORM);
+		msg.setTitle("status");
+		communicator.sendMessageToDrone(msg);
+		
+		// Process messages
 		
 		// Update position
-		flyingManager.stepTransform(env, communicator);
+		flyingManager.stepTransform(communicator);
+	}
+	
+	public boolean isLeader() {
+		return droneRole == DroneRole.HEAD;
 	}
 }

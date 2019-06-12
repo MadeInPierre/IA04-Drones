@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import agents.CommunicativeAgent;
 import agents.drone.DroneAgent;
+import agents.drone.DroneAgent.DroneRole;
 import agents.operator.OperatorAgent;
 import main.Constants;
 import sim.engine.SimState;
@@ -22,35 +23,49 @@ public class Environment extends SimState {
 	private DroneAgent headDrone;
 	private OperatorAgent operator;
 
-	public Environment(long seed) {
+	private static Environment instance = new Environment(System.currentTimeMillis());
+	public static Environment get() {
+		return instance;
+	}
+	
+	private Environment(long seed) {
 		super(seed);
 		yard = new Continuous2D(.1d, Constants.MAP_WIDTH, Constants.MAP_HEIGHT);
 		droneAngles = new HashMap<DroneAgent, Float>();
 
 		// Add drones
-		addDrone(new Double2D(6, 7));
-		addDrone(new Double2D(12, 7));
-		addDrone(new Double2D(6, 12));
-		addDrone(new Double2D(12, 12));
-		addDrone(new Double2D(30, 30));
+		addDrone(new Double2D(20, 14)); // Head drone
+		addDrone(new Double2D(10, 12));
+		//addDrone(new Double2D(6, 12));
+		//addDrone(new Double2D(12, 12));
+
+//		for(int i = 0; i < 2; i++) {
+//			DroneAgent d = (DroneAgent) yard.getAllObjects().get(i);
+//			d.setLeaderID((i+1) % 2);
+//		}
+		DroneAgent d = (DroneAgent) yard.getAllObjects().get(1);
+		d.setLeaderID(0);
+		
+		headDrone = (DroneAgent) yard.getAllObjects().get(0);
+		headDrone.setDroneRole(DroneRole.HEAD);
+		rotateDrone(headDrone, (float)Math.PI / 4); // TODO tmp for tests
 		
 		operator = new OperatorAgent();
 		schedule.scheduleRepeating(operator);
 		yard.setObjectLocation(operator, new Double2D(0, 30));
-		headDrone = (DroneAgent) yard.getAllObjects().get(0);
-
+		
 		signalManager = new SignalManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.SIGNAL_MAP_STEP,
-				Constants.SIGNAL_IMAGE, this);
+				Constants.SIGNAL_IMAGE);
 		collisionManager = new CollisionManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.COLLISION_MAP_STEP,
 				Constants.COLLISION_IMAGE);
 
 		System.out.println("Environment is initialized.");
 	}
 
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		doLoop(Environment.class, args);
 		System.exit(0);
-	}
+	}*/
 
 	public SignalManager getSignalManager() {
 		return signalManager;
@@ -67,6 +82,7 @@ public class Environment extends SimState {
 	public void start() {
 		super.start();
 		schedule.scheduleRepeating(signalManager);
+		schedule.scheduleRepeating(operator);
 		for(Object o : yard.getAllObjects())
 			if(o instanceof DroneAgent)
 				schedule.scheduleRepeating((DroneAgent)o);
@@ -98,13 +114,17 @@ public class Environment extends SimState {
 	}
 
 	public void translateDrone(DroneAgent drone, Double2D translation) {
+		Double2D pos = yard.getObjectLocation(drone);
 		float angle = droneAngles.get(drone);
-		float tx = (float) (Math.cos(angle) * translation.length());
-		float ty = (float) (Math.sin(angle) * translation.length());
 		
-		Double2D oldPos = yard.getObjectLocation(drone);
-		Double2D newPos = new Double2D(oldPos.getX() + tx, oldPos.getY() + ty);
-		yard.setObjectLocation(drone, newPos);
+		double tx = Math.cos(angle) * translation.getX();
+		double ty = Math.sin(angle) * translation.getX();		
+		angle += Math.PI / 2; // translation can have negative numbers, so treat X and Y separately
+		tx += Math.cos(angle) * translation.getY();
+		ty += Math.sin(angle) * translation.getY();
+		pos = pos.add(new Double2D(tx, ty));
+		
+		yard.setObjectLocation(drone, pos);
 	}
 	
 	public void rotateDrone(DroneAgent drone, float rotation) {
@@ -117,4 +137,5 @@ public class Environment extends SimState {
 		yard.setObjectLocation(d, pos);
 		droneAngles.put(d, 0f);
 	}
+
 }
