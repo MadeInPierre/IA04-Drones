@@ -55,7 +55,7 @@ public class Environment extends SimState {
 		yard.setObjectLocation(operator, new Double2D(0, 30));
 		
 		signalManager = new SignalManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.SIGNAL_MAP_STEP,
-				Constants.SIGNAL_IMAGE);
+				Constants.SIGNAL_IMAGE, this);
 		collisionManager = new CollisionManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.COLLISION_MAP_STEP,
 				Constants.COLLISION_IMAGE);
 
@@ -123,7 +123,7 @@ public class Environment extends SimState {
 		tx += Math.cos(angle) * translation.getY();
 		ty += Math.sin(angle) * translation.getY();
 		pos = pos.add(new Double2D(tx, ty));
-		
+		pos = new Double2D(pos.x % yard.getWidth(), pos.y % yard.getHeight());
 		yard.setObjectLocation(drone, pos);
 	}
 	
