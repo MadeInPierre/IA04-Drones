@@ -28,23 +28,25 @@ public class SignalManager implements Steppable {
 	private DoubleGrid2D signalLossField;
 	private float step;
 	private Network droneNetwork;
+	private Environment env;
 
-	public SignalManager(float width, float height, float step, String signalImage) {
+	public SignalManager(float width, float height, float step, String signalImage, Environment env) {
 		int cellsW = (int) Math.ceil(width / step);
 		int cellsH = (int) Math.ceil(height / step);
 		this.originalLossField = new double[cellsW][cellsH];
 		this.droneNetwork = new Network(false);
 		this.step = step;
+		this.env = env;
 		initializeMap(signalImage);
 		this.signalLossField = new DoubleGrid2D(originalLossField);
 		System.out.println("Signal map initialized with " + cellsW + " x " + cellsH + " cells.");
-
+		
 		buildDroneNetwork();
 		updateNetwork();
 	}
 
 	public void buildDroneNetwork() {
-		for (CommunicativeAgent d : Environment.get().getAgents()) {
+		for (CommunicativeAgent d : env.getAgents()) {
 			droneNetwork.addNode(d);
 			droneNetwork.addEdge(d, d, null); // will get reversed
 		}
@@ -117,7 +119,7 @@ public class SignalManager implements Steppable {
 	public Map<CommunicativeAgent, Float> getDronesInRange(Double2D dronePos, Set<CommunicativeAgent> allDrones) {
 		Map<CommunicativeAgent, Float> ret = new HashMap<CommunicativeAgent, Float>();
 		for (CommunicativeAgent d : allDrones) {
-			float loss = getSignalLoss(dronePos, Environment.get().getDronePos(d));
+			float loss = getSignalLoss(dronePos, env.getDronePos(d));
 			if (loss < Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
 				ret.put(d, loss);
 		}
@@ -162,8 +164,8 @@ public class SignalManager implements Steppable {
 
 		for (int i = 0; i < edges.length; i++) {
 			for (int j = i + 1; j < edges[0].length; j++) {
-				Double2D pos1 = Environment.get().getDronePos((CommunicativeAgent) edges[i][j].getFrom());
-				Double2D pos2 = Environment.get().getDronePos((CommunicativeAgent) edges[i][j].getTo());
+				Double2D pos1 = env.getDronePos((CommunicativeAgent) edges[i][j].getFrom());
+				Double2D pos2 = env.getDronePos((CommunicativeAgent) edges[i][j].getTo());
 				edges[i][j].setWeight(getSignalLoss(pos1, pos2));
 			}
 		}
