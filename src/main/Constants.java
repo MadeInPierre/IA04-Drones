@@ -22,7 +22,12 @@ public class Constants {
     public static final float DRONE_DANGER_SIGNAL_LOSS   = 33f;  //dB, loss before triggering a new direction search
     
     public static final float DRONE_SPEED             = .3f;	// map units per step
+
 	public static final float DRONE_COLLISION_SENSOR_RANGE = 5f;
+	public static final float DRONE_COLLISION_SENSOR_MINIMUM_DISTANCE = 0.01f;	// Epsilon distance in collision sensor vector calculation
+	public static final float DRONE_COLLISION_SENSOR_WEIGHT = 0.01f;	// Weight of the collision sensor vector for avoiding walls
+
+
 	public static final float HISTORY_DURATION        = 3f;   	// duration in steps of the drones' position history
 	
 	public static final float KEEP_DIST_GOAL_SIGNAL_TOLERANCE = 2f;

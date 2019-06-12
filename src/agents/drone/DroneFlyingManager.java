@@ -77,14 +77,32 @@ public class DroneFlyingManager {
 	
 	public void stepTransform(Communicator com) {
 		// Process distance sensors
-		Double3D collisionTransform = new Double3D(); // TODO
+		Double3D collisionTransform = new Double3D(0, 0, 0);
+
+		CollisionsSensor[] sensors = drone.getCollisionSensors();
+
+		for (CollisionsSensor sensor : sensors) {
+			float distance = (float) sensor.getDistance(Environment.get(), com);
+
+			if (distance > 0) {
+				float angle = sensor.getAngle();
+
+				Double3D vector = distance < Constants.DRONE_COLLISION_SENSOR_MINIMUM_DISTANCE ?
+						new Double3D(0, 0, 0) :
+						new Double3D(Math.cos((double) angle), Math.sin((double) angle), 0)
+								.multiply(-1 / distance / distance);
+
+				collisionTransform = collisionTransform.add(vector);
+			}
+		}
 		
 		// Apply current movement strategy
 		Double3D behaviorTransform = currentBehavior.stepTransform(com); //TODO get com from drone instead of arg
 		setFlyingState(currentBehavior.transitionTo()); // potentially switch to a new behavior
 		
 		// Merge moving decisions for a final transform
-		Double3D transform = behaviorTransform; // TODO add collisions
+		Double3D transform = behaviorTransform.add(
+				collisionTransform.multiply(Constants.DRONE_COLLISION_SENSOR_WEIGHT));
 		
 		// Save transform in translation history
 		updateHistory(transform);
