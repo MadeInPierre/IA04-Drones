@@ -8,7 +8,6 @@ import agents.Communicator;
 import sim.util.Double2D;
 
 import java.awt.geom.Point2D;
-import java.lang.invoke.ConstantBootstraps;
 
 public class CollisionsSensor {
 	private float angle; // sensor angle in rad from the drone's front
