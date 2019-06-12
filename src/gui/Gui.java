@@ -40,7 +40,7 @@ public class Gui extends GUIState {
 	// protected Environment sim;
 
 	public static void main(String[] args) {
-		Environment model = new Environment(System.currentTimeMillis());
+		Environment model = Environment.get();
 		Gui vid = new Gui(model);
 		Console c = new Console(vid);
 
@@ -48,7 +48,7 @@ public class Gui extends GUIState {
 	}
 
 	public Gui() {
-		super(new Environment(System.currentTimeMillis()));
+		super(Environment.get());
 	}
 
 	public Gui(SimState state) {

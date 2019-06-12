@@ -23,7 +23,12 @@ public class Environment extends SimState {
 	private DroneAgent headDrone;
 	private OperatorAgent operator;
 
-	public Environment(long seed) {
+	private static Environment instance = new Environment(System.currentTimeMillis());
+	public static Environment get() {
+		return instance;
+	}
+	
+	private Environment(long seed) {
 		super(seed);
 		yard = new Continuous2D(.1d, Constants.MAP_WIDTH, Constants.MAP_HEIGHT);
 		droneAngles = new HashMap<DroneAgent, Float>();
@@ -50,7 +55,7 @@ public class Environment extends SimState {
 		yard.setObjectLocation(operator, new Double2D(0, 30));
 		
 		signalManager = new SignalManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.SIGNAL_MAP_STEP,
-				Constants.SIGNAL_IMAGE, this);
+				Constants.SIGNAL_IMAGE);
 		collisionManager = new CollisionManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.COLLISION_MAP_STEP,
 				Constants.COLLISION_IMAGE);
 

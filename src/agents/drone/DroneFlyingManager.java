@@ -75,7 +75,7 @@ public class DroneFlyingManager {
 		trajectoryHistory.clear();
 	}
 	
-	public void stepTransform(Environment env, Communicator com) {
+	public void stepTransform(Communicator com) {
 		// Process distance sensors
 		Double3D collisionTransform = new Double3D(); // TODO
 		
@@ -90,6 +90,7 @@ public class DroneFlyingManager {
 		updateHistory(transform);
 
 		// Move the drone in the real world
+		Environment env = Environment.get();
 		env.translateDrone(drone, new Double2D(transform.x, transform.y));
 		env.rotateDrone(drone, (float)transform.z);
 	}

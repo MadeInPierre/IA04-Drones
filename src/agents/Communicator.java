@@ -4,22 +4,36 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import agents.DroneMessage.Performative;
+import agents.drone.DroneAgent;
 import environment.Environment;
 import main.Constants;
 
 public class Communicator {
-	ArrayList<DroneMessage> inbox;
-	Map<Integer, DroneMessage> lastStatuses;
+	private ArrayList<DroneMessage> inbox;
+	private Map<Integer, DroneMessage> lastStatuses;
+	private CommunicativeAgent owner;
 	
-	public Communicator() {
+	public Communicator(CommunicativeAgent owner) {
 		inbox = new ArrayList<DroneMessage>();
 		lastStatuses = new HashMap<>();
+		this.owner = owner;
 	}
 	
-	public void pushMessage(DroneMessage msg) {
+	public void receiveMessage(DroneMessage msg) {
 		if(msg.getTitle() == "status") {
 			//System.out.println("Adding status from " + msg.getSenderID());
 			lastStatuses.put(msg.getSenderID(), msg);
+		} else if(msg.getPerformative() == Performative.REQUEST && msg.getTitle() == "moveHead") {
+			// command to move head
+			if (owner instanceof DroneAgent  && ((DroneAgent)owner).isLeader()) {
+				// TODO move !
+			} else if (owner instanceof DroneAgent){
+				int nextDroneId = ((DroneAgent) owner).getLeaderID();
+				DroneMessage newMsg = new DroneMessage(owner, nextDroneId, msg.getPerformative());
+				newMsg.setContent(msg.getContent());
+				sendMessageToDrone(newMsg);
+			}			
 		}
 		else inbox.add(msg);
 		//System.out.println("Agent " + msg.getDestinationID() + " got message title=" + msg.getTitle() + " at step=" + msg.getStep());
@@ -44,9 +58,10 @@ public class Communicator {
 		}
 	}
 	
-	public boolean sendMessageToDrone(Environment env, DroneMessage msg) {
+	public boolean sendMessageToDrone(DroneMessage msg) {
 		// Get the dest object
 		boolean success = false;
+		Environment env = Environment.get();
 		for(CommunicativeAgent a : env.getAgents()) {
 			if(a.getID() == msg.getDestinationID() || msg.getDestinationID() == DroneMessage.BROADCAST) {
 				// Duplicate the message #javaRefs
@@ -59,7 +74,7 @@ public class Communicator {
 				m.setStep(env.schedule.getSteps());
 				
 				if(m.getStrength() < Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
-					a.pushMessage(m);
+					a.receiveMessage(m);
 					success = true;
 				}
 				if(m.getDestinationID() != DroneMessage.BROADCAST) break;

@@ -16,7 +16,7 @@ public class DroneMessage {
 	public final static int BROADCAST = -42; // ID used in destinationID
 	private int destinationID;
 	
-	private DroneAgent sender;
+	private CommunicativeAgent sender;
 	private long step;
 	
 	public enum Performative {
@@ -31,7 +31,7 @@ public class DroneMessage {
 	
 	private float signalStrength; // set by the Environment, indicates the signal quality when this message has been sent
 	
-	public DroneMessage(DroneAgent sender, int destinationID, Performative perf) {
+	public DroneMessage(CommunicativeAgent sender, int destinationID, Performative perf) {
 		this.destinationID = destinationID;
 		this.performative = perf;
 		this.sender = sender;
@@ -46,7 +46,7 @@ public class DroneMessage {
 		return step;
 	}
 	
-	public DroneAgent getSender() {
+	public CommunicativeAgent getSender() {
 		return sender;
 	}
 	

@@ -76,16 +76,19 @@ public class DroneAgent extends CommunicativeAgent{
 	
 	@Override
 	public void step(SimState state) {
-		Environment env = (Environment)state;
 		
 		// Send usual status message (used by others for signal strength)
 		DroneMessage msg = new DroneMessage(this, DroneMessage.BROADCAST, Performative.INFORM);
 		msg.setTitle("status");
-		communicator.sendMessageToDrone(env, msg);
+		communicator.sendMessageToDrone(msg);
 		
 		// Process messages
 		
 		// Update position
-		flyingManager.stepTransform(env, communicator);
+		flyingManager.stepTransform(communicator);
+	}
+	
+	public boolean isLeader() {
+		return droneRole == DroneRole.HEAD;
 	}
 }
