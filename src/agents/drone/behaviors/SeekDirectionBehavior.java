@@ -76,7 +76,7 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 				// Choose new direction 
 				float dir = Collections.min(strengths);
 				int i_dir = strengths.indexOf(dir);
-				//System.out.println("Found min=" + max + ", i=" + i_max);
+				//System.out.println("drone=" + drone.getID() + "Found min=" + dir + ", i=" + i_dir);
 				transform = transform.add(new Double3D(0, 0, i_dir * 2 * Math.PI / N_CIRCLE_STEPS));
 			}
 			break;

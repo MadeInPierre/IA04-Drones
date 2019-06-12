@@ -136,8 +136,8 @@ public class SignalManager implements Steppable {
 
 	@Override
 	public void step(SimState arg0) {
-		if (arg0.schedule.getSteps() % 50 == 0)
-			updateGaussianNoise();
+		//if (arg0.schedule.getSteps() % 50 == 0)
+		//	updateGaussianNoise();
 
 		
 		updateNetwork();

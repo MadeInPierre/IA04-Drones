@@ -38,6 +38,10 @@ public class Communicator {
 		return lastStatuses.get(id);
 	}
 	
+	public void clearStatuses() {
+		lastStatuses.clear();
+	}
+	
 	public void removeMessage(DroneMessage message) {
 		for(DroneMessage m : inbox) {
 			if(message == m) {
@@ -48,7 +52,8 @@ public class Communicator {
 	}
 	
 	public boolean sendMessageToDrone(DroneMessage msg) {
-		// Get the dest object
+		if(msg.getDestinationID() == -1) return false; // ignore invalid destination
+		
 		boolean success = false;
 		Environment env = Environment.get();
 		for(CommunicativeAgent a : env.getAgents()) {
