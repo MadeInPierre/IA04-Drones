@@ -9,7 +9,7 @@ import sim.engine.SimState;
 import sim.portrayal.Oriented2D;
 import sim.util.Double3D;
 
-public class DroneAgent {
+public class DroneAgent extends CommunicativeAgent {
 	/* TODO
 	 * 	- Fly manager 
 	 *  - Communicator
@@ -43,10 +43,6 @@ public class DroneAgent {
 			setDroneState(DroneState.IDLE);
 	}
 
-	public int getID() {
-		return droneID;
-	}
-
 	public CollisionsSensor[] getCollisionSensors() {
 		return collisionSensors;
 	}
@@ -59,7 +55,6 @@ public class DroneAgent {
 	
 	public DroneAgent() {
 		super();
-		droneID = idCounter++;
 
 		flyingManager = new DroneFlyingManager(this);
 		flyingManager.setFlyingState(FlyingState.KEEP_SIGNAL_DIST);

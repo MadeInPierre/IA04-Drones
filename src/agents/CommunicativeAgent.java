@@ -5,7 +5,7 @@ import sim.engine.Steppable;
 
 public class CommunicativeAgent implements Steppable {
 
-	private static int idCounter = 0;
+	protected static int idCounter = 0;
 	protected int agentID;
 	protected Communicator communicator;
 

@@ -1,5 +1,6 @@
 package agents.drone;
 
+import agents.CommunicativeAgent;
 import environment.Environment;
 import environment.CollisionManager;
 import main.Constants;
@@ -24,18 +25,18 @@ public class CollisionsSensor {
 	public float getAngle() { return angle; }
 	public float getRange() { return range; }
 	
-	// renvoie MAX_VALUE si aucune collision n'est detectée
+	// renvoie -1 si aucune collision n'est detectée
 	public double getDistance(Environment environment, Communicator communicator) {
 		CollisionManager cm  = environment.getCollisionManager();
-		Double2D p1 = environment.getDronePos(agent);
-		float angle = environment.getDroneAngle(agent);
+		Double2D p1 = environment.getDronePos((CommunicativeAgent) agent);
+		float a = environment.getDroneAngle(agent) + angle;
 
 		Double2D p2 = p1.add(new Double2D(
-				range * Math.cos(angle),
-				range * Math.sin(angle)));
+				range * Math.cos(a),
+				range * Math.sin(a)));
 
 		Double2D collisionPoint = cm.firstPathPointColliding(p1, p2);
 
-		return (collisionPoint != null) ? collisionPoint.subtract(p2).length() : Float.MAX_VALUE;
+		return (collisionPoint != null) ? collisionPoint.subtract(p1).length() : -1;
 	}
 }

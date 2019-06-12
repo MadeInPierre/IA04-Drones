@@ -64,7 +64,8 @@ public class CollisionManager {
         boolean colliding = false;
 
         for (int i = 0; i < n_points; i++) {
-            tmpPoint = new Double2D(p1.x + i * p2.x / n_points, p1.y + i * p2.y / n_points);
+            Double2D p2mp1 = p2.subtract(p1);
+            tmpPoint = new Double2D(p1.x + i * p2mp1.x / n_points, p1.y + i * p2mp1.y / n_points);
             colliding |= isColliding(tmpPoint);
 
             if (colliding) { break; }

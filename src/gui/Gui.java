@@ -128,9 +128,9 @@ public class Gui extends GUIState {
 		c.registerFrame(displayFrame);
 		displayFrame.setVisible(true);
 		display.attach(collisionPortrayal, "collision");
-		display.attach(collisionSensorPortrayal, "collision sensors");
 		display.attach(signalPortrayal, "signal");
 		display.attach(yardPortrayal, "cave");
+		display.attach(collisionSensorPortrayal, "collision sensors");
 		display.attach(signalNetworkPortrayal, "signal network");
 	}
 

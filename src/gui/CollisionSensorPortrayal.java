@@ -3,6 +3,7 @@ package gui;
 import agents.drone.CollisionsSensor;
 import agents.drone.DroneAgent;
 import environment.Environment;
+import main.Constants;
 import sim.field.continuous.Continuous2D;
 import sim.portrayal.DrawInfo2D;
 import sim.portrayal.FieldPortrayal2D;
@@ -25,6 +26,10 @@ public class CollisionSensorPortrayal extends FieldPortrayal2D {
 
         Continuous2D field = (Continuous2D) object;
 
+        Stroke stroke = graphics.getStroke();
+        Paint paint = graphics.getPaint();
+        graphics.setStroke(new BasicStroke(3));
+
         for (Object agent : field.allObjects) {
             if (agent.getClass() == DroneAgent.class) {
                 DroneAgent drone = (DroneAgent) agent;
@@ -35,13 +40,25 @@ public class CollisionSensorPortrayal extends FieldPortrayal2D {
 
                 for (CollisionsSensor sensor : sensors) {
                     float sensorAbsoluteAngle = droneAngle + sensor.getAngle();
-                    float range = sensor.getRange();
 
-                    graphics.drawLine((int) position.x, (int) position.y,
-                            (int) (position.x + range * Math.cos(sensorAbsoluteAngle)),
-                            (int) (position.y + range * Math.sin(sensorAbsoluteAngle)));
+                    float distance = (float) sensor.getDistance(environment, null);
+                    distance = Math.min(distance < 0 ? 0 : distance, sensor.getRange());
+
+                    graphics.setPaint(
+                            distance < 0 ?
+                                    new Color(0.5f, 0.5f, 0.5f, 0.5f) :
+                                    new Color(1f, 1f, 1f, 0.5f));
+
+                    graphics.drawLine(
+                            (int) (info.draw.width * position.x / Constants.MAP_WIDTH),
+                            (int) (info.draw.height * position.y / Constants.MAP_HEIGHT),
+                            (int) (info.draw.width * (position.x + distance * Math.cos(sensorAbsoluteAngle)) / Constants.MAP_WIDTH),
+                            (int) (info.draw.height * (position.y + distance * Math.sin(sensorAbsoluteAngle)) / Constants.MAP_HEIGHT));
                 }
             }
         }
+
+        graphics.setStroke(stroke);
+        graphics.setPaint(paint);
     }
 }
