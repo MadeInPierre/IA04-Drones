@@ -35,6 +35,10 @@ public class Communicator {
 		return lastStatuses.get(id);
 	}
 	
+	public void clearStatuses() {
+		lastStatuses.clear();
+	}
+	
 	public void removeMessage(DroneMessage message) {
 		for(DroneMessage m : inbox) {
 			if(message == m) {
@@ -45,8 +49,9 @@ public class Communicator {
 	}
 	
 	public boolean sendMessageToDrone(Environment env, DroneMessage msg) {
-		// Get the dest object
-		boolean success = false;
+		if(msg.getDestinationID() == -1) return false; // ignore invalid destination
+		
+		boolean success = false; 
 		for(CommunicativeAgent a : env.getAgents()) {
 			if(a.getID() == msg.getDestinationID() || msg.getDestinationID() == DroneMessage.BROADCAST) {
 				// Duplicate the message #javaRefs

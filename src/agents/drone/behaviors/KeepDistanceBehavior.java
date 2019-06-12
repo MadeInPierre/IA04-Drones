@@ -13,24 +13,25 @@ public class KeepDistanceBehavior extends FlyingBehavior {
 	long prevStatusStep = -1;
 	int noStatusSteps = 0;
 	
+	Double3D lastTransform; // If no status received, continue in the same direction (in the hope we find the signal again)
+	
 	int stepsSinceStart = 0;
 	
 	public KeepDistanceBehavior(DroneAgent drone) {
 		super(drone);
+		lastTransform = new Double3D(0, 0, 0);
 	}
 	
 	public Double3D stepTransform(Communicator com) {
 		Double3D transform = new Double3D(0, 0, 0);
-		
 		// Get signal strength compared to leader
 		DroneMessage lastStatus = com.getLastStatusFrom(drone.getLeaderID());
 		if(lastStatus == null || lastStatus.getStep() == prevStatusStep) {
 			noStatusSteps++;
-			return transform;
+			return lastTransform;
 		}
 		noStatusSteps = 0;
 		prevStatusStep = lastStatus.getStep();
-		//System.out.println("Getting strength from drone=" + drone.getID() + " to leader=" + drone.getLeaderID() + ", got strength=" + lastStatus.getStrength());
 		float strength = lastStatus.getStrength();
 		
 		if(strength > Constants.DRONE_IDEAL_SIGNAL_LOSS + Constants.KEEP_DIST_GOAL_SIGNAL_TOLERANCE)
@@ -40,6 +41,7 @@ public class KeepDistanceBehavior extends FlyingBehavior {
 		
 		//System.out.println("[KeepDistBehaviour, drone=" + drone.getID() + "] Got strength = " + strength + ", chose to move by " + transform);
 		stepsSinceStart++;
+		lastTransform = transform;
 		return transform;
 	}
 	

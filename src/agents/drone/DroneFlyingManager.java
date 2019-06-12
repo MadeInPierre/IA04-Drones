@@ -32,7 +32,7 @@ public class DroneFlyingManager {
 	DroneAgent drone;
 	
 	public void setFlyingState(FlyingState newState) {
-		if(newState == flyingState) return; 
+		if(newState == flyingState) return;
 		flyingState = newState;
 		
 		// Change current moving strategy that will be applied from now on
@@ -82,7 +82,6 @@ public class DroneFlyingManager {
 		// Apply current movement strategy
 		Double3D behaviorTransform = currentBehavior.stepTransform(com); //TODO get com from drone instead of arg
 		setFlyingState(currentBehavior.transitionTo()); // potentially switch to a new behavior
-		
 		// Merge moving decisions for a final transform
 		Double3D transform = behaviorTransform; // TODO add collisions
 		
@@ -90,7 +89,7 @@ public class DroneFlyingManager {
 		updateHistory(transform);
 
 		// Move the drone in the real world
-		env.translateDrone(drone, new Double2D(transform.x, transform.y));
 		env.rotateDrone(drone, (float)transform.z);
+		env.translateDrone(drone, new Double2D(transform.x, transform.y));
 	}
 }
