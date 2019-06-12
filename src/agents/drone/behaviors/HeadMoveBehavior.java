@@ -12,7 +12,6 @@ import java.util.ArrayList;
 public class HeadMoveBehavior extends FlyingBehavior {
 	public HeadMoveBehavior(DroneAgent drone) {
 		super(drone);
-		System.out.println("New head behavior drone=" + drone.getID());
 	}
 
 	public Double3D stepTransform(Communicator com) {
