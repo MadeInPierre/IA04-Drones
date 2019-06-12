@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import agents.drone.DroneAgent;
+import agents.operator.OperatorAgent;
 import environment.Environment;
 import main.Constants;
 import sim.display.Console;
@@ -109,6 +110,7 @@ public class Gui extends GUIState {
 		Environment simulation = (Environment) state;
 		yardPortrayal.setField(simulation.getYard());
 		yardPortrayal.setPortrayalForClass(DroneAgent.class, getDronePortrayal());
+		yardPortrayal.setPortrayalForClass(OperatorAgent.class, getDronePortrayal());
 		display.reset();
 		display.setBackdrop(Color.orange);
 		addBackgroundImage();

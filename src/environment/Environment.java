@@ -77,6 +77,7 @@ public class Environment extends SimState {
 	public void start() {
 		super.start();
 		schedule.scheduleRepeating(signalManager);
+		schedule.scheduleRepeating(operator);
 		for(Object o : yard.getAllObjects())
 			if(o instanceof DroneAgent)
 				schedule.scheduleRepeating((DroneAgent)o);
@@ -131,4 +132,5 @@ public class Environment extends SimState {
 		yard.setObjectLocation(d, pos);
 		droneAngles.put(d, 0f);
 	}
+
 }
