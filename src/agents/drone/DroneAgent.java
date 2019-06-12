@@ -10,10 +10,11 @@ import environment.Environment;
 import jade.tools.logging.ontology.GetAllLoggers;
 import main.Constants;
 import sim.engine.SimState;
+import sim.portrayal.Oriented2D;
 import sim.util.Double3D;
 import sun.misc.CRC16;
 
-public class DroneAgent extends CommunicativeAgent{
+public class DroneAgent extends CommunicativeAgent {
 	/* TODO
 	 * 	- Fly manager 
 	 *  - Communicator
@@ -38,6 +39,7 @@ public class DroneAgent extends CommunicativeAgent{
 	private int leaderID = -1;   // ID of the drone to follow
 	private int followerID = -1; // ID of the drone that is following us 
 	
+	private CollisionsSensor[] collisionSensors;
 	private DroneFlyingManager flyingManager;
 	
 	public void setDroneRole(DroneRole newRole) {
@@ -61,6 +63,10 @@ public class DroneAgent extends CommunicativeAgent{
 		if(newState == FlyingState.IDLE) // force IDLE on both statuses
 			setDroneState(DroneState.IDLE);
 	}
+
+	public CollisionsSensor[] getCollisionSensors() {
+		return collisionSensors;
+	}
 	
 	public int getLeaderID() {
 		return leaderID;
@@ -82,14 +88,18 @@ public class DroneAgent extends CommunicativeAgent{
 	
 	public DroneAgent() {
 		super();
+
 		flyingManager = new DroneFlyingManager(this);
 		//flyingManager.setFlyingState(FlyingState.SEEK_SIGNAL_DIR); //TODO tmp
 		System.out.println("New drone spawned, id=" + getID());
+
+		collisionSensors = new CollisionsSensor[4];
+		for (int i = 0; i < 4; i++) {
+			collisionSensors[i] = new CollisionsSensor(this, (float) (2 * Math.PI * i / 4));
+		}
 	}
-	
-	@Override
+
 	public void step(SimState state) {
-		Environment env = (Environment)state;
 		
 		// Process messages
 		ArrayList<DroneMessage> garbageMessages = new ArrayList<DroneMessage>();
@@ -103,9 +113,9 @@ public class DroneAgent extends CommunicativeAgent{
 		for(DroneMessage msg : garbageMessages) communicator.removeMessage(msg);
 		
 		// Send usual status message (used by others for signal strength)
-		DroneMessage statusmsg = new DroneMessage(this, DroneMessage.BROADCAST, Performative.INFORM);
-		statusmsg.setTitle("status");
-		communicator.sendMessageToDrone(env, statusmsg);
+		DroneMessage msg = new DroneMessage(this, DroneMessage.BROADCAST, Performative.INFORM);
+		msg.setTitle("status");
+		communicator.sendMessageToDrone(msg);
 		
 		// Process messages
 		
@@ -121,7 +131,7 @@ public class DroneAgent extends CommunicativeAgent{
 					//System.out.println("Drone=" + agentID + " flying !");
 					DroneMessage armmsg = new DroneMessage(this, getFollowerID(), Performative.REQUEST);
 					armmsg.setTitle("arm");
-					communicator.sendMessageToDrone(env, armmsg);
+					communicator.sendMessageToDrone(armmsg);
 					droneState = DroneState.FLYING;
 					log("Detected signal low, now flying!");
 					setFlyingState(FlyingState.SEEK_SIGNAL_DIR);
@@ -135,7 +145,7 @@ public class DroneAgent extends CommunicativeAgent{
 		}
 		
 		// Update position
-		flyingManager.stepTransform(env, communicator);
+		flyingManager.stepTransform(communicator);
 		
 		// Cleanup messages
 		communicator.clearStatuses();
@@ -143,5 +153,9 @@ public class DroneAgent extends CommunicativeAgent{
 	
 	public void log(String text) {
 		System.out.println("[Drone=" + getID() + "] " + text);
+	}
+	
+	public boolean isLeader() {
+		return droneRole == DroneRole.HEAD;
 	}
 }

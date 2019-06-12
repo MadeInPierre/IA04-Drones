@@ -5,13 +5,13 @@ import sim.engine.Steppable;
 
 public class CommunicativeAgent implements Steppable {
 
-	private static int idCounter = 0;
+	protected static int idCounter = 0;
 	protected int agentID;
 	protected Communicator communicator;
 
 	public CommunicativeAgent() {
 		agentID = idCounter++;
-		communicator = new Communicator();
+		communicator = new Communicator(this);
 
 	}
 	
@@ -23,7 +23,7 @@ public class CommunicativeAgent implements Steppable {
 		return agentID;
 	}
 	
-	public void pushMessage(DroneMessage msg) {
-		communicator.pushMessage(msg);
+	public void receiveMessage(DroneMessage msg) {
+		communicator.receiveMessage(msg);
 	}
 }

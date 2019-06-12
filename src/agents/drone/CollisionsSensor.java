@@ -1,17 +1,41 @@
 package agents.drone;
 
+import agents.CommunicativeAgent;
+import environment.Environment;
+import environment.CollisionManager;
+import main.Constants;
 import agents.Communicator;
 import sim.util.Double2D;
 
+import java.awt.geom.Point2D;
+
 public class CollisionsSensor {
 	private float angle; // sensor angle in rad from the drone's front
+	private float range;
+
+	private DroneAgent agent;
 	
-	public CollisionsSensor(float angle) {
+	public CollisionsSensor(DroneAgent agent, float angle) {
 		this.angle = angle;
+		this.range = Constants.DRONE_COLLISION_SENSOR_RANGE;
+		this.agent = agent;
 	}
+
+	public float getAngle() { return angle; }
+	public float getRange() { return range; }
 	
-	public float getDistance(Double2D position, Communicator communicator) {
-		// TODO
-		return 0;
+	// renvoie -1 si aucune collision n'est detectée
+	public double getDistance(Environment environment, Communicator communicator) {
+		CollisionManager cm  = environment.getCollisionManager();
+		Double2D p1 = environment.getDronePos((CommunicativeAgent) agent);
+		float a = environment.getDroneAngle(agent) + angle;
+
+		Double2D p2 = p1.add(new Double2D(
+				range * Math.cos(a),
+				range * Math.sin(a)));
+
+		Double2D collisionPoint = cm.firstPathPointColliding(p1, p2);
+
+		return (collisionPoint != null) ? collisionPoint.subtract(p1).length() : -1;
 	}
 }

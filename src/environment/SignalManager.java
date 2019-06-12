@@ -40,7 +40,7 @@ public class SignalManager implements Steppable {
 		initializeMap(signalImage);
 		this.signalLossField = new DoubleGrid2D(originalLossField);
 		System.out.println("Signal map initialized with " + cellsW + " x " + cellsH + " cells.");
-
+		
 		buildDroneNetwork();
 		updateNetwork();
 	}
@@ -57,6 +57,9 @@ public class SignalManager implements Steppable {
 	private float getQualityAtPoint(Double2D position) {
 		int x = (int) Math.ceil(position.getX() / this.step);
 		int y = (int) Math.ceil(position.getY() / this.step);
+		x = signalLossField.stx(x);
+		y = signalLossField.sty(y);
+		
 		return (float) this.signalLossField.get(x, y);
 	}
 

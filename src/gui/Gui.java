@@ -9,6 +9,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 import agents.drone.DroneAgent;
+import agents.operator.OperatorAgent;
 import environment.Environment;
 import main.Constants;
 import sim.display.Console;
@@ -25,6 +26,7 @@ import sim.portrayal.network.NetworkPortrayal2D;
 import sim.portrayal.network.SimpleEdgePortrayal2D;
 import sim.portrayal.network.SpatialNetwork2D;
 import sim.portrayal.simple.ImagePortrayal2D;
+import sim.portrayal.simple.OrientedPortrayal2D;
 import sim.util.gui.SimpleColorMap;
 
 public class Gui extends GUIState {
@@ -34,12 +36,13 @@ public class Gui extends GUIState {
 	FastValueGridPortrayal2D signalPortrayal = new FastValueGridPortrayal2D();
 	NetworkPortrayal2D signalNetworkPortrayal = new NetworkPortrayal2D();
 	FastValueGridPortrayal2D collisionPortrayal = new FastValueGridPortrayal2D();
+	CollisionSensorPortrayal collisionSensorPortrayal;
 	ContinuousPortrayal2D yardPortrayal = new ContinuousPortrayal2D();
 	ImagePortrayal2D backgroundPortrayal2d;
 	// protected Environment sim;
 
 	public static void main(String[] args) {
-		Environment model = new Environment(System.currentTimeMillis());
+		Environment model = Environment.get();
 		Gui vid = new Gui(model);
 		Console c = new Console(vid);
 
@@ -47,11 +50,13 @@ public class Gui extends GUIState {
 	}
 
 	public Gui() {
-		super(new Environment(System.currentTimeMillis()));
+		super(Environment.get());
 	}
 
 	public Gui(SimState state) {
 		super(state);
+		collisionSensorPortrayal = new CollisionSensorPortrayal((Environment) state);
+		collisionSensorPortrayal.setField(((Environment) state).getYard());
 	}
 
 	public void start() {
@@ -109,6 +114,7 @@ public class Gui extends GUIState {
 		Environment simulation = (Environment) state;
 		yardPortrayal.setField(simulation.getYard());
 		yardPortrayal.setPortrayalForClass(DroneAgent.class, getDronePortrayal());
+		yardPortrayal.setPortrayalForClass(OperatorAgent.class, getDronePortrayal());
 		display.reset();
 		display.setBackdrop(Color.orange);
 		addBackgroundImage();
@@ -126,6 +132,7 @@ public class Gui extends GUIState {
 		display.attach(collisionPortrayal, "collision", false);
 		display.attach(signalPortrayal, "signal", false);
 		display.attach(yardPortrayal, "cave");
+		display.attach(collisionSensorPortrayal, "collision sensors");
 		display.attach(signalNetworkPortrayal, "signal network");
 	}
 
