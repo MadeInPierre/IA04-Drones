@@ -8,6 +8,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
+import agents.CommunicativeAgent;
 import agents.drone.DroneAgent;
 import agents.operator.OperatorAgent;
 import environment.Environment;
@@ -77,22 +78,38 @@ public class Gui extends GUIState {
 				new Color(1f, 1f, 1f, 0f), new Color(1f, 0f, 0f, .5f)));
 		signalNetworkPortrayal.setField(new SpatialNetwork2D(env.getYard(), env.getSignalManager().getSignalNetwork()));
 		SimpleEdgePortrayal2D sep = new SimpleEdgePortrayal2D(null, Color.WHITE) {
-			@Override public String getLabel(Edge e, EdgeDrawInfo2D edi) { 
-					if (e.getWeight() < Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
-						return String.format("%.1f", e.getWeight());
-					return "";
-				}
+			@Override public String getLabel(Edge e, EdgeDrawInfo2D edi) { 	
+				CommunicativeAgent from = (CommunicativeAgent) e.getFrom();
+				CommunicativeAgent to = (CommunicativeAgent) e.getTo();
+	    		if (from instanceof OperatorAgent || to instanceof OperatorAgent || 
+	    				(from instanceof DroneAgent &&  to instanceof DroneAgent &&
+	    				(to.getID() == ((DroneAgent)from).getLeaderID() 
+	    				|| from.getID() == ((DroneAgent)to).getLeaderID())))
+					return String.format("%.1f", e.getWeight());
+				return "";
+				
+				
+			}
 		    @Override public void draw(Object o, Graphics2D g, DrawInfo2D i) { 
 		    	double w = ((Edge) o).getWeight();
-		    	if (w > Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
-		    		setShape(SHAPE_THIN_LINE);
-		    		this.fromPaint = this.toPaint = new Color(0f, 0f, 0f, 0.5f);
-		    	} else {
-		    		setShape(SHAPE_LINE_BUTT_ENDS);
-		    		float f = (float) (w / Constants.DRONE_MAXIMUM_SIGNAL_LOSS);
-		    		this.fromPaint = this.toPaint = new Color(f, 1 - f, 0f);
-		    	}
-		    	super.draw(o, g, i);
+	    		CommunicativeAgent from = (CommunicativeAgent) ((Edge) o).getFrom();
+	    		CommunicativeAgent to = (CommunicativeAgent) ((Edge) o).getTo();
+	    		if (from instanceof OperatorAgent || to instanceof OperatorAgent || 
+	    				(from instanceof DroneAgent &&  to instanceof DroneAgent &&
+	    				(to.getID() == ((DroneAgent)from).getLeaderID() 
+	    				|| from.getID() == ((DroneAgent)to).getLeaderID()))) {
+		    		if (w > Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
+		    			setShape(SHAPE_THIN_LINE);
+		    			this.fromPaint = this.toPaint = Color.black;
+		    		} else {
+		    			setShape(SHAPE_LINE_BUTT_ENDS);
+			    		float f = (float) (w / Constants.DRONE_MAXIMUM_SIGNAL_LOSS);
+			    		this.fromPaint = this.toPaint = new Color(f, 1 - f, 0f);
+		    		}
+		    			
+		    		super.draw(o, g, i);
+	    		}
+		    	
 		    }
 		    @Override protected double getPositiveWeight(Object o, EdgeDrawInfo2D i) { return Math.max(1 - ((Edge) o).getWeight() / Constants.DRONE_MAXIMUM_SIGNAL_LOSS, 0f); }
 		};

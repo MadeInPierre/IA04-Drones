@@ -94,6 +94,18 @@ public class DroneAgent extends CommunicativeAgent {
 		communicator.sendMessageToDrone(msg);
 		
 		// Process messages
+		for (DroneMessage m : communicator.getMessages()) {
+			if(m.getPerformative() == Performative.REQUEST && m.getTitle() == "moveHead") {
+				// command to move head
+				if (!isLeader()) {
+					DroneMessage newMsg = new DroneMessage(this, this.leaderID, msg.getPerformative());
+					newMsg.setContent(msg.getContent());
+					communicator.sendMessageToDrone(newMsg);
+				}
+				communicator.removeMessage(m);
+			}
+		}
+		
 		
 		// Update position
 		flyingManager.stepTransform(communicator);
