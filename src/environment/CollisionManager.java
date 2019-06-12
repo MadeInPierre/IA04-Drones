@@ -52,8 +52,8 @@ public class CollisionManager {
     }
 
     public boolean isColliding(Double2D p) {
-        int x = (int) (p.x / step);
-        int y = (int) (p.y / step);
+        int x = ((int) (p.x / step) + collisionMap.length) % collisionMap.length;
+        int y = ((int) (p.y / step) + collisionMap[0].length) % collisionMap[0].length;
 
         return collisionMap[x][y];
     }
