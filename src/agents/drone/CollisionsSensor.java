@@ -25,10 +25,10 @@ public class CollisionsSensor {
 	public float getRange() { return range; }
 	
 	// renvoie -1 si aucune collision n'est detectée
-	public double getDistance(Environment environment, Communicator communicator) {
-		CollisionManager cm  = environment.getCollisionManager();
-		Double2D p1 = environment.getDronePos((CommunicativeAgent) agent);
-		float a = environment.getDroneAngle(agent) + angle;
+	public double getDistance(Communicator communicator) {
+		CollisionManager cm  = Environment.get().getCollisionManager();
+		Double2D p1 = Environment.get().getDronePos((CommunicativeAgent) agent);
+		float a = Environment.get().getDroneAngle(agent) + angle;
 
 		Double2D p2 = p1.add(new Double2D(
 				range * Math.cos(a),

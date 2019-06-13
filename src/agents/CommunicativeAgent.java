@@ -16,7 +16,7 @@ public class CommunicativeAgent implements Steppable {
 	}
 	
 	public void step(SimState state) {
-		System.out.println("ksjdfhg");
+
 	}
 	
 	public int getID() {

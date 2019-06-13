@@ -1,14 +1,16 @@
 package gui;
 
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Rectangle;
+import java.awt.TexturePaint;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.swing.*;
+import javax.swing.JFrame;
 
-import agents.CommunicativeAgent;
 import agents.drone.DroneAgent;
 import agents.operator.OperatorAgent;
 import environment.Environment;
@@ -18,16 +20,13 @@ import sim.display.Controller;
 import sim.display.Display2D;
 import sim.display.GUIState;
 import sim.engine.SimState;
-import sim.field.network.Edge;
-import sim.portrayal.DrawInfo2D;
+import sim.portrayal.Portrayal2D;
 import sim.portrayal.continuous.ContinuousPortrayal2D;
 import sim.portrayal.grid.FastValueGridPortrayal2D;
-import sim.portrayal.network.EdgeDrawInfo2D;
 import sim.portrayal.network.NetworkPortrayal2D;
-import sim.portrayal.network.SimpleEdgePortrayal2D;
 import sim.portrayal.network.SpatialNetwork2D;
-import sim.portrayal.simple.ImagePortrayal2D;
-import sim.portrayal.simple.OrientedPortrayal2D;
+import sim.portrayal.simple.LabelledPortrayal2D;
+import sim.portrayal.simple.OvalPortrayal2D;
 import sim.util.gui.SimpleColorMap;
 
 public class Gui extends GUIState {
@@ -37,16 +36,13 @@ public class Gui extends GUIState {
 	FastValueGridPortrayal2D signalPortrayal = new FastValueGridPortrayal2D();
 	NetworkPortrayal2D signalNetworkPortrayal = new NetworkPortrayal2D();
 	FastValueGridPortrayal2D collisionPortrayal = new FastValueGridPortrayal2D();
-	CollisionSensorPortrayal collisionSensorPortrayal;
+	CollisionSensorPortrayal collisionSensorPortrayal = new CollisionSensorPortrayal();
 	ContinuousPortrayal2D yardPortrayal = new ContinuousPortrayal2D();
-	ImagePortrayal2D backgroundPortrayal2d;
-	// protected Environment sim;
 
 	public static void main(String[] args) {
 		Environment model = Environment.get();
 		Gui vid = new Gui(model);
 		Console c = new Console(vid);
-
 		c.setVisible(true);
 	}
 
@@ -56,14 +52,11 @@ public class Gui extends GUIState {
 
 	public Gui(SimState state) {
 		super(state);
-		collisionSensorPortrayal = new CollisionSensorPortrayal((Environment) state);
-		collisionSensorPortrayal.setField(((Environment) state).getYard());
 	}
 
 	public void start() {
 		super.start();
 		setupPortrayals();
-		setupPortrayals2();
 	}
 
 	public void load(SimState state) {
@@ -71,69 +64,29 @@ public class Gui extends GUIState {
 	}
 
 	public void setupPortrayals() { // TODO la performance diminue beaucoup quand on appelle cette methode
-		Environment env = (Environment) state;
+		Environment env = Environment.get();
+
+		collisionSensorPortrayal.setField(env.getYard());
+		collisionPortrayal.setMap(new SimpleColorMap(0, 1, new Color(0, 0, 0, 0), Color.BLACK));
 
 		signalPortrayal.setField(env.getSignalManager().getSignalLossField());
 		signalPortrayal.setMap(new SimpleColorMap(Constants.MIN_SIGNAL_LOSS, Constants.MAX_SIGNAL_LOSS,
 				new Color(1f, 1f, 1f, 0f), new Color(1f, 0f, 0f, .5f)));
-		signalNetworkPortrayal.setField(new SpatialNetwork2D(env.getYard(), env.getSignalManager().getSignalNetwork()));
-		SimpleEdgePortrayal2D sep = new SimpleEdgePortrayal2D(null, Color.WHITE) {
-			@Override public String getLabel(Edge e, EdgeDrawInfo2D edi) { 	
-				CommunicativeAgent from = (CommunicativeAgent) e.getFrom();
-				CommunicativeAgent to = (CommunicativeAgent) e.getTo();
-	    		if (from instanceof OperatorAgent || to instanceof OperatorAgent || 
-	    				(from instanceof DroneAgent &&  to instanceof DroneAgent &&
-	    				(to.getID() == ((DroneAgent)from).getLeaderID() 
-	    				|| from.getID() == ((DroneAgent)to).getLeaderID())))
-					return String.format("%.1f", e.getWeight());
-				return "";
-				
-				
-			}
-		    @Override public void draw(Object o, Graphics2D g, DrawInfo2D i) { 
-		    	double w = ((Edge) o).getWeight();
-	    		CommunicativeAgent from = (CommunicativeAgent) ((Edge) o).getFrom();
-	    		CommunicativeAgent to = (CommunicativeAgent) ((Edge) o).getTo();
-	    		if (from instanceof OperatorAgent || to instanceof OperatorAgent || 
-	    				(from instanceof DroneAgent &&  to instanceof DroneAgent &&
-	    				(to.getID() == ((DroneAgent)from).getLeaderID() 
-	    				|| from.getID() == ((DroneAgent)to).getLeaderID()))) {
-		    		if (w > Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
-		    			setShape(SHAPE_THIN_LINE);
-		    			this.fromPaint = this.toPaint = Color.black;
-		    		} else {
-		    			setShape(SHAPE_LINE_BUTT_ENDS);
-			    		float f = (float) (w / Constants.DRONE_MAXIMUM_SIGNAL_LOSS);
-			    		this.fromPaint = this.toPaint = new Color(f, 1 - f, 0f);
-		    		}
-		    			
-		    		super.draw(o, g, i);
-	    		}
-		    	
-		    }
-		    @Override protected double getPositiveWeight(Object o, EdgeDrawInfo2D i) { return Math.max(1 - ((Edge) o).getWeight() / Constants.DRONE_MAXIMUM_SIGNAL_LOSS, 0f); }
-		};
-		sep.setBaseWidth(0.4f);
-		sep.setLabelScaling(1);
-		sep.setAdjustsThickness(true);		
-		signalNetworkPortrayal.setPortrayalForAll(sep);
-		
 
-		collisionPortrayal.setField(env.getCollisionManager().getCollisionMap());
-		collisionPortrayal.setMap(new SimpleColorMap(0, 1, new Color(0, 0, 0, 0), Color.BLACK));
+		signalNetworkPortrayal.setField(new SpatialNetwork2D(env.getYard(), env.getSignalManager().getSignalNetwork()));
+		SignalEdgePortrayal edge = new SignalEdgePortrayal();
+		edge.setBaseWidth(0.4f);
+		edge.setLabelScaling(1);
+		edge.setAdjustsThickness(true);
+		signalNetworkPortrayal.setPortrayalForAll(edge);
+
+		yardPortrayal.setField(env.getYard());
+		yardPortrayal.setPortrayalForClass(DroneAgent.class, getDronePortrayal());
+		yardPortrayal.setPortrayalForClass(OperatorAgent.class,
+				new LabelledPortrayal2D(new OvalPortrayal2D(Color.blue), "operator", Color.blue, false));
 
 		display.reset();
 		display.setBackdrop(Color.white);
-		display.repaint();
-	}
-
-	public void setupPortrayals2() {
-		Environment simulation = (Environment) state;
-		yardPortrayal.setField(simulation.getYard());
-		yardPortrayal.setPortrayalForClass(DroneAgent.class, getDronePortrayal());
-		yardPortrayal.setPortrayalForClass(OperatorAgent.class, getDronePortrayal());
-		display.reset();
-		display.setBackdrop(Color.orange);
 		addBackgroundImage();
 		display.repaint();
 	}
@@ -148,9 +101,9 @@ public class Gui extends GUIState {
 		displayFrame.setVisible(true);
 		display.attach(collisionPortrayal, "collision", false);
 		display.attach(signalPortrayal, "signal", false);
-		display.attach(yardPortrayal, "cave");
 		display.attach(collisionSensorPortrayal, "collision sensors");
 		display.attach(signalNetworkPortrayal, "signal network");
+		display.attach(yardPortrayal, "cave");
 	}
 
 	public void quit() {
@@ -173,17 +126,17 @@ public class Gui extends GUIState {
 			BufferedImage b = ImageIO.read(imgPath);
 			Graphics g = b.getGraphics();
 			int w = 1000;
-			int h = (int)(1000 * Constants.MAP_HEIGHT / Constants.MAP_WIDTH);
-			//g.drawImage(b, 0, 0, w, h, null);
-			//g.dispose();
+			int h = (int) (1000 * Constants.MAP_HEIGHT / Constants.MAP_WIDTH);
+			// g.drawImage(b, 0, 0, w, h, null);
+			// g.dispose();
 			display.setBackdrop(new TexturePaint(b, new Rectangle(0, 0, w, h)));
 		} catch (IOException e) {
 
 		}
 	}
 
-	private ImagePortrayal2D getDronePortrayal(){
-		return new ImagePortrayal2D(new ImageIcon("img/drone.png"), 1);
+	private Portrayal2D getDronePortrayal() {
+		return new DronePortrayal("img/drone.png", Color.white, true, Color.blue);
 	}
 
 }

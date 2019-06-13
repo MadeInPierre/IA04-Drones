@@ -82,7 +82,7 @@ public class DroneFlyingManager {
 		CollisionsSensor[] sensors = drone.getCollisionSensors();
 
 		for (CollisionsSensor sensor : sensors) {
-			float distance = (float) sensor.getDistance(Environment.get(), com);
+			float distance = (float) sensor.getDistance(com);
 
 			if (distance > 0) {
 				float angle = sensor.getAngle();
@@ -110,5 +110,9 @@ public class DroneFlyingManager {
 		Environment env = Environment.get();
 		env.rotateDrone(drone, (float)transform.z);
 		env.translateDrone(drone, new Double2D(transform.x, transform.y));
+	}
+	
+	public FlyingState getFlyingState() {
+		return flyingState;
 	}
 }

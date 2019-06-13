@@ -107,11 +107,12 @@ public class DroneAgent extends CommunicativeAgent {
 				log("Now armed!");
 				garbageMessages.add(msg);
 			}
-			if (!isLeader()) {
+			if (!isLeader() && msg.getTitle() == "moveHead" && msg.getPerformative() == Performative.REQUEST) {
 				DroneMessage newMsg = new DroneMessage(this, this.leaderID, msg.getPerformative());
 				newMsg.setContent(msg.getContent());
 				communicator.sendMessageToDrone(newMsg);
 				garbageMessages.add(msg);
+				System.out.println("Drone" + this.agentID + "received moveHad order");
 			}
 		}
 		for(DroneMessage msg : garbageMessages) communicator.removeMessage(msg);
@@ -159,5 +160,13 @@ public class DroneAgent extends CommunicativeAgent {
 	
 	public boolean isLeader() {
 		return droneRole == DroneRole.HEAD;
+	}
+	
+	public DroneState getDroneState() {
+		return droneState;
+	}
+	
+	public FlyingState getFlyingState() {
+		return flyingManager.getFlyingState();
 	}
 }
