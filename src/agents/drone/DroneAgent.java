@@ -7,12 +7,10 @@ import agents.DroneMessage;
 import agents.DroneMessage.Performative;
 import agents.drone.DroneFlyingManager.FlyingState;
 import environment.Environment;
-import jade.tools.logging.ontology.GetAllLoggers;
 import main.Constants;
 import sim.engine.SimState;
 import sim.portrayal.Oriented2D;
 import sim.util.Double3D;
-import sun.misc.CRC16;
 
 public class DroneAgent extends CommunicativeAgent {
 	/* TODO
@@ -109,6 +107,13 @@ public class DroneAgent extends CommunicativeAgent {
 				log("Now armed!");
 				garbageMessages.add(msg);
 			}
+			if (!isLeader() && msg.getTitle() == "moveHead" && msg.getPerformative() == Performative.REQUEST) {
+				DroneMessage newMsg = new DroneMessage(this, this.leaderID, msg.getPerformative());
+				newMsg.setContent(msg.getContent());
+				communicator.sendMessageToDrone(newMsg);
+				garbageMessages.add(msg);
+				System.out.println("Drone" + this.agentID + "received moveHad order");
+			}
 		}
 		for(DroneMessage msg : garbageMessages) communicator.removeMessage(msg);
 		
@@ -116,8 +121,6 @@ public class DroneAgent extends CommunicativeAgent {
 		DroneMessage msg = new DroneMessage(this, DroneMessage.BROADCAST, Performative.INFORM);
 		msg.setTitle("status");
 		communicator.sendMessageToDrone(msg);
-		
-		// Process messages
 		
 		// Status behaviors
 		switch(droneState) {
@@ -157,5 +160,13 @@ public class DroneAgent extends CommunicativeAgent {
 	
 	public boolean isLeader() {
 		return droneRole == DroneRole.HEAD;
+	}
+	
+	public DroneState getDroneState() {
+		return droneState;
+	}
+	
+	public FlyingState getFlyingState() {
+		return flyingManager.getFlyingState();
 	}
 }

@@ -7,41 +7,42 @@ import main.Constants;
 import sim.field.continuous.Continuous2D;
 import sim.portrayal.DrawInfo2D;
 import sim.portrayal.FieldPortrayal2D;
+import sim.util.Bag;
 import sim.util.Double2D;
 
 import java.awt.*;
 
 public class CollisionSensorPortrayal extends FieldPortrayal2D {
-    Environment environment;
 
-    public CollisionSensorPortrayal(Environment environment) {
+    public CollisionSensorPortrayal() {
         super();
-
-        this.environment = environment;
     }
 
     @Override
     public void draw(Object object, Graphics2D graphics, DrawInfo2D info) {
         super.draw(object, graphics, info);
-
         Continuous2D field = (Continuous2D) object;
+        if (field == null)
+        	return;
 
         Stroke stroke = graphics.getStroke();
         Paint paint = graphics.getPaint();
         graphics.setStroke(new BasicStroke(3));
-
-        for (Object agent : field.allObjects) {
+        Bag allObjects = field.getAllObjects();
+        if (allObjects == null)
+        	return;
+        for (Object agent : allObjects) {
             if (agent.getClass() == DroneAgent.class) {
                 DroneAgent drone = (DroneAgent) agent;
-                Double2D position = environment.getDronePos(drone);
-                float droneAngle = environment.getDroneAngle(drone);
+                Double2D position = Environment.get().getDronePos(drone);
+                float droneAngle = Environment.get().getDroneAngle(drone);
 
                 CollisionsSensor[] sensors = drone.getCollisionSensors();
 
                 for (CollisionsSensor sensor : sensors) {
                     float sensorAbsoluteAngle = droneAngle + sensor.getAngle();
 
-                    float distance = (float) sensor.getDistance(environment, null);
+                    float distance = (float) sensor.getDistance(null);
                     distance = Math.min(distance < 0 ? 0 : distance, sensor.getRange());
 
                     graphics.setPaint(

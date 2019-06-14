@@ -24,18 +24,7 @@ public class Communicator {
 		if(msg.getTitle() == "status") {
 			//System.out.println("Adding status from " + msg.getSenderID());
 			lastStatuses.put(msg.getSenderID(), msg);
-		} else if(msg.getPerformative() == Performative.REQUEST && msg.getTitle() == "moveHead") {
-			// command to move head
-			if (owner instanceof DroneAgent  && ((DroneAgent)owner).isLeader()) {
-				// TODO move !
-			} else if (owner instanceof DroneAgent){
-				int nextDroneId = ((DroneAgent) owner).getLeaderID();
-				DroneMessage newMsg = new DroneMessage(owner, nextDroneId, msg.getPerformative());
-				newMsg.setContent(msg.getContent());
-				sendMessageToDrone(newMsg);
-			}			
-		}
-		else inbox.add(msg);
+		} else inbox.add(msg);
 		//System.out.println("Agent " + msg.getDestinationID() + " got message title=" + msg.getTitle() + " at step=" + msg.getStep());
 	}
 	

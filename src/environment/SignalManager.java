@@ -2,19 +2,19 @@ package environment;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 
 import javax.imageio.ImageIO;
 
 import agents.CommunicativeAgent;
-import agents.drone.DroneAgent;
 import main.Constants;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -40,7 +40,7 @@ public class SignalManager implements Steppable {
 		initializeMap(signalImage);
 		this.signalLossField = new DoubleGrid2D(originalLossField);
 		System.out.println("Signal map initialized with " + cellsW + " x " + cellsH + " cells.");
-		
+
 		buildDroneNetwork();
 		updateNetwork();
 	}
@@ -59,7 +59,7 @@ public class SignalManager implements Steppable {
 		int y = (int) Math.ceil(position.getY() / this.step);
 		x = signalLossField.stx(x);
 		y = signalLossField.sty(y);
-		
+
 		return (float) this.signalLossField.get(x, y);
 	}
 
@@ -68,16 +68,18 @@ public class SignalManager implements Steppable {
 		BufferedImage img;
 		try {
 			img = ImageIO.read(imgPath);
-			
+
 			if (img.getWidth() != originalLossField.length || img.getHeight() != originalLossField[0].length) {
-				Image tmp = img.getScaledInstance(originalLossField.length, originalLossField[0].length, Image.SCALE_DEFAULT);
-			    BufferedImage newImg = new BufferedImage(originalLossField.length, originalLossField[0].length, img.getType());
-			    Graphics2D g2d = newImg.createGraphics();
-			    g2d.drawImage(tmp, 0, 0, null);
-			    g2d.dispose();
-			    img = newImg;
+				Image tmp = img.getScaledInstance(originalLossField.length, originalLossField[0].length,
+						Image.SCALE_DEFAULT);
+				BufferedImage newImg = new BufferedImage(originalLossField.length, originalLossField[0].length,
+						img.getType());
+				Graphics2D g2d = newImg.createGraphics();
+				g2d.drawImage(tmp, 0, 0, null);
+				g2d.dispose();
+				img = newImg;
 			}
-		    
+
 			for (int x = 0; x < img.getWidth(); x++) {
 				for (int y = 0; y < img.getHeight(); y++) {
 					int r = (img.getRGB(x, y) >> 16) & 0xff;
@@ -116,14 +118,22 @@ public class SignalManager implements Steppable {
 		return getPathLoss(lossExponent, distance);
 	}
 
-	public Map<CommunicativeAgent, Float> getDronesInRange(Double2D dronePos, Set<CommunicativeAgent> allDrones) {
+	public Map<CommunicativeAgent, Float> getAgentsInRange(CommunicativeAgent agent) {
+		Double2D pos = env.getDronePos(agent);
 		Map<CommunicativeAgent, Float> ret = new HashMap<CommunicativeAgent, Float>();
-		for (CommunicativeAgent d : allDrones) {
-			float loss = getSignalLoss(dronePos, env.getDronePos(d));
+		for (CommunicativeAgent d : Environment.get().getAgents()) {
+			float loss = getSignalLoss(pos, env.getDronePos(d));
 			if (loss < Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
 				ret.put(d, loss);
 		}
 		return ret;
+	}
+	
+	public Optional<CommunicativeAgent> getClosestAgent(CommunicativeAgent agent) {
+		Double2D pos = env.getDronePos(agent);
+		return env.getAgents().stream().sorted(Comparator.comparing(o -> getSignalLoss(env.getDronePos(o), pos)))
+		.filter(o -> o != agent).findFirst();
+
 	}
 
 	public DoubleGrid2D getSignalLossField() {
@@ -138,13 +148,10 @@ public class SignalManager implements Steppable {
 	public void step(SimState arg0) {
 		//if (arg0.schedule.getSteps() % 50 == 0)
 		//	updateGaussianNoise();
-
-		
 		updateNetwork();
 	}
 
 	private void updateGaussianNoise() {
-		
 		Random r = new Random();
 		for (int x = 0; x < signalLossField.getWidth(); x++) {
 			for (int y = 0; y < signalLossField.getHeight(); y++) {
@@ -161,7 +168,6 @@ public class SignalManager implements Steppable {
 
 	private void updateNetwork() {
 		Edge[][] edges = droneNetwork.getAdjacencyMatrix();
-
 		for (int i = 0; i < edges.length; i++) {
 			for (int j = i + 1; j < edges[0].length; j++) {
 				Double2D pos1 = env.getDronePos((CommunicativeAgent) edges[i][j].getFrom());

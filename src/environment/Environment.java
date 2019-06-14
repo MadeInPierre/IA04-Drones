@@ -25,52 +25,19 @@ public class Environment extends SimState {
 	private OperatorAgent operator;
 
 	private static Environment instance = new Environment(System.currentTimeMillis());
+
 	public static Environment get() {
 		return instance;
 	}
-	
+
 	private Environment(long seed) {
 		super(seed);
-		yard = new Continuous2D(.1d, Constants.MAP_WIDTH, Constants.MAP_HEIGHT);
-		droneAngles = new HashMap<DroneAgent, Float>();
-
-		// Add drones
-		addDrone(new Double2D(20, 14)); // Head drone
-		addDrone(new Double2D(15, 12));
-		addDrone(new Double2D(11, 12));
-		//addDrone(new Double2D(8, 10));
-		//addDrone(new Double2D(5, 8));
-
-		headDrone = (DroneAgent) yard.getAllObjects().get(0);
-		headDrone.setDroneRole(DroneRole.HEAD);
-		rotateDrone(headDrone, (float)Math.PI / 4); // TODO tmp for tests
-		
-		for(int i = 0; i < droneAngles.size() - 1; i++) {
-			DroneAgent leader = (DroneAgent) yard.getAllObjects().get(i); 
-			DroneAgent follower = (DroneAgent) yard.getAllObjects().get(i+1);
-			linkDrones(follower, leader);
-		}
-		
-		DroneAgent d = (DroneAgent) yard.getAllObjects().get(1);
-		d.setDroneState(DroneState.ARMED);
-		
-		
-		operator = new OperatorAgent();
-		schedule.scheduleRepeating(operator);
-		yard.setObjectLocation(operator, new Double2D(0, 30));
-		
-		signalManager = new SignalManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.SIGNAL_MAP_STEP,
-				Constants.SIGNAL_IMAGE, this);
-		collisionManager = new CollisionManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.COLLISION_MAP_STEP,
-				Constants.COLLISION_IMAGE);
-
-		System.out.println("Environment is initialized.");
 	}
 
-	/*public static void main(String[] args) {
-		doLoop(Environment.class, args);
-		System.exit(0);
-	}*/
+	/*
+	 * public static void main(String[] args) { doLoop(Environment.class, args);
+	 * System.exit(0); }
+	 */
 
 	public SignalManager getSignalManager() {
 		return signalManager;
@@ -86,11 +53,47 @@ public class Environment extends SimState {
 
 	public void start() {
 		super.start();
+		
+		yard = new Continuous2D(.1d, Constants.MAP_WIDTH, Constants.MAP_HEIGHT);
+		droneAngles = new HashMap<DroneAgent, Float>();
+
+		// Add drones
+		addDrone(new Double2D(20, 14)); // Head drone
+		addDrone(new Double2D(15, 12));
+		addDrone(new Double2D(11, 12));
+		// addDrone(new Double2D(8, 10));
+		// addDrone(new Double2D(5, 8));
+
+		headDrone = (DroneAgent) yard.getAllObjects().get(0);
+		headDrone.setDroneRole(DroneRole.HEAD);
+		rotateDrone(headDrone, (float) Math.PI / 4); // TODO tmp for tests
+
+		for (int i = 0; i < droneAngles.size() - 1; i++) {
+			DroneAgent leader = (DroneAgent) yard.getAllObjects().get(i);
+			DroneAgent follower = (DroneAgent) yard.getAllObjects().get(i + 1);
+			linkDrones(follower, leader);
+		}
+
+		DroneAgent d = (DroneAgent) yard.getAllObjects().get(1);
+		d.setDroneState(DroneState.ARMED);
+
+		operator = new OperatorAgent();
+		schedule.scheduleRepeating(operator);
+		yard.setObjectLocation(operator, new Double2D(0, 30));
+
+		signalManager = new SignalManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.SIGNAL_MAP_STEP,
+				Constants.SIGNAL_IMAGE, this);
+		collisionManager = new CollisionManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.COLLISION_MAP_STEP,
+				Constants.COLLISION_IMAGE);
+		
+
+		System.out.println("Environment is initialized.");
+		
 		schedule.scheduleRepeating(signalManager);
 		schedule.scheduleRepeating(operator);
-		for(Object o : yard.getAllObjects())
-			if(o instanceof DroneAgent)
-				schedule.scheduleRepeating((DroneAgent)o);
+		for (Object o : yard.getAllObjects())
+			if (o instanceof DroneAgent)
+				schedule.scheduleRepeating((DroneAgent) o);
 	}
 
 	public Double2D getDronePos(CommunicativeAgent drone) {
@@ -101,19 +104,20 @@ public class Environment extends SimState {
 		Double2D pos = yard.getObjectLocation(drone);
 		return new Double3D(pos.getX(), pos.getY(), this.droneAngles.get(drone));
 	}
-	
+
 	public float getDroneAngle(DroneAgent drone) {
 		return droneAngles.get(drone);
 	}
 
 	public Set<DroneAgent> getDrones() {
-		Set<DroneAgent> s = (Set<DroneAgent>) yard.getAllObjects().stream().filter(obj -> obj instanceof DroneAgent).map(obj -> (DroneAgent) obj)
-				.collect(Collectors.toSet());
+		Set<DroneAgent> s = (Set<DroneAgent>) yard.getAllObjects().stream().filter(obj -> obj instanceof DroneAgent)
+				.map(obj -> (DroneAgent) obj).collect(Collectors.toSet());
 		return s;
 	}
-	
+
 	public Set<CommunicativeAgent> getAgents() {
-		Set<CommunicativeAgent> s = (Set<CommunicativeAgent>) yard.getAllObjects().stream().filter(obj -> obj instanceof CommunicativeAgent).map(obj -> (CommunicativeAgent) obj)
+		Set<CommunicativeAgent> s = (Set<CommunicativeAgent>) yard.getAllObjects().stream()
+				.filter(obj -> obj instanceof CommunicativeAgent).map(obj -> (CommunicativeAgent) obj)
 				.collect(Collectors.toSet());
 		return s;
 	}
@@ -121,9 +125,9 @@ public class Environment extends SimState {
 	public void translateDrone(DroneAgent drone, Double2D translation) {
 		Double2D pos = yard.getObjectLocation(drone);
 		float angle = droneAngles.get(drone);
-		
+
 		double tx = Math.cos(angle) * translation.getX();
-		double ty = Math.sin(angle) * translation.getX();		
+		double ty = Math.sin(angle) * translation.getX();
 		angle += Math.PI / 2; // translation can have negative numbers, so treat X and Y separately
 		tx += Math.cos(angle) * translation.getY();
 		ty += Math.sin(angle) * translation.getY();
@@ -131,7 +135,7 @@ public class Environment extends SimState {
 		pos = new Double2D(pos.x % yard.getWidth(), pos.y % yard.getHeight());
 		yard.setObjectLocation(drone, pos);
 	}
-	
+
 	public void rotateDrone(DroneAgent drone, float rotation) {
 		float newAngle = (float) ((droneAngles.get(drone) + rotation) % (Math.PI * 2));
 		droneAngles.put(drone, newAngle);
@@ -142,7 +146,7 @@ public class Environment extends SimState {
 		yard.setObjectLocation(d, pos);
 		droneAngles.put(d, 0f);
 	}
-	
+
 	private void linkDrones(DroneAgent follower, DroneAgent leader) {
 		follower.setLeaderID(leader.getID());
 		leader.setFollowerID(follower.getID());
