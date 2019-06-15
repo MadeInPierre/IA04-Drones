@@ -45,6 +45,7 @@ public class DroneAgent extends CommunicativeAgent {
 			flyingManager.setFlyingState(FlyingState.SEEK_SIGNAL_DIR);
 		if(newRole == DroneRole.HEAD) {
 			flyingManager.setFlyingState(FlyingState.HEAD_MOVE);
+			setDroneState(DroneState.FLYING);
 			setLeaderID(-1);
 		}
 		droneRole = newRole;
@@ -110,9 +111,10 @@ public class DroneAgent extends CommunicativeAgent {
 			if (!isLeader() && msg.getTitle() == "moveHead" && msg.getPerformative() == Performative.REQUEST) {
 				DroneMessage newMsg = new DroneMessage(this, this.leaderID, msg.getPerformative());
 				newMsg.setContent(msg.getContent());
+				newMsg.setTitle(msg.getTitle());
 				communicator.sendMessageToDrone(newMsg);
 				garbageMessages.add(msg);
-				System.out.println("Drone" + this.agentID + "received moveHad order");
+				System.out.println("Drone" + this.agentID + " received moveeHad order, send to " + this.leaderID);
 			}
 		}
 		for(DroneMessage msg : garbageMessages) communicator.removeMessage(msg);

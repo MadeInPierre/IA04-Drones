@@ -2,6 +2,7 @@ package agents.drone.behaviors;
 
 import agents.Communicator;
 import agents.DroneMessage;
+import agents.DroneMessage.Performative;
 import agents.drone.DroneAgent;
 import agents.drone.DroneFlyingManager.FlyingState;
 import main.Constants;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 public class HeadMoveBehavior extends FlyingBehavior {
 	public HeadMoveBehavior(DroneAgent drone) {
 		super(drone);
+		
 	}
 
 	public Double3D stepTransform(Communicator com) {
@@ -21,26 +23,20 @@ public class HeadMoveBehavior extends FlyingBehavior {
 		ArrayList<DroneMessage> inbox = com.getMessages();
 
 		for (DroneMessage mes : inbox){
-			if (mes.getTitle() == "moveHead"){
+			if (mes.getTitle() == "moveHead" && mes.getPerformative() == Performative.REQUEST){
 				destroy = mes;
-				System.out.println("get mes");
 				//Lecture du message de mouvement du drone de tête
 				String move = mes.getContent();
 				String delims = " ";
-				String[] tokens = move.split(delims);
-
-				String s = tokens[0];
-				String sx = "x";
-				String sy = "y";
-				if (s.equals(sx)){
-					int x = Integer.parseInt(tokens[1]);
-					transform = new Double3D(x, 0, 0);
-				}
-				else if(s.equals(sy)){
-					int y = Integer.parseInt(tokens[1]);
-					transform = new Double3D(0, y, 0);
-				}
-				System.out.println("transform" + transform);
+				String[] tokens = move.split(";");
+				
+				String sx = tokens[0];
+				String sy = tokens[1];
+				
+				double x = Double.parseDouble(sx.replace("x ", ""));
+				double y = Double.parseDouble(sy.replace("y ", ""));
+				
+				transform = new Double3D(x, y, 0);
 				break;
 			}
 		}

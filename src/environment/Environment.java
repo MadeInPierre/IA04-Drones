@@ -58,15 +58,15 @@ public class Environment extends SimState {
 		droneAngles = new HashMap<DroneAgent, Float>();
 
 		// Add drones
-		addDrone(new Double2D(20, 14)); // Head drone
-		addDrone(new Double2D(15, 12));
-		addDrone(new Double2D(11, 12));
+		addDrone(new Double2D(0, 30)); // Head drone
+		addDrone(new Double2D(1, 30));
+		addDrone(new Double2D(2, 30));
 		// addDrone(new Double2D(8, 10));
 		// addDrone(new Double2D(5, 8));
 
 		headDrone = (DroneAgent) yard.getAllObjects().get(0);
 		headDrone.setDroneRole(DroneRole.HEAD);
-		rotateDrone(headDrone, (float) Math.PI / 4); // TODO tmp for tests
+		//rotateDrone(headDrone, (float) Math.PI / 4); // TODO tmp for tests
 
 		for (int i = 0; i < droneAngles.size() - 1; i++) {
 			DroneAgent leader = (DroneAgent) yard.getAllObjects().get(i);
