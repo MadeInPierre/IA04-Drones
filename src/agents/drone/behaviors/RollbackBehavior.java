@@ -18,4 +18,8 @@ public class RollbackBehavior extends FlyingBehavior {
 	public FlyingState transitionTo() {
 		return FlyingState.ROLLBACK;
 	}
+	
+	public boolean enableCollisions() {
+		return true;
+	}
 }

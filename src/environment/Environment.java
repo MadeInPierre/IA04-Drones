@@ -59,11 +59,10 @@ public class Environment extends SimState {
 		droneAngles = new HashMap<DroneAgent, Float>();
 
 		// Add drones
-		addDrone(new Double2D(0, 30)); // Head drone
-		addDrone(new Double2D(1, 30));
-		addDrone(new Double2D(2, 30));
-		// addDrone(new Double2D(8, 10));
-		// addDrone(new Double2D(5, 8));
+		addDrone(new Double2D(5, 31)); // Head drone
+		
+		for(int i = 0; i < Constants.N_DRONES - 1; i++)
+			addDrone(new Double2D(6 - 0.5*i, 30.5)); // Followers
 
 		headDrone = (DroneAgent) yard.getAllObjects().get(0);
 		headDrone.setDroneRole(DroneRole.HEAD);
@@ -80,7 +79,7 @@ public class Environment extends SimState {
 
 		operator = new OperatorAgent();
 		schedule.scheduleRepeating(operator);
-		yard.setObjectLocation(operator, new Double2D(0, 30));
+		yard.setObjectLocation(operator, new Double2D(1, 32));
 
 		signalManager = new SignalManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.SIGNAL_MAP_STEP,
 				Constants.SIGNAL_IMAGE, this);
@@ -160,7 +159,7 @@ public class Environment extends SimState {
 		a2 = Environment.get().getSignalManager().getClosestAgent(operator);
 
 		while(true) {
-			if (a2.isEmpty())
+			if (!a2.isPresent())
 				return false;
 			
 			if (signalManager.getSignalLoss(getDronePos(a1), getDronePos(a2.get())) > Constants.DRONE_MAXIMUM_SIGNAL_LOSS)

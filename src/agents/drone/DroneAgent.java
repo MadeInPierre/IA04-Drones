@@ -115,7 +115,7 @@ public class DroneAgent extends CommunicativeAgent {
 				if (!communicator.sendMessageToDrone(newMsg))
 					setFlyingState(FlyingState.WAIT_RECONNECT);
 				garbageMessages.add(msg);
-				System.out.println("Drone" + this.agentID + " received moveeHad order, send to " + this.leaderID);
+				//System.out.println("Drone" + this.agentID + " received moveeHad order, send to " + this.leaderID);
 			}
 		}
 		for(DroneMessage msg : garbageMessages) communicator.removeMessage(msg);
@@ -155,7 +155,7 @@ public class DroneAgent extends CommunicativeAgent {
 		}
 		
 		// Update position
-		flyingManager.stepTransform(communicator);
+		if(droneState == DroneState.FLYING) flyingManager.stepTransform(communicator);
 		
 		// Cleanup messages
 		communicator.clearStatuses();

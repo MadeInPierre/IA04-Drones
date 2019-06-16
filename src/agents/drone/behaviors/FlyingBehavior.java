@@ -19,4 +19,8 @@ public class FlyingBehavior {
 	public FlyingState transitionTo() {
 		return FlyingState.IDLE;
 	}
+	
+	public boolean enableCollisions() {
+		return true;
+	}
 }

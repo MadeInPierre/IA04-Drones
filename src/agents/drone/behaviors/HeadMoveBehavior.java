@@ -48,4 +48,8 @@ public class HeadMoveBehavior extends FlyingBehavior {
 	public FlyingState transitionTo() {
 		return FlyingState.HEAD_MOVE;
 	}
+	
+	public boolean enableCollisions() {
+		return true;
+	}
 }

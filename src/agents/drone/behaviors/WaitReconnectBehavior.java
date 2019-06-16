@@ -29,4 +29,8 @@ public class WaitReconnectBehavior extends FlyingBehavior {
 		if(connected) return FlyingState.SEEK_SIGNAL_DIR;
 		return FlyingState.WAIT_RECONNECT;
 	}
+	
+	public boolean enableCollisions() {
+		return false;
+	}
 }

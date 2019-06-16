@@ -77,7 +77,33 @@ public class DroneFlyingManager {
 	}
 	
 	public void stepTransform(Communicator com) {
+		// Apply current movement strategy
+		Double3D behaviorTransform = currentBehavior.stepTransform(com); //TODO get com from drone instead of arg
+		
 		// Process distance sensors
+		Double3D collisionTransform = new Double3D(0, 0, 0);
+		if(currentBehavior.enableCollisions()) 
+			collisionTransform = calculateCollisionTransform(com);
+		
+		// Merge moving decisions for a final transform
+		Double3D transform = behaviorTransform;
+		if (drone.getDroneState() == DroneState.FLYING) {
+			transform = transform.add(collisionTransform.multiply(Constants.DRONE_COLLISION_SENSOR_WEIGHT));
+			updateHistory(transform); // Save transform in translation history
+		}
+		
+		// Potentially switch to a new behavior
+		setFlyingState(currentBehavior.transitionTo());
+
+		// Move the drone in the real world
+		System.out.println(drone.getID() + " " + transform);
+		Environment env = Environment.get();
+		env.rotateDrone(drone, (float)transform.z);
+		env.translateDrone(drone, new Double2D(transform.x, transform.y));
+	}
+	
+	
+	private Double3D calculateCollisionTransform(Communicator com) {
 		Double3D collisionTransform = new Double3D(0, 0, 0);
 
 		CollisionsSensor[] sensors = drone.getCollisionSensors();
@@ -85,38 +111,23 @@ public class DroneFlyingManager {
 		for (CollisionsSensor sensor : sensors) {
 			float distance = (float) sensor.getDistance(com);
 
-			if (distance > 0) {
+			if (distance > 0 && distance <= Constants.DRONE_COLLISION_SENSOR_TRIGGER_DISTANCE) {
 				float angle = sensor.getAngle();
 
 				Double3D vector = distance < Constants.DRONE_COLLISION_SENSOR_MINIMUM_DISTANCE ?
 						new Double3D(0, 0, 0) :
-						new Double3D(Math.cos((double) angle), Math.sin((double) angle), 0)
-								.multiply(-1 / distance / distance);
+						new Double3D(Math.cos((double) angle), Math.sin((double) angle), 0).multiply(-1 / distance / distance);
 
 				collisionTransform = collisionTransform.add(vector);
 			}
 		}
+		// Can't go faster than the drone speed in all cases
+		if(collisionTransform.length() > Constants.DRONE_SPEED)
+			collisionTransform = collisionTransform.normalize().multiply(Constants.DRONE_SPEED);
 		
-		// Apply current movement strategy
-		Double3D behaviorTransform = currentBehavior.stepTransform(com); //TODO get com from drone instead of arg
-		setFlyingState(currentBehavior.transitionTo()); // potentially switch to a new behavior
-		// Merge moving decisions for a final transform
-		Double3D transform = behaviorTransform;
-		
-		if (drone.getDroneState() == DroneState.FLYING) {
-			transform = transform.add(collisionTransform.multiply(Constants.DRONE_COLLISION_SENSOR_WEIGHT));
-			// Save transform in translation history
-			updateHistory(transform);
-		}
-		
-		
-
-		// Move the drone in the real world
-		Environment env = Environment.get();
-		env.rotateDrone(drone, (float)transform.z);
-		env.translateDrone(drone, new Double2D(transform.x, transform.y));
+		return collisionTransform;
 	}
-	
+
 	public FlyingState getFlyingState() {
 		return flyingState;
 	}

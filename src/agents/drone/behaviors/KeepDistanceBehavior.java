@@ -50,4 +50,8 @@ public class KeepDistanceBehavior extends FlyingBehavior {
 		if(stepsSinceStart > MAX_STEPS) return FlyingState.SEEK_SIGNAL_DIR;
 		return FlyingState.KEEP_SIGNAL_DIST;
 	}
+	
+	public boolean enableCollisions() {
+		return true;
+	}
 }

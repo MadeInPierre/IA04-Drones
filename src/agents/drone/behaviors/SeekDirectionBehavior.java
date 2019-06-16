@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class SeekDirectionBehavior extends FlyingBehavior {
-	private static final float CIRCLE_RADIUS  = 1f;
+	private static final float CIRCLE_RADIUS  = .5f;
 	private static final float N_GOTO_STEPS   = 20;  // Number of steps before reaching circle or center positions 
 	private static final float N_CIRCLE_STEPS = 100; // Number of steps before making a full circle. One signal measure per step.
 	
@@ -48,7 +48,7 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 		case IN_CIRCLE: {
 			// Get signal strength compared to leader
 			DroneMessage lastStatus = com.getLastStatusFrom(drone.getLeaderID());
-			float strength = -1;
+			float strength = Float.MAX_VALUE;
 			if(lastStatus != null) strength = lastStatus.getStrength();
 			strengths.add(strength); // get current signal measure
 			//System.out.println(strength);
@@ -76,8 +76,9 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 				// Choose new direction 
 				float dir = Collections.min(strengths);
 				int i_dir = strengths.indexOf(dir);
-				//System.out.println("drone=" + drone.getID() + "Found min=" + dir + ", i=" + i_dir);
+				
 				transform = transform.add(new Double3D(0, 0, i_dir * 2 * Math.PI / N_CIRCLE_STEPS));
+				System.out.println("drone=" + drone.getID() + " Found min=" + dir + ", i=" + i_dir + ", decided to turn=" + transform);
 			}
 			break;
 		}
@@ -93,5 +94,9 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 	public FlyingState transitionTo() {
 		if(seekState == SeekState.FINISHED) return FlyingState.KEEP_SIGNAL_DIST;
 		return FlyingState.SEEK_SIGNAL_DIR;
+	}
+	
+	public boolean enableCollisions() {
+		return false;
 	}
 }
