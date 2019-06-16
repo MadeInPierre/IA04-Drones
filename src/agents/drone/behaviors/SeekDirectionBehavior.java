@@ -47,12 +47,10 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 			for(DroneMessage msg : inbox) {
 				if(msg.getTitle() == "seek") {
 					if(msg.getContent() == "start" && (drone.getFollowerID() == msg.getSenderID() || drone.getLeaderID() == msg.getSenderID())) {
-						drone.log("Drone=" + msg.getSenderID() + " said seek start");
 						blocking_drone_ids.add(msg.getSenderID());
 						garbage.add(msg);
 					}
 					if(msg.getContent() == "end" && (drone.getFollowerID() == msg.getSenderID() || drone.getLeaderID() == msg.getSenderID())) {
-						drone.log("Drone=" + msg.getSenderID() + " said seek end");
 						if(blocking_drone_ids.contains(msg.getSenderID())) {
 							blocking_drone_ids.remove(blocking_drone_ids.indexOf(msg.getSenderID()));
 						}
@@ -61,21 +59,17 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 				}
 			}
 			for(DroneMessage msg : garbage) com.removeMessage(msg);
-			
-			drone.log("waiting for free seeking... occupied by " + blocking_drone_ids);
-			
+						
 			if(blocking_drone_ids.size() == 0) { // seek when nobody near is
 				DroneMessage msg = new DroneMessage(drone, DroneMessage.BROADCAST, Performative.REQUEST);
 				msg.setTitle("seek");
 				msg.setContent("start");
 				com.sendMessageToDrone(msg);
-				drone.log("starting seek");
 				seekState = SeekState.GOTO_CIRCLE;
 			}
 			break;
 		}
 		case GOTO_CIRCLE: {
-			drone.log("GOTO");
 			double stepDist = (double)CIRCLE_RADIUS / N_GOTO_STEPS;
 			transform = transform.add(new Double3D(stepDist, 0, 0));
 			step++;
@@ -119,7 +113,7 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 				int i_dir = strengths.indexOf(dir);
 				
 				transform = transform.add(new Double3D(0, 0, i_dir * 2 * Math.PI / N_CIRCLE_STEPS));
-				System.out.println("drone=" + drone.getID() + " Found min=" + dir + ", i=" + i_dir + ", decided to turn=" + transform);
+				//System.out.println("drone=" + drone.getID() + " Found min=" + dir + ", i=" + i_dir + ", decided to turn=" + transform);
 				
 				// Tell the others we finished seeking
 				DroneMessage msg = new DroneMessage(drone, DroneMessage.BROADCAST, Performative.REQUEST);
