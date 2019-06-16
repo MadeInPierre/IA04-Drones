@@ -57,7 +57,7 @@ public class Communicator {
 		boolean success = false;
 		Environment env = Environment.get();
 		for(CommunicativeAgent a : env.getAgents()) {
-			if(a.getID() == msg.getDestinationID() || msg.getDestinationID() == DroneMessage.BROADCAST) {
+			if(a.getID() == msg.getDestinationID() || (msg.getDestinationID() == DroneMessage.BROADCAST && msg.getSenderID() != a.getID())) {
 				// Duplicate the message #javaRefs
 				DroneMessage m = new DroneMessage(msg.getSender(), msg.getDestinationID(), msg.getPerformative());
 				m.setTitle(msg.getTitle());

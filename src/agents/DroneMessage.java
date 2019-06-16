@@ -13,7 +13,7 @@ public class DroneMessage {
 	 * - Content
 	 */
 	
-	public final static int BROADCAST = -42; // ID used in destinationID
+	public final static int BROADCAST = -42; // ID used in destinationID (sends to everyone in reach except the agent itself)
 	private int destinationID;
 	
 	private CommunicativeAgent sender;

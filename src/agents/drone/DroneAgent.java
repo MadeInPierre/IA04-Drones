@@ -146,7 +146,7 @@ public class DroneAgent extends CommunicativeAgent {
 			break;
 		case FLYING:
 			leaderStatus = communicator.getLastStatusFrom(getLeaderID());
-			if(leaderStatus != null && leaderStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
+			if(leaderStatus != null && leaderStatus.getStrength() > Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
 				setFlyingState(FlyingState.WAIT_RECONNECT);
 			}
 			break;

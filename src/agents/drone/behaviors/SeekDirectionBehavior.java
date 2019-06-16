@@ -2,7 +2,9 @@ package agents.drone.behaviors;
 
 import agents.Communicator;
 import agents.DroneMessage;
+import agents.DroneMessage.Performative;
 import agents.drone.DroneAgent;
+import agents.drone.DroneAgent.DroneState;
 import agents.drone.DroneFlyingManager.FlyingState;
 import sim.util.Double3D;
 import java.util.ArrayList;
@@ -14,19 +16,23 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 	private static final float N_CIRCLE_STEPS = 100; // Number of steps before making a full circle. One signal measure per step.
 	
 	private enum SeekState {
+		BEGIN,		 // Notify the others we are seeking
 		GOTO_CIRCLE, // Going to the circle's first point position
 		IN_CIRCLE,   // Making the turn and collecting signals 
 		GOTO_CENTER, // Going back to center position when circle finished 
 		FINISHED,    // Mark as finished for FlyingManager
 	}
-	private SeekState seekState = SeekState.GOTO_CIRCLE;
+	private SeekState seekState = SeekState.BEGIN;
 	
 	private int step = 0;
 	private ArrayList<Float> strengths;
+	private ArrayList<Integer> blocking_drone_ids; // keeps which drones are currently seeking
 	
 	public SeekDirectionBehavior(DroneAgent drone) {
 		super(drone);
 		strengths = new ArrayList<Float>();
+		
+		blocking_drone_ids = new ArrayList<Integer>();
 	}
 	
 	// Make a full circle pattern
@@ -34,7 +40,42 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 		Double3D transform = new Double3D();
 		
 		switch(seekState) {
+		case BEGIN: {
+			// Check if nobody is doing a search right now
+			ArrayList<DroneMessage> inbox = com.getMessages();
+			ArrayList<DroneMessage> garbage = new ArrayList<DroneMessage>();
+			for(DroneMessage msg : inbox) {
+				if(msg.getTitle() == "seek") {
+					if(msg.getContent() == "start" && (drone.getFollowerID() == msg.getSenderID() || drone.getLeaderID() == msg.getSenderID())) {
+						drone.log("Drone=" + msg.getSenderID() + " said seek start");
+						blocking_drone_ids.add(msg.getSenderID());
+						garbage.add(msg);
+					}
+					if(msg.getContent() == "end" && (drone.getFollowerID() == msg.getSenderID() || drone.getLeaderID() == msg.getSenderID())) {
+						drone.log("Drone=" + msg.getSenderID() + " said seek end");
+						if(blocking_drone_ids.contains(msg.getSenderID())) {
+							blocking_drone_ids.remove(blocking_drone_ids.indexOf(msg.getSenderID()));
+						}
+						garbage.add(msg);
+					}
+				}
+			}
+			for(DroneMessage msg : garbage) com.removeMessage(msg);
+			
+			drone.log("waiting for free seeking... occupied by " + blocking_drone_ids);
+			
+			if(blocking_drone_ids.size() == 0) { // seek when nobody near is
+				DroneMessage msg = new DroneMessage(drone, DroneMessage.BROADCAST, Performative.REQUEST);
+				msg.setTitle("seek");
+				msg.setContent("start");
+				com.sendMessageToDrone(msg);
+				drone.log("starting seek");
+				seekState = SeekState.GOTO_CIRCLE;
+			}
+			break;
+		}
 		case GOTO_CIRCLE: {
+			drone.log("GOTO");
 			double stepDist = (double)CIRCLE_RADIUS / N_GOTO_STEPS;
 			transform = transform.add(new Double3D(stepDist, 0, 0));
 			step++;
@@ -79,12 +120,19 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 				
 				transform = transform.add(new Double3D(0, 0, i_dir * 2 * Math.PI / N_CIRCLE_STEPS));
 				System.out.println("drone=" + drone.getID() + " Found min=" + dir + ", i=" + i_dir + ", decided to turn=" + transform);
+				
+				// Tell the others we finished seeking
+				DroneMessage msg = new DroneMessage(drone, DroneMessage.BROADCAST, Performative.REQUEST);
+				msg.setTitle("seek");
+				msg.setContent("end");
+				com.sendMessageToDrone(msg);
 			}
 			break;
 		}
-		case FINISHED: {
+		case FINISHED:
 			break;
-		}
+		default:
+			break;
 		}
 		
 		//System.out.println("[SeekDirectionBehaviour] chose to move by (" + transform.getX() + ", " + transform.getY() + ", " + transform.getZ() + "), step = " + step);

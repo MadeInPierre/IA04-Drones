@@ -86,17 +86,13 @@ public class DroneFlyingManager {
 			collisionTransform = calculateCollisionTransform(com);
 		
 		// Merge moving decisions for a final transform
-		Double3D transform = behaviorTransform;
-		if (drone.getDroneState() == DroneState.FLYING) {
-			transform = transform.add(collisionTransform.multiply(Constants.DRONE_COLLISION_SENSOR_WEIGHT));
-			updateHistory(transform); // Save transform in translation history
-		}
+		Double3D transform = behaviorTransform.add(collisionTransform.multiply(Constants.DRONE_COLLISION_SENSOR_WEIGHT));
+		updateHistory(transform); // Save transform in translation history
 		
 		// Potentially switch to a new behavior
 		setFlyingState(currentBehavior.transitionTo());
 
 		// Move the drone in the real world
-		System.out.println(drone.getID() + " " + transform);
 		Environment env = Environment.get();
 		env.rotateDrone(drone, (float)transform.z);
 		env.translateDrone(drone, new Double2D(transform.x, transform.y));
