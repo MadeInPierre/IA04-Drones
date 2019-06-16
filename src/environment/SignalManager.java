@@ -96,6 +96,8 @@ public class SignalManager implements Steppable {
 	}
 
 	private float getPathLoss(float lossExponent, float distance) {
+		if (distance <= this.step)
+			return 0;
 		return (float) (10 * lossExponent * Math.log10(distance));
 	}
 

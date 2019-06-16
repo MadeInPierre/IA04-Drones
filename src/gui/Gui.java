@@ -136,7 +136,7 @@ public class Gui extends GUIState {
 	}
 
 	private Portrayal2D getDronePortrayal() {
-		return new DronePortrayal("img/drone.png", Color.white, true, Color.blue);
+		return new DronePortrayal("img/drone.png", Color.white, true);
 	}
 
 }

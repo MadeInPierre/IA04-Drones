@@ -1,5 +1,6 @@
 package gui;
 
+import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Paint;
@@ -7,6 +8,7 @@ import java.awt.Paint;
 import javax.swing.ImageIcon;
 
 import agents.drone.DroneAgent;
+import environment.Environment;
 import sim.portrayal.DrawInfo2D;
 import sim.portrayal.simple.CircledPortrayal2D;
 import sim.portrayal.simple.ImagePortrayal2D;
@@ -14,7 +16,7 @@ import sim.portrayal.simple.LabelledPortrayal2D;
 
 public class DronePortrayal extends CircledPortrayal2D {
 
-	public DronePortrayal(String image, Paint labelPaint, boolean onlyLabelWhenSelected, Paint circlePaint) {
+	public DronePortrayal(String image, Paint labelPaint, boolean onlyLabelWhenSelected) {
 		super(new LabelledPortrayal2D(new ImagePortrayal2D(new ImageIcon(image), 1), 0, 20, 0, 0.5,
 				new Font("SansSerif", Font.BOLD, 15), LabelledPortrayal2D.ALIGN_CENTER, null, labelPaint,
 				onlyLabelWhenSelected) {
@@ -26,7 +28,7 @@ public class DronePortrayal extends CircledPortrayal2D {
 				this.label += drone.getDroneState() + " | " + drone.getFlyingState();
 				super.draw(object, graphics, info);
 			}
-		}, circlePaint, false);
+		}, Color.blue, false);
 	}
 
 	@Override
@@ -38,8 +40,11 @@ public class DronePortrayal extends CircledPortrayal2D {
 		if (scale > 3)
 			scale = 0.5;
 
-		if (drone.isLeader())
+		if (drone.isLeader()) {
 			this.setCircleShowing(true);
+			this.paint = Environment.get().isPathFromOperatorToHead() ? Color.blue : Color.red;
+		
+		}
 		else
 			this.setCircleShowing(false);
 

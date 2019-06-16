@@ -2,6 +2,7 @@ package environment;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -150,5 +151,27 @@ public class Environment extends SimState {
 	private void linkDrones(DroneAgent follower, DroneAgent leader) {
 		follower.setLeaderID(leader.getID());
 		leader.setFollowerID(follower.getID());
+	}
+	
+	public boolean isPathFromOperatorToHead() {
+		CommunicativeAgent a1 = operator;
+		Optional<CommunicativeAgent> a2;
+
+		a2 = Environment.get().getSignalManager().getClosestAgent(operator);
+
+		while(true) {
+			if (a2.isEmpty())
+				return false;
+			
+			if (signalManager.getSignalLoss(getDronePos(a1), getDronePos(a2.get())) > Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
+				return false;
+			
+			if (((DroneAgent) a2.get()).isLeader())
+				return true;
+			
+			a1 = a2.get();
+			int l = ((DroneAgent)a1).getLeaderID();
+			a2 = getAgents().stream().filter(o -> o.getID() == l).findFirst();
+		}
 	}
 }
