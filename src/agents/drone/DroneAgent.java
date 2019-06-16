@@ -112,7 +112,8 @@ public class DroneAgent extends CommunicativeAgent {
 				DroneMessage newMsg = new DroneMessage(this, this.leaderID, msg.getPerformative());
 				newMsg.setContent(msg.getContent());
 				newMsg.setTitle(msg.getTitle());
-				communicator.sendMessageToDrone(newMsg);
+				if (!communicator.sendMessageToDrone(newMsg))
+					setFlyingState(FlyingState.WAIT_RECONNECT);
 				garbageMessages.add(msg);
 				System.out.println("Drone" + this.agentID + " received moveeHad order, send to " + this.leaderID);
 			}
@@ -144,6 +145,10 @@ public class DroneAgent extends CommunicativeAgent {
 			}
 			break;
 		case FLYING:
+			leaderStatus = communicator.getLastStatusFrom(getLeaderID());
+			if(leaderStatus != null && leaderStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
+				setFlyingState(FlyingState.WAIT_RECONNECT);
+			}
 			break;
 		case CRASHED:
 			break;

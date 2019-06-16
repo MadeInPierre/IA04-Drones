@@ -3,6 +3,7 @@ package agents.drone;
 import java.util.ArrayList;
 
 import agents.Communicator;
+import agents.drone.DroneAgent.DroneState;
 import agents.drone.behaviors.FlyingBehavior;
 import agents.drone.behaviors.HeadMoveBehavior;
 import agents.drone.behaviors.KeepDistanceBehavior;
@@ -100,11 +101,15 @@ public class DroneFlyingManager {
 		Double3D behaviorTransform = currentBehavior.stepTransform(com); //TODO get com from drone instead of arg
 		setFlyingState(currentBehavior.transitionTo()); // potentially switch to a new behavior
 		// Merge moving decisions for a final transform
-		Double3D transform = behaviorTransform.add(
-				collisionTransform.multiply(Constants.DRONE_COLLISION_SENSOR_WEIGHT));
+		Double3D transform = behaviorTransform;
 		
-		// Save transform in translation history
-		updateHistory(transform);
+		if (drone.getDroneState() == DroneState.FLYING) {
+			transform = transform.add(collisionTransform.multiply(Constants.DRONE_COLLISION_SENSOR_WEIGHT));
+			// Save transform in translation history
+			updateHistory(transform);
+		}
+		
+		
 
 		// Move the drone in the real world
 		Environment env = Environment.get();
