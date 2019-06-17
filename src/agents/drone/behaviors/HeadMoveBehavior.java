@@ -11,6 +11,8 @@ import sim.util.Double3D;
 import java.util.ArrayList;
 
 public class HeadMoveBehavior extends FlyingBehavior {
+	private boolean signalLost = false;
+
 	public HeadMoveBehavior(DroneAgent drone) {
 		super(drone);
 		
@@ -19,6 +21,9 @@ public class HeadMoveBehavior extends FlyingBehavior {
 	public Double3D stepTransform(Communicator com) {
 		Double3D transform = new Double3D(0, 0, 0);
 		DroneMessage destroy = null;
+		float signalStrength = com.getSignalStrength(drone.getFollowerID());
+
+		signalLost = signalStrength > Constants.DRONE_MAXIMUM_SIGNAL_LOSS;
 
 		ArrayList<DroneMessage> inbox = com.getMessages();
 
@@ -29,23 +34,29 @@ public class HeadMoveBehavior extends FlyingBehavior {
 				String move = mes.getContent();
 				String delims = " ";
 				String[] tokens = move.split(";");
-				
+
 				String sx = tokens[0];
 				String sy = tokens[1];
-				
+
 				double x = Double.parseDouble(sx.replace("x ", ""));
 				double y = Double.parseDouble(sy.replace("y ", ""));
-				
+
 				transform = new Double3D(x, y, 0);
 				break;
 			}
 		}
+
 		if (destroy != null)
 			com.removeMessage(destroy);
+
 		return transform;
 	}
 
 	public FlyingState transitionTo() {
+		if (signalLost) {
+			return FlyingState.ROLLBACK;
+		}
+
 		return FlyingState.HEAD_MOVE;
 	}
 	

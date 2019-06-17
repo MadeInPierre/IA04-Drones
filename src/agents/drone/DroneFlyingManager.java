@@ -87,8 +87,11 @@ public class DroneFlyingManager {
 		
 		// Merge moving decisions for a final transform
 		Double3D transform = behaviorTransform.add(collisionTransform.multiply(Constants.DRONE_COLLISION_SENSOR_WEIGHT));
-		updateHistory(transform); // Save transform in translation history
-		
+
+		if (flyingState != FlyingState.ROLLBACK && flyingState != FlyingState.SEEK_SIGNAL_DIR) {
+			updateHistory(transform); // Save transform in translation history
+		}
+
 		// Potentially switch to a new behavior
 		setFlyingState(currentBehavior.transitionTo());
 
@@ -126,5 +129,9 @@ public class DroneFlyingManager {
 
 	public FlyingState getFlyingState() {
 		return flyingState;
+	}
+
+	public Double3D popTrajectoryHistory() {
+		return !trajectoryHistory.isEmpty() ? trajectoryHistory.remove(trajectoryHistory.size() - 1) : null;
 	}
 }

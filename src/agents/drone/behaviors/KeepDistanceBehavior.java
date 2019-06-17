@@ -12,6 +12,8 @@ public class KeepDistanceBehavior extends FlyingBehavior {
 	private static final int MAX_STEPS        = 150; // number of steps before seeking again by default
 	long prevStatusStep = -1;
 	int noStatusSteps = 0;
+	boolean followerLost = false;
+	boolean leaderLost = false;
 	
 	Double3D lastTransform; // If no status received, continue in the same direction (in the hope we find the signal again)
 	
@@ -26,6 +28,8 @@ public class KeepDistanceBehavior extends FlyingBehavior {
 		Double3D transform = new Double3D(0, 0, 0);
 		// Get signal strength compared to leader
 		DroneMessage lastStatus = com.getLastStatusFrom(drone.getLeaderID());
+		followerLost = com.getSignalStrength(drone.getFollowerID()) > Constants.DRONE_MAXIMUM_SIGNAL_LOSS;
+
 		if(lastStatus == null || lastStatus.getStep() == prevStatusStep) {
 			noStatusSteps++;
 			return lastTransform;
@@ -42,10 +46,11 @@ public class KeepDistanceBehavior extends FlyingBehavior {
 		//System.out.println("[KeepDistBehaviour, drone=" + drone.getID() + "] Got strength = " + strength + ", chose to move by " + transform);
 		stepsSinceStart++;
 		lastTransform = transform;
-		return transform;
+		return !followerLost ? transform : new Double3D();
 	}
 	
 	public FlyingState transitionTo() {
+		if(followerLost) return FlyingState.ROLLBACK;
 		if(noStatusSteps > MAX_STEPS_NO_MSG) return FlyingState.SEEK_SIGNAL_DIR;
 		if(stepsSinceStart > MAX_STEPS) return FlyingState.SEEK_SIGNAL_DIR;
 		return FlyingState.KEEP_SIGNAL_DIST;

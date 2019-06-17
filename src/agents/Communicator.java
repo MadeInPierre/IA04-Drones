@@ -37,6 +37,18 @@ public class Communicator {
 		//System.out.println(id);
 		return lastStatuses.get(id);
 	}
+
+	public float getSignalStrength(int id) {
+		Environment env = Environment.get();
+
+		for(CommunicativeAgent a : env.getAgents()) {
+			if (a.getID() == id) {
+				return env.getSignalManager().getSignalLoss(env.getDronePos(owner), env.getDronePos(a));
+			}
+		}
+
+		return -1; // En cas d'id invalide;
+	}
 	
 	public void clearStatuses() {
 		lastStatuses.clear();

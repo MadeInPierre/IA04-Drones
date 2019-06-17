@@ -176,4 +176,6 @@ public class DroneAgent extends CommunicativeAgent {
 	public FlyingState getFlyingState() {
 		return flyingManager.getFlyingState();
 	}
+
+	public Double3D popTrajectoryHistory() { return flyingManager.popTrajectoryHistory(); }
 }
