@@ -165,7 +165,7 @@ public class Environment extends SimState {
 			if (signalManager.getSignalLoss(getDronePos(a1), getDronePos(a2.get())) > Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
 				return false;
 			
-			if (((DroneAgent) a2.get()).isLeader())
+			if (((DroneAgent) a2.get()).isHead())
 				return true;
 			
 			a1 = a2.get();

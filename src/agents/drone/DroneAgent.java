@@ -108,7 +108,7 @@ public class DroneAgent extends CommunicativeAgent {
 				log("Now armed!");
 				garbageMessages.add(msg);
 			}
-			if (!isLeader() && msg.getTitle() == "moveHead" && msg.getPerformative() == Performative.REQUEST) {
+			if (!isHead() && msg.getTitle() == "moveHead" && msg.getPerformative() == Performative.REQUEST) {
 				DroneMessage newMsg = new DroneMessage(this, this.leaderID, msg.getPerformative());
 				newMsg.setContent(msg.getContent());
 				newMsg.setTitle(msg.getTitle());
@@ -165,7 +165,7 @@ public class DroneAgent extends CommunicativeAgent {
 		System.out.println("[Drone=" + getID() + "] " + text);
 	}
 	
-	public boolean isLeader() {
+	public boolean isHead() {
 		return droneRole == DroneRole.HEAD;
 	}
 	

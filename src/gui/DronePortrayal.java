@@ -40,7 +40,7 @@ public class DronePortrayal extends CircledPortrayal2D {
 		if (scale > 3)
 			scale = 0.5;
 
-		if (drone.isLeader()) {
+		if (drone.isHead()) {
 			this.setCircleShowing(true);
 			this.paint = Environment.get().isPathFromOperatorToHead() ? Color.blue : Color.red;
 		

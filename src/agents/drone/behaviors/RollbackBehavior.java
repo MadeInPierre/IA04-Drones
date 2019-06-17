@@ -35,7 +35,7 @@ public class RollbackBehavior extends FlyingBehavior {
 			return FlyingState.ROLLBACK;
 		}
 		else {
-			return drone.isLeader() ? FlyingState.HEAD_MOVE : FlyingState.KEEP_SIGNAL_DIST;
+			return drone.isHead() ? FlyingState.HEAD_MOVE : FlyingState.KEEP_SIGNAL_DIST;
 		}
 	}
 	
