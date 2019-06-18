@@ -2,7 +2,10 @@ package agents.drone;
 
 import java.util.ArrayList;
 
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
+
 import agents.Communicator;
+import agents.DroneMessage;
 import agents.drone.DroneAgent.DroneState;
 import agents.drone.behaviors.FlyingBehavior;
 import agents.drone.behaviors.HeadMoveBehavior;
@@ -28,7 +31,8 @@ public class DroneFlyingManager {
 	
 	private ArrayList<Double3D> trajectoryHistory; // keeps the last main.Constants.HISTORY_DURATION seconds of the drone's position
 	
-	FlyingBehavior currentBehavior;
+	FlyingBehavior currentBehavior = null;
+	boolean forceHover = false; // can be enabled when the follower is seeking
 	
 	DroneAgent drone;
 	
@@ -37,6 +41,7 @@ public class DroneFlyingManager {
 		flyingState = newState;
 		
 		// Change current moving strategy that will be applied from now on
+		if(currentBehavior != null) currentBehavior.destroy();
 		switch(flyingState) {
 		case IDLE:
 			currentBehavior = new FlyingBehavior(drone);
@@ -59,6 +64,11 @@ public class DroneFlyingManager {
 		}
 	}
 	
+	public void setFlyingStateForced(FlyingState newState) {
+		flyingState = null;
+		setFlyingState(newState);
+	}
+	
 	public DroneFlyingManager(DroneAgent drone) {
 		this.drone = drone;
 		setFlyingState(FlyingState.IDLE); 
@@ -78,18 +88,25 @@ public class DroneFlyingManager {
 	}
 	
 	public void stepTransform(Communicator com) {
+		// Process messages
+		ArrayList<DroneMessage> inbox = com.getMessages();
+		for(DroneMessage msg : inbox) {
+			if(msg.getTitle() == "seek" && msg.getContent() == "start" && msg.getSenderID() == drone.getFollowerID()) forceHover = true;
+			if(msg.getTitle() == "seek" && msg.getContent() == "end" && msg.getSenderID() == drone.getFollowerID()) forceHover = false;
+		}
+		
 		// Apply current movement strategy
-		Double3D behaviorTransform = currentBehavior.stepTransform(com); //TODO get com from drone instead of arg
+		Double3D behaviorTransform = new Double3D();
+		if(forceHover == false) behaviorTransform = currentBehavior.stepTransform(com);
 		
 		// Process distance sensors
 		Double3D collisionTransform = new Double3D(0, 0, 0);
-		if(currentBehavior.enableCollisions()) 
-			collisionTransform = calculateCollisionTransform(com);
+		if(currentBehavior.enableCollisions()) collisionTransform = calculateCollisionTransform(com);
 		
 		// Merge moving decisions for a final transform
 		Double3D transform = behaviorTransform.add(collisionTransform.multiply(Constants.DRONE_COLLISION_SENSOR_WEIGHT));
 
-		if (flyingState != FlyingState.ROLLBACK && flyingState != FlyingState.SEEK_SIGNAL_DIR) {
+		if (flyingState != FlyingState.ROLLBACK) {
 			updateHistory(transform); // Save transform in translation history
 		}
 

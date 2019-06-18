@@ -24,7 +24,10 @@ public class Communicator {
 		if(msg.getTitle() == "status") {
 			//System.out.println("Adding status from " + msg.getSenderID());
 			lastStatuses.put(msg.getSenderID(), msg);
-		} else inbox.add(msg);
+		} else {
+			if(inbox.size() > Constants.DRONE_MAX_INBOX_MSGS) inbox.remove(0);
+			inbox.add(msg);
+		}
 		//System.out.println("Agent " + msg.getDestinationID() + " got message title=" + msg.getTitle() + " at step=" + msg.getStep());
 	}
 	

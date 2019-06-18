@@ -17,12 +17,13 @@ public class Constants {
     public static final String COLLISION_IMAGE   = "img/collision.bmp";
 
 	// drone stats
-    public static final float DRONE_MAXIMUM_SIGNAL_LOSS  = 35f;  //dB, loss before signal is completely lost
+    public static final float DRONE_RTH_SIGNAL_LOSS      = 8f;  //dB, loss before landing near the base during rth
     public static final float DRONE_IDEAL_SIGNAL_LOSS    = 20f;  //dB, loss goal using in KeepDistanceBehavior
     public static final float DRONE_ARMED_SIGNAL_LOSS    = 25f;  //dB, threshold between armed and flying
     public static final float DRONE_DANGER_SIGNAL_LOSS   = 32f;  //dB, loss before triggering a disconnection scenario
+    public static final float DRONE_MAXIMUM_SIGNAL_LOSS  = 35f;  //dB, loss before signal is completely lost
 
-    public static final float N_DRONES = 8;
+    public static final float N_DRONES = 6;
     public static final float DRONE_SPEED                             = .1f / 3f;	// Map units per step
 	public static final float DRONE_COLLISION_SENSOR_RANGE 			  = 5f; 		// Distance in map units
 	public static final float DRONE_COLLISION_SENSOR_TRIGGER_DISTANCE = 1.5f;		// Distance at which correction will start to be applied
@@ -31,4 +32,5 @@ public class Constants {
 	public static final int   HISTORY_DURATION        				  = 1000;   		// Duration in steps of the drones' position history
 	
 	public static final float KEEP_DIST_GOAL_SIGNAL_TOLERANCE = 2f;
+	public static final int   DRONE_MAX_INBOX_MSGS = 50;
 }

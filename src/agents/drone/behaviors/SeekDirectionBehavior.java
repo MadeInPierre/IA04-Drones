@@ -28,6 +28,10 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 	private ArrayList<Float> strengths;
 	private ArrayList<Integer> blocking_drone_ids; // keeps which drones are currently seeking
 	
+	// not much time, bad code
+	private boolean endSent = false;
+	private boolean startSent = false;
+	
 	public SeekDirectionBehavior(DroneAgent drone) {
 		super(drone);
 		strengths = new ArrayList<Float>();
@@ -59,12 +63,15 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 				}
 			}
 			for(DroneMessage msg : garbage) com.removeMessage(msg);
-						
+			
+			drone.log(blocking_drone_ids.toString());
+			
 			if(blocking_drone_ids.size() == 0) { // seek when nobody near is
 				DroneMessage msg = new DroneMessage(drone, DroneMessage.BROADCAST, Performative.REQUEST);
 				msg.setTitle("seek");
 				msg.setContent("start");
 				com.sendMessageToDrone(msg);
+				startSent = true;
 				seekState = SeekState.GOTO_CIRCLE;
 			}
 			break;
@@ -119,6 +126,7 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 				DroneMessage msg = new DroneMessage(drone, DroneMessage.BROADCAST, Performative.REQUEST);
 				msg.setTitle("seek");
 				msg.setContent("end");
+				endSent = true;
 				com.sendMessageToDrone(msg);
 			}
 			break;
@@ -140,5 +148,15 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 	
 	public boolean enableCollisions() {
 		return false;
+	}
+	
+	public void destroy() {
+		if(startSent && !endSent) {
+			// Tell the others we finished seeking
+			DroneMessage msg = new DroneMessage(drone, DroneMessage.BROADCAST, Performative.REQUEST);
+			msg.setTitle("seek");
+			msg.setContent("end");
+			endSent = true;
+		}
 	}
 }

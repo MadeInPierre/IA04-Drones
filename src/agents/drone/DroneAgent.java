@@ -22,15 +22,16 @@ public class DroneAgent extends CommunicativeAgent {
 	
 	public enum DroneRole {
 		HEAD,
-		FOLLOWER
+		FOLLOWER,
+		RTH 		// Return to Home, searching for the base and landing when close
 	};
 	private DroneRole droneRole = DroneRole.FOLLOWER;
 	
 	public enum DroneState {
-		IDLE,   			// Nothing to do, waiting for orders
-		ARMED,				// Take off when the next drone is too far away
-		FLYING,				// Drone flying and applying it's current FlyingState moving strategy.
-		CRASHED				// Game over :(
+		IDLE,   	// Nothing to do, waiting for orders
+		ARMED,		// Take off when the next drone is too far away
+		FLYING,		// Drone flying and applying it's current FlyingState moving strategy.
+		CRASHED		// Game over :(
 	};
 	private DroneState droneState = DroneState.IDLE;
 	
@@ -48,8 +49,13 @@ public class DroneAgent extends CommunicativeAgent {
 			setDroneState(DroneState.FLYING);
 			setLeaderID(-1);
 		}
+		if(newRole == DroneRole.RTH) 
+			if(getDroneState() == DroneState.FLYING)
+				flyingManager.setFlyingStateForced(FlyingState.SEEK_SIGNAL_DIR);
 		droneRole = newRole;
 	}
+	
+	public DroneRole getDroneRole() { return droneRole; }
 	
 	public void setDroneState(DroneState newState) {
 		droneState = newState;
@@ -108,6 +114,7 @@ public class DroneAgent extends CommunicativeAgent {
 				log("Now armed!");
 				garbageMessages.add(msg);
 			}
+			
 			if (!isHead() && msg.getTitle() == "moveHead" && msg.getPerformative() == Performative.REQUEST) {
 				DroneMessage newMsg = new DroneMessage(this, this.leaderID, msg.getPerformative());
 				newMsg.setContent(msg.getContent());
@@ -115,7 +122,38 @@ public class DroneAgent extends CommunicativeAgent {
 				if (!communicator.sendMessageToDrone(newMsg))
 					setFlyingState(FlyingState.WAIT_RECONNECT);
 				garbageMessages.add(msg);
-				//System.out.println("Drone" + this.agentID + " received moveeHad order, send to " + this.leaderID);
+			}
+			
+			// Switch between leader and follower
+			if (msg.getTitle() == "switch_chain" && msg.getPerformative() == Performative.REQUEST) {
+				DroneMessage newMsg = new DroneMessage(this, this.leaderID, msg.getPerformative());
+				newMsg.setTitle(msg.getTitle());
+				communicator.sendMessageToDrone(newMsg);
+				
+				// Switch leader and follower
+				int tmp = getLeaderID();
+				setLeaderID(getFollowerID());
+				setFollowerID(tmp);
+				
+				// If the drone doesn't know who to follow (e.g. tail), follow the sender
+				if(getLeaderID() == -1 && droneRole != DroneRole.HEAD)
+					setLeaderID(msg.getSenderID());
+
+				// If the drone is the head, change status and start seeking
+				if(droneRole == DroneRole.HEAD)
+					setDroneRole(DroneRole.FOLLOWER);
+				
+				// Seek for the follower
+				if(getDroneState() == DroneState.FLYING) 
+					flyingManager.setFlyingStateForced(FlyingState.SEEK_SIGNAL_DIR);
+				garbageMessages.add(msg);
+			}
+
+			if (msg.getTitle() == "rth" && msg.getPerformative() == Performative.REQUEST) {
+				setLeaderID(Integer.parseInt(msg.getContent())); // Message was sent by the base, follow it
+				setDroneRole(DroneRole.RTH);
+				log("started rth, following agent=" + getLeaderID());
+				garbageMessages.add(msg);
 			}
 		}
 		for(DroneMessage msg : garbageMessages) communicator.removeMessage(msg);
@@ -160,6 +198,25 @@ public class DroneAgent extends CommunicativeAgent {
 		case CRASHED: {
 			break;
 		}
+		}
+		
+		if(droneRole == DroneRole.RTH) {
+			DroneMessage lastStatus = communicator.getLastStatusFrom(getLeaderID());
+			float strength = Float.MAX_VALUE;
+			if(lastStatus != null) strength = lastStatus.getStrength();
+			
+			if(droneState == DroneState.IDLE || droneState == DroneState.ARMED || 
+			   strength <= Constants.DRONE_RTH_SIGNAL_LOSS + Constants.KEEP_DIST_GOAL_SIGNAL_TOLERANCE) {
+				setDroneState(DroneState.IDLE);
+				
+				DroneMessage rthmsg = new DroneMessage(this, getFollowerID(), Performative.REQUEST);
+				rthmsg.setTitle("rth");
+				rthmsg.setContent(String.valueOf(getLeaderID())); // Next drone will follow the base too
+				communicator.sendMessageToDrone(rthmsg);
+				
+				setDroneRole(DroneRole.FOLLOWER);
+				log("RTH Finished, landed!");
+			}
 		}
 		
 		// Update position

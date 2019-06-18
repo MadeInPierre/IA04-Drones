@@ -23,4 +23,8 @@ public class FlyingBehavior {
 	public boolean enableCollisions() {
 		return true;
 	}
+	
+	public void destroy() {
+		
+	}
 }
