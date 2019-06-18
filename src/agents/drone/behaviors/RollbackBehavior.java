@@ -19,7 +19,7 @@ public class RollbackBehavior extends FlyingBehavior {
 	
 	public Double3D stepTransform(Communicator com) {
 
-		if(com.getSignalStrength(drone.getFollowerID()) < Constants.DRONE_DANGER_SIGNAL_LOSS) {
+		if(com.getSignalStrength(drone.getFollowerID()) < Constants.DRONE_ARMED_SIGNAL_LOSS) {
 			connexionRestored = true;
 		}
 
@@ -40,6 +40,6 @@ public class RollbackBehavior extends FlyingBehavior {
 	}
 	
 	public boolean enableCollisions() {
-		return true;
+		return false;
 	}
 }

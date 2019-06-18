@@ -67,6 +67,7 @@ public class DroneFlyingManager {
 	
 	// Refresh the drone's trajectory, used for disconnection rollbacks
 	private void updateHistory(Double3D newTransform) {
+		if(newTransform.equals(new Double3D(0, 0, 0))) return; // ignore when we're not moving
 		trajectoryHistory.add(newTransform);
 		if(trajectoryHistory.size() >= Constants.HISTORY_DURATION)
 			trajectoryHistory.remove(0);

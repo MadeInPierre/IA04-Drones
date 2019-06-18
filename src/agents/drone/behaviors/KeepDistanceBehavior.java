@@ -50,7 +50,7 @@ public class KeepDistanceBehavior extends FlyingBehavior {
 	}
 	
 	public FlyingState transitionTo() {
-		if(followerLost) return FlyingState.ROLLBACK;
+		//if(followerLost) return FlyingState.ROLLBACK;
 		if(noStatusSteps > MAX_STEPS_NO_MSG) return FlyingState.SEEK_SIGNAL_DIR;
 		if(stepsSinceStart > MAX_STEPS) return FlyingState.SEEK_SIGNAL_DIR;
 		return FlyingState.KEEP_SIGNAL_DIST;

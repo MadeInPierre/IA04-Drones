@@ -127,13 +127,14 @@ public class DroneAgent extends CommunicativeAgent {
 		
 		// Status behaviors
 		switch(droneState) {
-		case IDLE:
+		case IDLE: {
 			break;
-		case ARMED: // listen for the leader's signal, fly if too low
+		}
+		case ARMED: {// listen for the leader's signal, fly if too low
 			DroneMessage leaderStatus = communicator.getLastStatusFrom(getLeaderID());
 			if(leaderStatus != null) {
 				//System.out.println("Drone=" + agentID + " armed... signal=" + leaderStatus.getStrength());
-				if(leaderStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
+				if(leaderStatus.getStrength() > Constants.DRONE_ARMED_SIGNAL_LOSS) {
 					//System.out.println("Drone=" + agentID + " flying !");
 					DroneMessage armmsg = new DroneMessage(this, getFollowerID(), Performative.REQUEST);
 					armmsg.setTitle("arm");
@@ -144,14 +145,21 @@ public class DroneAgent extends CommunicativeAgent {
 				}
 			}
 			break;
-		case FLYING:
-			leaderStatus = communicator.getLastStatusFrom(getLeaderID());
-			if(leaderStatus != null && leaderStatus.getStrength() > Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
+		}
+		case FLYING: {
+			DroneMessage leaderStatus = communicator.getLastStatusFrom(getLeaderID());
+			if(leaderStatus != null && leaderStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
 				setFlyingState(FlyingState.WAIT_RECONNECT);
 			}
+			DroneMessage followerStatus = communicator.getLastStatusFrom(getFollowerID());
+			if(followerStatus != null && followerStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
+				setFlyingState(FlyingState.ROLLBACK);
+			}
 			break;
-		case CRASHED:
+		}
+		case CRASHED: {
 			break;
+		}
 		}
 		
 		// Update position

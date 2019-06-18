@@ -19,7 +19,8 @@ public class Constants {
 	// drone stats
     public static final float DRONE_MAXIMUM_SIGNAL_LOSS  = 35f;  //dB, loss before signal is completely lost
     public static final float DRONE_IDEAL_SIGNAL_LOSS    = 20f;  //dB, loss goal using in KeepDistanceBehavior
-    public static final float DRONE_DANGER_SIGNAL_LOSS   = 25f;  //dB, loss before triggering a new direction search
+    public static final float DRONE_ARMED_SIGNAL_LOSS    = 25f;  //dB, threshold between armed and flying
+    public static final float DRONE_DANGER_SIGNAL_LOSS   = 32f;  //dB, loss before triggering a disconnection scenario
 
     public static final float N_DRONES = 8;
     public static final float DRONE_SPEED                             = .1f / 3f;	// Map units per step

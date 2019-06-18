@@ -62,7 +62,7 @@ public class Environment extends SimState {
 		addDrone(new Double2D(5, 31)); // Head drone
 		
 		for(int i = 0; i < Constants.N_DRONES - 1; i++)
-			addDrone(new Double2D(6 - 0.5*i, 30.5)); // Followers
+			addDrone(new Double2D(5, 30.5)); // Followers
 
 		headDrone = (DroneAgent) yard.getAllObjects().get(0);
 		headDrone.setDroneRole(DroneRole.HEAD);
