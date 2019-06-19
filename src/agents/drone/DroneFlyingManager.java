@@ -2,8 +2,6 @@ package agents.drone;
 
 import java.util.ArrayList;
 
-import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader.Array;
-
 import agents.Communicator;
 import agents.DroneMessage;
 import agents.drone.DroneAgent.DroneState;
