@@ -5,7 +5,8 @@ public class Constants {
 	public static final float MAP_WIDTH  = 48f;
 	public static final float MAP_HEIGHT = 36f;
 //	public static final String IMAGE   = "img/simple_tunnel.jpg";
-	public static final String IMAGE   = "img/cave.jpg";
+	public static final String IMAGE   = "img/maps/map_misc.jpg";
+//	public static final String IMAGE   = "img/cave.jpg";
 
 	// signal
 	public static final float SIGNAL_MAP_STEP 	 = .1f;
@@ -13,12 +14,14 @@ public class Constants {
 	public static final float MAX_SIGNAL_LOSS 	 = 6f;
 	public static final float SIGNAL_QUALITY_STD = .5f;
 //	public static final String SIGNAL_IMAGE 	 = "img/simple_tunnel_signal.jpg";
-	public static final String SIGNAL_IMAGE 	 = "img/signal.bmp";
+//	public static final String SIGNAL_IMAGE 	 = "img/signal.bmp";
+	public static final String SIGNAL_IMAGE 	 = "img/maps/map_misc_signal.png";
 	
     // collisions
     public static final float COLLISION_MAP_STEP = .1f;
 //    public static final String COLLISION_IMAGE   = "img/simple_tunnel_collision.jpg";
-    public static final String COLLISION_IMAGE   = "img/collision.bmp";
+//    public static final String COLLISION_IMAGE   = "img/collision.bmp";
+    public static final String COLLISION_IMAGE   = "img/maps/map_misc_collisions.png";
 
 	// drone stats
     public static final float DRONE_RTH_SIGNAL_LOSS      = 8f;  //dB, loss before landing near the base during rth
