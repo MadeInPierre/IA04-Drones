@@ -63,7 +63,7 @@ public class Gui extends GUIState {
 		super.load(state);
 	}
 
-	public void setupPortrayals() { // TODO la performance diminue beaucoup quand on appelle cette methode
+	public void setupPortrayals() {
 		Environment env = Environment.get();
 
 		collisionSensorPortrayal.setField(env.getYard());
@@ -103,7 +103,7 @@ public class Gui extends GUIState {
 		display.attach(signalPortrayal, "signal", false);
 		display.attach(collisionSensorPortrayal, "collision sensors");
 		display.attach(signalNetworkPortrayal, "signal network");
-		display.attach(yardPortrayal, "cave");
+		display.attach(yardPortrayal, "agents");
 	}
 
 	public void quit() {
@@ -121,8 +121,7 @@ public class Gui extends GUIState {
 		// BufferedImage b =
 		// display.getGraphicsConfiguration().createCompatibleImage(w,h);
 		try {
-			String image = "img/cave.jpg";
-			File imgPath = new File(image);
+			File imgPath = new File(Constants.IMAGE);
 			BufferedImage b = ImageIO.read(imgPath);
 			Graphics g = b.getGraphics();
 			int w = 1000;

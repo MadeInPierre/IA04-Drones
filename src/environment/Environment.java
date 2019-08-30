@@ -79,7 +79,7 @@ public class Environment extends SimState {
 
 		operator = new OperatorAgent();
 		schedule.scheduleRepeating(operator);
-		yard.setObjectLocation(operator, new Double2D(3, 3));
+		yard.setObjectLocation(operator, new Double2D(3, 4.5));
 
 		signalManager = new SignalManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.SIGNAL_MAP_STEP,
 				Constants.SIGNAL_IMAGE, this);

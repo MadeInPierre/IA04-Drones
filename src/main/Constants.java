@@ -4,16 +4,20 @@ public class Constants {
 	// map dimensions in arbitrary units
 	public static final float MAP_WIDTH  = 48f;
 	public static final float MAP_HEIGHT = 36f;
+//	public static final String IMAGE   = "img/simple_tunnel.jpg";
+	public static final String IMAGE   = "img/cave.jpg";
 
 	// signal
 	public static final float SIGNAL_MAP_STEP 	 = .1f;
 	public static final float MIN_SIGNAL_LOSS 	 = 2f;
 	public static final float MAX_SIGNAL_LOSS 	 = 6f;
 	public static final float SIGNAL_QUALITY_STD = .5f;
+//	public static final String SIGNAL_IMAGE 	 = "img/simple_tunnel_signal.jpg";
 	public static final String SIGNAL_IMAGE 	 = "img/signal.bmp";
 	
     // collisions
     public static final float COLLISION_MAP_STEP = .1f;
+//    public static final String COLLISION_IMAGE   = "img/simple_tunnel_collision.jpg";
     public static final String COLLISION_IMAGE   = "img/collision.bmp";
 
 	// drone stats
@@ -23,7 +27,7 @@ public class Constants {
     public static final float DRONE_DANGER_SIGNAL_LOSS   = 32f;  //dB, loss before triggering a disconnection scenario
     public static final float DRONE_MAXIMUM_SIGNAL_LOSS  = 35f;  //dB, loss before signal is completely lost
 
-    public static final float N_DRONES = 15;
+    public static final float N_DRONES = 20;
     public static final float DRONE_SPEED                             = .1f / 3f;	// Map units per step
 	public static final float DRONE_COLLISION_SENSOR_RANGE 			  = 5f; 		// Distance in map units
 	public static final float DRONE_COLLISION_SENSOR_TRIGGER_DISTANCE = 1.5f;		// Distance at which correction will start to be applied
