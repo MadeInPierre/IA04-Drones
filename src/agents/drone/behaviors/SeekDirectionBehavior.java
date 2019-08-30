@@ -64,8 +64,6 @@ public class SeekDirectionBehavior extends FlyingBehavior {
 			}
 			for(DroneMessage msg : garbage) com.removeMessage(msg);
 			
-			drone.log(blocking_drone_ids.toString());
-			
 			if(blocking_drone_ids.size() == 0) { // seek when nobody near is
 				DroneMessage msg = new DroneMessage(drone, DroneMessage.BROADCAST, Performative.REQUEST);
 				msg.setTitle("seek");

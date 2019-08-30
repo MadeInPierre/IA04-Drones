@@ -23,7 +23,7 @@ public class Constants {
     public static final float DRONE_DANGER_SIGNAL_LOSS   = 32f;  //dB, loss before triggering a disconnection scenario
     public static final float DRONE_MAXIMUM_SIGNAL_LOSS  = 35f;  //dB, loss before signal is completely lost
 
-    public static final float N_DRONES = 6;
+    public static final float N_DRONES = 15;
     public static final float DRONE_SPEED                             = .1f / 3f;	// Map units per step
 	public static final float DRONE_COLLISION_SENSOR_RANGE 			  = 5f; 		// Distance in map units
 	public static final float DRONE_COLLISION_SENSOR_TRIGGER_DISTANCE = 1.5f;		// Distance at which correction will start to be applied
