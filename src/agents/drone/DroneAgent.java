@@ -175,9 +175,7 @@ public class DroneAgent extends CommunicativeAgent {
 		case ARMED: {// listen for the leader's signal, fly if too low
 			DroneMessage leaderStatus = communicator.getLastStatusFrom(getLeaderID());
 			if(leaderStatus != null) {
-				//System.out.println("Drone=" + agentID + " armed... signal=" + leaderStatus.getStrength());
 				if(leaderStatus.getStrength() > Constants.DRONE_ARMED_SIGNAL_LOSS) {
-					//System.out.println("Drone=" + agentID + " flying !");
 					DroneMessage armmsg = new DroneMessage(this, getFollowerID(), Performative.REQUEST);
 					armmsg.setTitle("arm");
 					communicator.sendMessageToDrone(armmsg);
