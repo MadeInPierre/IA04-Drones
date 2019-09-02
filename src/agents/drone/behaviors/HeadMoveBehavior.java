@@ -3,6 +3,7 @@ package agents.drone.behaviors;
 import agents.Communicator;
 import agents.DroneMessage;
 import agents.DroneMessage.Performative;
+import agents.drone.CollisionsSensor;
 import agents.drone.DroneAgent;
 import agents.drone.DroneFlyingManager.FlyingState;
 import main.Constants;
@@ -12,10 +13,10 @@ import java.util.ArrayList;
 
 public class HeadMoveBehavior extends FlyingBehavior {
 	private boolean signalLost = false;
+	private boolean askForSeek = false;
 
 	public HeadMoveBehavior(DroneAgent drone) {
 		super(drone);
-		
 	}
 
 	public Double3D stepTransform(Communicator com) {
@@ -41,22 +42,28 @@ public class HeadMoveBehavior extends FlyingBehavior {
 				double x = Double.parseDouble(sx.replace("x ", ""));
 				double y = Double.parseDouble(sy.replace("y ", ""));
 
-				transform = new Double3D(x, y, 0);
+//				transform = new Double3D(x, y, 0);
+				transform = new Double3D(x, 0, 0);
+				
+				if(x > 0 && com.getSignalStrength(drone.getFollowerID()) > Constants.DRONE_DANGER_SIGNAL_LOSS) {
+					transform = new Double3D(0, 0, 0); // Do not let the user go forward if the local signal is too low (head too fast for the chain probably)
+				}
 				break;
 			}
 		}
 
-		if (destroy != null)
-			com.removeMessage(destroy);
+		if (destroy != null) com.removeMessage(destroy);
+		
+		// Stop going straight if there's an obstacle ahead and seek
+		CollisionsSensor[] sensors = drone.getCollisionSensors();
+		if(sensors[0].getDistance(com) <= Constants.DRONE_COLLISION_SENSOR_TRIGGER_DISTANCE) askForSeek = true;
 
 		return transform;
 	}
 
 	public FlyingState transitionTo() {
-		if (signalLost) {
-			return FlyingState.ROLLBACK;
-		}
-
+		if(signalLost) return FlyingState.ROLLBACK;
+		//if(askForSeek) return FlyingState.SEEK_TUNNEL_DIR;
 		return FlyingState.HEAD_MOVE;
 	}
 	

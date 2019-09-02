@@ -42,16 +42,16 @@ public class DroneAgent extends CommunicativeAgent {
 	private DroneFlyingManager flyingManager;
 	
 	public void setDroneRole(DroneRole newRole) {
-		if(droneRole == DroneRole.HEAD && newRole == DroneRole.FOLLOWER)
-			flyingManager.setFlyingState(FlyingState.SEEK_SIGNAL_DIR);
+//		if(droneRole == DroneRole.HEAD && newRole == DroneRole.FOLLOWER)
+//			flyingManager.setFlyingState(FlyingState.SEEK_TUNNEL_DIR);
 		if(newRole == DroneRole.HEAD) {
-			flyingManager.setFlyingState(FlyingState.HEAD_MOVE);
+			flyingManager.setFlyingState(FlyingState.SEEK_TUNNEL_DIR);
 			setDroneState(DroneState.FLYING);
 			setLeaderID(-1);
 		}
-		if(newRole == DroneRole.RTH) 
-			if(getDroneState() == DroneState.FLYING)
-				flyingManager.setFlyingStateForced(FlyingState.SEEK_SIGNAL_DIR);
+//		if(newRole == DroneRole.RTH) 
+//			if(getDroneState() == DroneState.FLYING)
+//				flyingManager.setFlyingStateForced(FlyingState.SEEK_SIGNAL_DIR);
 		droneRole = newRole;
 	}
 	
@@ -87,6 +87,10 @@ public class DroneAgent extends CommunicativeAgent {
 	
 	public void setFollowerID(int newID) {
 		followerID = newID;
+	}
+	
+	public double getDistanceInTunnel() {
+		return flyingManager.getDistanceInTunnel();
 	}
 	
 	// MAIN FUNCTIONS
@@ -179,20 +183,20 @@ public class DroneAgent extends CommunicativeAgent {
 					communicator.sendMessageToDrone(armmsg);
 					droneState = DroneState.FLYING;
 					log("Detected signal low, now flying!");
-					setFlyingState(FlyingState.SEEK_SIGNAL_DIR);
+					setFlyingState(FlyingState.SEEK_TUNNEL_DIR);
 				}
 			}
 			break;
 		}
 		case FLYING: {
-			DroneMessage leaderStatus = communicator.getLastStatusFrom(getLeaderID());
-			if(leaderStatus != null && leaderStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
-				setFlyingState(FlyingState.WAIT_RECONNECT);
-			}
-			DroneMessage followerStatus = communicator.getLastStatusFrom(getFollowerID());
-			if(followerStatus != null && followerStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
-				setFlyingState(FlyingState.ROLLBACK);
-			}
+//			DroneMessage leaderStatus = communicator.getLastStatusFrom(getLeaderID());
+//			if(leaderStatus != null && leaderStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
+//				setFlyingState(FlyingState.WAIT_RECONNECT);
+//			}
+//			DroneMessage followerStatus = communicator.getLastStatusFrom(getFollowerID());
+//			if(followerStatus != null && followerStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
+//				setFlyingState(FlyingState.ROLLBACK);
+//			}
 			break;
 		}
 		case CRASHED: {

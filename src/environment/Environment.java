@@ -10,6 +10,7 @@ import agents.CommunicativeAgent;
 import agents.drone.DroneAgent;
 import agents.drone.DroneAgent.DroneRole;
 import agents.drone.DroneAgent.DroneState;
+import agents.drone.DroneFlyingManager.FlyingState;
 import agents.operator.OperatorAgent;
 import main.Constants;
 import sim.engine.SimState;
@@ -58,28 +59,29 @@ public class Environment extends SimState {
 		yard = new Continuous2D(.1d, Constants.MAP_WIDTH, Constants.MAP_HEIGHT);
 		droneAngles = new HashMap<DroneAgent, Float>();
 
-		// Add drones
-		addDrone(new Double2D(5, 10)); // Head drone
-		
-		for(int i = 0; i < Constants.N_DRONES - 1; i++)
-			addDrone(new Double2D(4, 10.7)); // Followers
+		// Add agents
+		operator = new OperatorAgent();
+		for(int i = 0; i < Constants.N_DRONES; i++)
+			addDrone(new Double2D(7, 18.5)); // Followers
 
 		headDrone = (DroneAgent) yard.getAllObjects().get(0);
 		headDrone.setDroneRole(DroneRole.HEAD);
-		//rotateDrone(headDrone, (float) Math.PI / 4); // TODO tmp for tests
+//		headDrone.setDroneState(DroneState.FLYING);
+//		headDrone.setFlyingState(FlyingState.SEEK_TUNNEL_DIR);
 
 		for (int i = 0; i < droneAngles.size() - 1; i++) {
 			DroneAgent leader = (DroneAgent) yard.getAllObjects().get(i);
 			DroneAgent follower = (DroneAgent) yard.getAllObjects().get(i + 1);
 			linkDrones(follower, leader);
 		}
+		DroneAgent tailDrone = (DroneAgent) yard.getAllObjects().get(yard.size() - 1);
+		tailDrone.setFollowerID(operator.getID());
 
 		DroneAgent d = (DroneAgent) yard.getAllObjects().get(1);
 		d.setDroneState(DroneState.ARMED);
 
-		operator = new OperatorAgent();
 		schedule.scheduleRepeating(operator);
-		yard.setObjectLocation(operator, new Double2D(2, 11));
+		yard.setObjectLocation(operator, new Double2D(4, 18.5));
 
 		signalManager = new SignalManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.SIGNAL_MAP_STEP,
 				Constants.SIGNAL_IMAGE, this);

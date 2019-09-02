@@ -2,6 +2,9 @@ package gui;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Optional;
 
 import agents.CommunicativeAgent;
@@ -15,9 +18,16 @@ import sim.portrayal.network.EdgeDrawInfo2D;
 import sim.portrayal.network.SimpleEdgePortrayal2D;
 
 public class SignalEdgePortrayal extends SimpleEdgePortrayal2D {
-
+	private FileWriter fileWriter;
+	private PrintWriter printWriter;
+	
 	public SignalEdgePortrayal() {
 		super(null, Color.WHITE);
+		
+		try {
+			fileWriter = new FileWriter("2d_signals.txt");
+			printWriter = new PrintWriter(fileWriter);
+		} catch(Exception e) {}
 	}
 
 	@Override
@@ -33,9 +43,11 @@ public class SignalEdgePortrayal extends SimpleEdgePortrayal2D {
 	public void draw(Object o, Graphics2D g, DrawInfo2D i) {
 		double w = ((Edge) o).getWeight();
 		CommunicativeAgent from = (CommunicativeAgent) ((Edge) o).getFrom();
-		CommunicativeAgent to = (CommunicativeAgent) ((Edge) o).getTo();
+		CommunicativeAgent to   = (CommunicativeAgent) ((Edge) o).getTo();
 
 		if (toDraw(from, to)) {
+			logSignals(from, to, w);
+			
 			if (w > Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
 				setShape(SHAPE_THIN_LINE);
 				this.fromPaint = this.toPaint = Color.black;
@@ -74,6 +86,20 @@ public class SignalEdgePortrayal extends SimpleEdgePortrayal2D {
 	@Override
 	protected double getPositiveWeight(Object o, EdgeDrawInfo2D i) {
 		return Math.max(1 - ((Edge) o).getWeight() / Constants.DRONE_MAXIMUM_SIGNAL_LOSS, 0f);
+	}
+	
+	private void logSignals(CommunicativeAgent from, CommunicativeAgent to, double w) {
+//		System.out.print("(" + from.getID() + "," + to.getID() + ",");
+//		if(from instanceof DroneAgent) System.out.print(((DroneAgent)from).getDistanceInTunnel() + ","); else System.out.print("0.0,");
+//		if(to   instanceof DroneAgent) System.out.print(((DroneAgent)to  ).getDistanceInTunnel() + ","); else System.out.print("0.0,");
+//		System.out.println(w + ")");
+		
+	    if(w < Constants.DRONE_MAXIMUM_SIGNAL_LOSS) 
+	    	printWriter.printf("%d,%d,%f,%f,%f\n", from.getID(), 
+	    										   to.getID(), 
+	    										   (from instanceof DroneAgent) ? ((DroneAgent)from).getDistanceInTunnel() : 0, 
+	    										   (to   instanceof DroneAgent) ? ((DroneAgent)to  ).getDistanceInTunnel() : 0, 
+	    										   w);
 	}
 
 }
