@@ -18,7 +18,7 @@ public class WaitReconnectBehavior extends FlyingBehavior {
 	public Double3D stepTransform(Communicator com) {
 		DroneMessage lastStatus = com.getLastStatusFrom(drone.getLeaderID());
 		if(lastStatus != null) {
-			if(lastStatus.getStrength() < Constants.DRONE_DANGER_SIGNAL_LOSS)
+			if(lastStatus.getStrength() < Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
 				connected = true;
 		}
 		
@@ -26,7 +26,7 @@ public class WaitReconnectBehavior extends FlyingBehavior {
 	}
 	
 	public FlyingState transitionTo() {
-		if(connected) return FlyingState.SEEK_SIGNAL_DIR;
+		if(connected) return FlyingState.GOTO_STRAIGHT;
 		return FlyingState.WAIT_RECONNECT;
 	}
 	

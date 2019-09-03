@@ -57,7 +57,7 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 		case KeyEvent.VK_DOWN: // si la touche enfoncée est celle du bas
 			y = Constants.DRONE_SPEED;
 			break;
-		case KeyEvent.VK_H: // si la touche enfoncée est celle du bas
+		case KeyEvent.VK_H: // si la touche enfoncée est H
 			rth = true;
 			break;
 		}

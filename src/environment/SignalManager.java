@@ -148,8 +148,8 @@ public class SignalManager implements Steppable {
 
 	@Override
 	public void step(SimState arg0) {
-		//if (arg0.schedule.getSteps() % 50 == 0)
-		//	updateGaussianNoise();
+		if (arg0.schedule.getSteps() % 50 == 0)
+			updateGaussianNoise();
 		updateNetwork();
 	}
 
@@ -160,10 +160,10 @@ public class SignalManager implements Steppable {
 				double q = originalLossField[x][y] + r.nextGaussian() * Constants.SIGNAL_QUALITY_STD;
 				if (q < Constants.MIN_SIGNAL_LOSS)
 					q = Constants.MIN_SIGNAL_LOSS;
-				else if (q > Constants.MAX_SIGNAL_LOSS)
-					q = Constants.MAX_SIGNAL_LOSS;
+				else if (q > Constants.MAX_SIGNAL_LOSS - 1)
+					q = Constants.MAX_SIGNAL_LOSS - 1;
 
-				signalLossField.set(x, y, q);
+				if(signalLossField.get(x,  y) < Constants.MAX_SIGNAL_LOSS - 0.05) signalLossField.set(x, y, q);
 			}
 		}
 	}
