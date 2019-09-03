@@ -45,7 +45,7 @@ public class DroneAgent extends CommunicativeAgent {
 //		if(droneRole == DroneRole.HEAD && newRole == DroneRole.FOLLOWER)
 //			flyingManager.setFlyingState(FlyingState.SEEK_TUNNEL_DIR);
 		if(newRole == DroneRole.HEAD) {
-			flyingManager.setFlyingState(FlyingState.SEEK_TUNNEL_DIR);
+			flyingManager.setFlyingState(FlyingState.HEAD_MOVE);
 			setDroneState(DroneState.FLYING);
 			setLeaderID(-1);
 		}
@@ -181,7 +181,7 @@ public class DroneAgent extends CommunicativeAgent {
 					communicator.sendMessageToDrone(armmsg);
 					droneState = DroneState.FLYING;
 					log("Detected signal low, now flying!");
-					setFlyingState(FlyingState.SEEK_TUNNEL_DIR);
+					setFlyingState(FlyingState.GOTO_STRAIGHT);
 				}
 			}
 			break;
