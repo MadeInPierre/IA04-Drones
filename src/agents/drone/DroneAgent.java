@@ -105,7 +105,6 @@ public class DroneAgent extends CommunicativeAgent {
 	}
 
 	public void step(SimState state) {
-		
 		// Process messages
 		ArrayList<DroneMessage> garbageMessages = new ArrayList<DroneMessage>();
 		for(DroneMessage msg : communicator.getMessages()) {
@@ -186,9 +185,9 @@ public class DroneAgent extends CommunicativeAgent {
 		}
 		case FLYING: {
 			DroneMessage leaderStatus = communicator.getLastStatusFrom(getLeaderID());
-			if(leaderStatus != null && leaderStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
-				setFlyingState(FlyingState.WAIT_RECONNECT);
-			}
+//			if(leaderStatus != null && leaderStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
+//				setFlyingState(FlyingState.WAIT_RECONNECT);
+//			}
 			DroneMessage followerStatus = communicator.getLastStatusFrom(getFollowerID());
 			if(followerStatus != null && followerStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
 				setFlyingState(FlyingState.ROLLBACK);

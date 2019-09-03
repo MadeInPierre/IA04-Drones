@@ -59,10 +59,9 @@ public class Environment extends SimState {
 		droneAngles = new HashMap<DroneAgent, Float>();
 
 		// Add drones
-		addDrone(new Double2D(5, 5)); // Head drone
-		
+		addDrone(new Double2D(6, 32)); // Head drone
 		for(int i = 0; i < Constants.N_DRONES - 1; i++)
-			addDrone(new Double2D(5, 5)); // Followers
+			addDrone(new Double2D(5, 32)); // Followers
 
 		headDrone = (DroneAgent) yard.getAllObjects().get(0);
 		headDrone.setDroneRole(DroneRole.HEAD);
@@ -79,7 +78,7 @@ public class Environment extends SimState {
 
 		operator = new OperatorAgent();
 		schedule.scheduleRepeating(operator);
-		yard.setObjectLocation(operator, new Double2D(3, 4.5));
+		yard.setObjectLocation(operator, new Double2D(2, 32));
 
 		signalManager = new SignalManager(Constants.MAP_WIDTH, Constants.MAP_HEIGHT, Constants.SIGNAL_MAP_STEP,
 				Constants.SIGNAL_IMAGE, this);
