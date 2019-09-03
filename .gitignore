@@ -3,6 +3,7 @@
 !/src/**/*.java
 !/doc/*
 !/img/*
+!/img/maps/*
 !*.md
 !.gitignore
 

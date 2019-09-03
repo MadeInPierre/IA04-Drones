@@ -34,7 +34,7 @@ public class Constants {
     public static final float N_DRONES = 10;
     public static final float DRONE_SPEED                             = .1f / 3f;	// Map units per step
 	public static final float DRONE_COLLISION_SENSOR_RANGE 			  = 3f; 		// Distance in map units
-	public static final float DRONE_COLLISION_SENSOR_TRIGGER_DISTANCE = 2f;		// Distance at which correction will start to be applied
+	public static final float DRONE_COLLISION_SENSOR_TRIGGER_DISTANCE = 2f;			// Distance at which correction will start to be applied
 	public static final float DRONE_COLLISION_SENSOR_MINIMUM_DISTANCE = 0.01f;		// Epsilon distance in collision sensor vector calculation
 	public static final float DRONE_COLLISION_SENSOR_WEIGHT 		  = 0.9f;		// Weight of the collision sensor vector for avoiding walls
 	public static final int   HISTORY_DURATION        				  = 500;   		// Duration in steps of the drones' position history
