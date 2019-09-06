@@ -46,7 +46,7 @@ public class Communicator {
 
 		for(CommunicativeAgent a : env.getAgents()) {
 			if (a.getID() == id) {
-				return env.getSignalManager().getSignalLoss(env.getDronePos(owner), env.getDronePos(a));
+				return env.getSignalManager().getSignalLoss(owner, a);
 			}
 		}
 
@@ -78,7 +78,7 @@ public class Communicator {
 				m.setTitle(msg.getTitle());
 				m.setContent(msg.getContent());
 				
-				m.setStrength(env.getSignalManager().getSignalLoss(env.getDronePos(m.getSender()), env.getDronePos(a)));
+				m.setStrength(env.getSignalManager().getSignalLoss(m.getSender(), a));
 				//System.out.println("Setting strength to message strength=" + m.getStrength() + " between agent=" + m.getSenderID() + " to agent=" + m.getDestinationID() + "/" + a.getID());
 				m.setStep(env.schedule.getSteps());
 				

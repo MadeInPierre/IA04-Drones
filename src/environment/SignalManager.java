@@ -15,6 +15,7 @@ import java.util.Set;
 import javax.imageio.ImageIO;
 
 import agents.CommunicativeAgent;
+import agents.drone.DroneAgent;
 import main.Constants;
 import sim.engine.SimState;
 import sim.engine.Steppable;
@@ -29,6 +30,17 @@ public class SignalManager implements Steppable {
 	private float step;
 	private Network droneNetwork;
 	private Environment env;
+	
+	/* Signal calculation method : combines 4 different types of losses  
+	 * 		- Path loss (Large scale fading): 
+	 * 			- regular loss simply based on distance
+	 * 		- Shadowing (Large scale fading) : 
+	 * 			- Walls have a high loss exponent
+	 * 			- Introduces an additional loss when we are turning 
+	 * 		- Multipath (Small Scale fading) :
+	 * 			- Sin wave based on the drone's distance in tunnel (quickly varies with a high amplitude)
+	 * 		- Random noise : standard unknown noise (drones' movements, motor radiation...)
+	 */
 
 	public SignalManager(float width, float height, float step, String signalImage, Environment env) {
 		int cellsW = (int) Math.ceil(width / step);
@@ -84,8 +96,8 @@ public class SignalManager implements Steppable {
 				for (int y = 0; y < img.getHeight(); y++) {
 					int r = (img.getRGB(x, y) >> 16) & 0xff;
 					// map red 0->255 to signal MIN -> MAX
-					float q = Constants.MIN_SIGNAL_LOSS
-							+ (float) r / 255f * (Constants.MAX_SIGNAL_LOSS - Constants.MIN_SIGNAL_LOSS);
+					float q = Constants.SIGNAL_MIN_LOSS + (float) r / 255f * (Constants.SIGNAL_MAX_LOSS - Constants.SIGNAL_MIN_LOSS);
+					if(r >= 254) q = Constants.SIGNAL_WALL_LOSS;
 					this.originalLossField[x][y] = q;
 				}
 			}
@@ -100,6 +112,14 @@ public class SignalManager implements Steppable {
 			return 0;
 		return (float) (10 * lossExponent * Math.log10(distance));
 	}
+	
+	private float getShadowingLoss() {
+		return 0;
+	}
+	
+	private float getMultipathLoss() {
+		return 0;
+	}
 
 	private float getExponentLoss(Double2D pos1, Double2D pos2) {
 		int n_points = (int) (pos1.distance(pos2) / this.step * 10);
@@ -108,23 +128,48 @@ public class SignalManager implements Steppable {
 		for (int i = 0; i < n_points; i++) {
 			x = pos1.getX() + i * (pos2.getX() - pos1.getX()) / n_points;
 			y = pos1.getY() + i * (pos2.getY() - pos1.getY()) / n_points;
-			qualitySum += getQualityAtPoint(new Double2D(x, y));
+			float q = getQualityAtPoint(new Double2D(x, y));
+			qualitySum += q;
 		}
 
 		return qualitySum / n_points;
 	}
 
-	public float getSignalLoss(Double2D pos1, Double2D pos2) {
-		float lossExponent = getExponentLoss(pos1, pos2);
-		float distance = (float) pos1.distance(pos2);
-		return getPathLoss(lossExponent, distance);
+//	public float getSignalLoss(Double2D pos1, Double2D pos2) {
+//		float lossExponent = getExponentLoss(pos1, pos2);
+//		float distance = (float) pos1.distance(pos2);
+//		return getPathLoss(lossExponent, distance);
+//	}
+	
+	public float getSignalLoss(CommunicativeAgent agent1, CommunicativeAgent agent2) { // TODO constants
+		// tmp variables
+		Random r = new Random();
+		float d1 = (agent1 instanceof DroneAgent) ? (float)((DroneAgent)agent1).getDistanceInTunnel() : 0f;
+		float d2 = (agent2 instanceof DroneAgent) ? (float)((DroneAgent)agent2).getDistanceInTunnel() : 0f;
+		
+		// Usable distances for calculating losses
+		float tunnel_distance  = Math.abs(d2 - d1); // Distance between two agents in the tunnel 1D dimension
+		float direct_distance  = (float)env.getDronePos(agent1).distance(env.getDronePos(agent2)); // Simple Euclidean distance
+		float turning_distance = Math.abs(tunnel_distance - direct_distance); // Rough estimate of the amount of turning there is 
+		
+		// Calculating Path Loss
+		float pathLossExponent = getExponentLoss(env.getDronePos(agent1), env.getDronePos(agent2));
+		float pathLoss = getPathLoss(pathLossExponent, tunnel_distance);
+
+		// Calculating Shadowing loss
+		float shadowingLoss = Constants.SIGNAL_SHADOWING_LOSS * turning_distance;
+		
+		// Calculating Multipath loss
+		float multipathLoss = Constants.SIGNAL_MULTIPATH_LOSS_AMP * (float)Math.sin(Constants.SIGNAL_MULTIPATH_LOSS_PER * tunnel_distance);
+		
+		float loss = pathLoss + shadowingLoss + multipathLoss + Constants.SIGNAL_RANDOM_LOSS_STD * (float)r.nextGaussian(); // final result with a random noise
+		return (loss > 0) ? loss : 0f;
 	}
 
 	public Map<CommunicativeAgent, Float> getAgentsInRange(CommunicativeAgent agent) {
-		Double2D pos = env.getDronePos(agent);
 		Map<CommunicativeAgent, Float> ret = new HashMap<CommunicativeAgent, Float>();
 		for (CommunicativeAgent d : Environment.get().getAgents()) {
-			float loss = getSignalLoss(pos, env.getDronePos(d));
+			float loss = getSignalLoss(agent, d);
 			if (loss < Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
 				ret.put(d, loss);
 		}
@@ -132,8 +177,7 @@ public class SignalManager implements Steppable {
 	}
 	
 	public Optional<CommunicativeAgent> getClosestAgent(CommunicativeAgent agent) {
-		Double2D pos = env.getDronePos(agent);
-		return env.getAgents().stream().sorted(Comparator.comparing(o -> getSignalLoss(env.getDronePos(o), pos)))
+		return env.getAgents().stream().sorted(Comparator.comparing(o -> getSignalLoss(o, agent)))
 		.filter(o -> o != agent).findFirst();
 
 	}
@@ -157,13 +201,13 @@ public class SignalManager implements Steppable {
 		Random r = new Random();
 		for (int x = 0; x < signalLossField.getWidth(); x++) {
 			for (int y = 0; y < signalLossField.getHeight(); y++) {
-				double q = originalLossField[x][y] + r.nextGaussian() * Constants.SIGNAL_QUALITY_STD;
-				if (q < Constants.MIN_SIGNAL_LOSS)
-					q = Constants.MIN_SIGNAL_LOSS;
-				else if (q > Constants.MAX_SIGNAL_LOSS - 1)
-					q = Constants.MAX_SIGNAL_LOSS - 1;
+				double q = originalLossField[x][y] + r.nextGaussian() * Constants.SIGNAL_STD_LOSS;
+				if (q < Constants.SIGNAL_MIN_LOSS)
+					q = Constants.SIGNAL_MIN_LOSS;
+				else if (q > Constants.SIGNAL_MAX_LOSS)
+					q = Constants.SIGNAL_MAX_LOSS;
 
-				if(signalLossField.get(x,  y) < Constants.MAX_SIGNAL_LOSS - 0.05) signalLossField.set(x, y, q);
+				if(signalLossField.get(x,  y) < Constants.SIGNAL_MAX_LOSS - 0.05) signalLossField.set(x, y, q);
 			}
 		}
 	}
@@ -172,9 +216,8 @@ public class SignalManager implements Steppable {
 		Edge[][] edges = droneNetwork.getAdjacencyMatrix();
 		for (int i = 0; i < edges.length; i++) {
 			for (int j = i + 1; j < edges[0].length; j++) {
-				Double2D pos1 = env.getDronePos((CommunicativeAgent) edges[i][j].getFrom());
-				Double2D pos2 = env.getDronePos((CommunicativeAgent) edges[i][j].getTo());
-				edges[i][j].setWeight(getSignalLoss(pos1, pos2));
+				edges[i][j].setWeight(getSignalLoss((CommunicativeAgent)edges[i][j].getFrom(), 
+													(CommunicativeAgent)edges[i][j].getTo()));
 			}
 		}
 	}

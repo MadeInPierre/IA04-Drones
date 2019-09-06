@@ -62,7 +62,7 @@ public class Environment extends SimState {
 		// Add agents
 		operator = new OperatorAgent();
 		for(int i = 0; i < Constants.N_DRONES; i++) {
-			addDrone(new Double2D(5.8, 31.5)); // Followers
+			addDrone(new Double2D(3, 33.5)); // Followers
 			rotateDrone((DroneAgent)yard.getAllObjects().get(i), (float)Math.PI / -4);
 		}
 
@@ -76,11 +76,13 @@ public class Environment extends SimState {
 			DroneAgent follower = (DroneAgent) yard.getAllObjects().get(i + 1);
 			linkDrones(follower, leader);
 		}
-		DroneAgent tailDrone = (DroneAgent) yard.getAllObjects().get(yard.size() - 1);
-		tailDrone.setFollowerID(operator.getID());
 
-		DroneAgent d = (DroneAgent) yard.getAllObjects().get(1);
-		d.setDroneState(DroneState.ARMED);
+		if(yard.getAllObjects().size() > 1) {
+			DroneAgent d = (DroneAgent) yard.getAllObjects().get(1);
+			d.setDroneState(DroneState.ARMED);
+			DroneAgent tailDrone = (DroneAgent) yard.getAllObjects().get(yard.size() - 1);
+			tailDrone.setFollowerID(operator.getID());
+		}
 
 		schedule.scheduleRepeating(operator);
 		yard.setObjectLocation(operator, new Double2D(3, 33.5));
@@ -166,7 +168,7 @@ public class Environment extends SimState {
 			if (!a2.isPresent())
 				return false;
 			
-			if (signalManager.getSignalLoss(getDronePos(a1), getDronePos(a2.get())) > Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
+			if (signalManager.getSignalLoss(a1, a2.get()) > Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
 				return false;
 			
 			if (((DroneAgent) a2.get()).isHead())

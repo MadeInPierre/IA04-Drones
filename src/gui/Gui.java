@@ -70,7 +70,7 @@ public class Gui extends GUIState {
 		collisionPortrayal.setMap(new SimpleColorMap(0, 1, new Color(0, 0, 0, 0), Color.BLACK));
 
 		signalPortrayal.setField(env.getSignalManager().getSignalLossField());
-		signalPortrayal.setMap(new SimpleColorMap(Constants.MIN_SIGNAL_LOSS, Constants.MAX_SIGNAL_LOSS,
+		signalPortrayal.setMap(new SimpleColorMap(Constants.SIGNAL_MIN_LOSS, Constants.SIGNAL_MAX_LOSS,
 				new Color(1f, 1f, 1f, 0f), new Color(1f, 0f, 0f, .5f)));
 
 		signalNetworkPortrayal.setField(new SpatialNetwork2D(env.getYard(), env.getSignalManager().getSignalNetwork()));
