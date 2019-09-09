@@ -31,7 +31,10 @@ public class SignalManager implements Steppable {
 	private Network droneNetwork;
 	private Environment env;
 	
-	/* Signal calculation method : combines 4 different types of losses  
+	/* Signal calculation method : combines 5 different types of losses  
+	 * 		- Map random noise :
+	 * 			- random loss at each air pixel
+	 * 			- wall pixels have their own loss
 	 * 		- Path loss (Large scale fading): 
 	 * 			- regular loss simply based on distance
 	 * 		- Shadowing (Large scale fading) : 
@@ -97,7 +100,7 @@ public class SignalManager implements Steppable {
 					int r = (img.getRGB(x, y) >> 16) & 0xff;
 					// map red 0->255 to signal MIN -> MAX
 					float q = Constants.SIGNAL_MIN_LOSS + (float) r / 255f * (Constants.SIGNAL_MAX_LOSS - Constants.SIGNAL_MIN_LOSS);
-					if(r >= 254) q = Constants.SIGNAL_WALL_LOSS;
+					if(r >= 254) { q = Constants.SIGNAL_WALL_LOSS; }
 					this.originalLossField[x][y] = q;
 				}
 			}
@@ -111,14 +114,6 @@ public class SignalManager implements Steppable {
 		if (distance <= this.step)
 			return 0;
 		return (float) (10 * lossExponent * Math.log10(distance));
-	}
-	
-	private float getShadowingLoss() {
-		return 0;
-	}
-	
-	private float getMultipathLoss() {
-		return 0;
 	}
 
 	private float getExponentLoss(Double2D pos1, Double2D pos2) {
@@ -207,7 +202,7 @@ public class SignalManager implements Steppable {
 				else if (q > Constants.SIGNAL_MAX_LOSS)
 					q = Constants.SIGNAL_MAX_LOSS;
 
-				if(signalLossField.get(x,  y) < Constants.SIGNAL_MAX_LOSS - 0.05) signalLossField.set(x, y, q);
+				if(signalLossField.get(x,  y) < Constants.SIGNAL_WALL_LOSS - 0.1) signalLossField.set(x, y, q);
 			}
 		}
 	}

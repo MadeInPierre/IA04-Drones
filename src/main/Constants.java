@@ -1,22 +1,29 @@
 package main;
 
+import sim.util.Double3D;
+
 public class Constants {
 	// Map images
 //	public static final String IMAGE   		   = "img/simple_tunnel.jpg";
 //	public static final String SIGNAL_IMAGE    = "img/simple_tunnel_signal.jpg";
-//  public static final String COLLISION_IMAGE = "img/simple_tunnel_collision.jpg";
+//	public static final String COLLISION_IMAGE = "img/simple_tunnel_collision.jpg";
+//	public static final Double3D SPAWN_POS = new Double3D(3, 5, 0); // start
+//  public static final Double3D SPAWN_POS = new Double3D(6, 15, -1.5792); // 90 angle
 	
-//	public static final String IMAGE   		   = "img/maps/map_misc.jpg";
-//	public static final String SIGNAL_IMAGE    = "img/maps/map_misc_signal_90challenge.png";
-//	public static final String COLLISION_IMAGE = "img/maps/map_misc_collisions.png";
+	public static final String IMAGE   		   = "img/maps/map_misc.jpg";
+	public static final String SIGNAL_IMAGE    = "img/maps/map_misc_signal_90challenge.png";
+	public static final String COLLISION_IMAGE = "img/maps/map_misc_collisions.png";
+	public static final Double3D SPAWN_POS = new Double3D(42.5, 4.5, 0);
 	
 //	public static final String IMAGE   		   = "img/cave.jpg";
 //	public static final String SIGNAL_IMAGE    = "img/signal.bmp";
 //  public static final String COLLISION_IMAGE = "img/collision.bmp";
+//	public static final Double3D SPAWN_POS = new Double3D(3, 33.5, (float)Math.PI / -4);
 	
-	public static final String IMAGE   		   = "img/maps/cliff.png";
-	public static final String SIGNAL_IMAGE    = "img/maps/cliff_collisions.png";
-	public static final String COLLISION_IMAGE = "img/maps/cliff_collisions.png";
+//	public static final String IMAGE   		   = "img/maps/cliff.png";
+//	public static final String SIGNAL_IMAGE    = "img/maps/cliff_collisions.png";
+//	public static final String COLLISION_IMAGE = "img/maps/cliff_collisions.png";
+//	public static final Double3D SPAWN_POS = new Double3D(3, 33.5, (float)Math.PI / -4);
   
 	
 	// Map dimensions in arbitrary units
@@ -31,16 +38,16 @@ public class Constants {
 	public static final float SIGNAL_WALL_LOSS 			= 12f;
 	public static final float SIGNAL_STD_LOSS 			= 4f;
 	// Shadowing loss
-	public static final float SIGNAL_SHADOWING_LOSS 	= 5f; // no unit, empirical
+	public static final float SIGNAL_SHADOWING_LOSS 	= 10f; // no unit, empirical
 	// Multipath loss
 	public static final float SIGNAL_MULTIPATH_LOSS_AMP = 5f;
-	public static final float SIGNAL_MULTIPATH_LOSS_PER = 2f;
-	public static final float SIGNAL_RANDOM_LOSS_STD 	= 2f;
+	public static final float SIGNAL_MULTIPATH_LOSS_PER = 3f;
+	public static final float SIGNAL_RANDOM_LOSS_STD 	= 8f;
 		
     // Collisions
     public static final float COLLISION_MAP_STEP = .1f;
 
-	// Drone loss params
+	// Drone loss
     public static final float DRONE_RTH_SIGNAL_LOSS      = 40f;  //dB, loss before landing near the base during rth
     public static final float DRONE_IDEAL_SIGNAL_LOSS    = 50; //dB, loss goal using in KeepDistanceBehavior
     public static final float DRONE_ARMED_SIGNAL_LOSS    = 60f; //dB, threshold between armed and flying
@@ -49,8 +56,8 @@ public class Constants {
     public static final float DRONE_BEST_SIGNAL_LOSS     = 35f; //dB, loss before drone can't go closer to the other drone
 
     // Drone general params
-    public static final float N_DRONES = 1;
-    public static final float DRONE_SPEED                             = .1f / 3f;	// Map units per step
+    public static final float N_DRONES = 5;
+    public static final float DRONE_SPEED                             = .1f / 10f;	// Map units per step
 	public static final float DRONE_COLLISION_SENSOR_RANGE 			  = 3f; 		// Distance in map units
 	public static final float DRONE_COLLISION_SENSOR_TRIGGER_DISTANCE = 2f;			// Distance at which correction will start to be applied
 	public static final float DRONE_COLLISION_SENSOR_MINIMUM_DISTANCE = 0.01f;		// Epsilon distance in collision sensor vector calculation
@@ -59,4 +66,7 @@ public class Constants {
 	
 	public static final float KEEP_DIST_GOAL_SIGNAL_TOLERANCE = 2f;
 	public static final int   DRONE_MAX_INBOX_MSGS = 50;
+	
+	// Drone signal filtering
+	public static final int   DRONE_SIGNAL_MEAN_STEPS = 10;
 }

@@ -151,7 +151,6 @@ public class DroneFlyingManager {
 
 				Double3D vector = distance < Constants.DRONE_COLLISION_SENSOR_MINIMUM_DISTANCE ?
 						new Double3D(0, 0, 0) :
-						//new Double3D(Math.cos((double) angle), Math.sin((double) angle), 0).multiply(-1 / distance / distance);
 						new Double3D(Math.cos((double) angle), Math.sin((double) angle), 0).multiply(-1 / distance / distance);
 
 				collisionTransform = collisionTransform.add(vector);
@@ -161,7 +160,7 @@ public class DroneFlyingManager {
 		// Braitenberg turning
 		if(trajectoryHistory.size() > 0)
 		collisionTransform = collisionTransform.add(new Double3D(0, 0, (trajectoryHistory.get(trajectoryHistory.size() - 1).x >= 0 ? 1.0 : -1.0) * 
-																	   (sensors[1].getDistance(com) - sensors[3].getDistance(com)) * 1f));
+																	   (sensors[1].getDistance(com) - sensors[3].getDistance(com)) * 0.3f));
 		
 		// Can't go faster than the drone speed in all cases
 		if(collisionTransform.length() > Constants.DRONE_SPEED)

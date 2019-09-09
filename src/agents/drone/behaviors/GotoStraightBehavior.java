@@ -1,5 +1,7 @@
 package agents.drone.behaviors;
 
+import java.util.ArrayList;
+
 import agents.Communicator;
 import agents.DroneMessage;
 import agents.drone.CollisionsSensor;
@@ -11,11 +13,27 @@ import sim.util.Double3D;
 
 public class GotoStraightBehavior extends FlyingBehavior {
 	private boolean askForSeek = false;
+	private ArrayList<Float> followerHistory;
+	private ArrayList<Float> leaderHistory;
+	float followerSignal, leaderSignal;
 	
 //	private float goalPos = 15;
 	
 	public GotoStraightBehavior(DroneAgent drone) {
 		super(drone);
+		followerHistory = new ArrayList<Float>();
+		leaderHistory   = new ArrayList<Float>();
+	}
+	
+	private void updateHistory(float folSig, float leaSig) {
+		followerHistory.add(folSig);
+		if(followerHistory.size() > Constants.DRONE_SIGNAL_MEAN_STEPS)
+			followerHistory.remove(0);
+		leaderHistory.add(leaSig);
+		if(leaderHistory.size() > Constants.DRONE_SIGNAL_MEAN_STEPS)
+			leaderHistory.remove(0);
+		followerSignal = (float)followerHistory.stream().mapToDouble(val -> val).average().orElse(0.0);
+		leaderSignal   = (float)leaderHistory.stream().mapToDouble(val -> val).average().orElse(0.0);
 	}
 	
 	public Double3D stepTransform(Communicator com) {
@@ -30,8 +48,7 @@ public class GotoStraightBehavior extends FlyingBehavior {
 //		else if(drone.getDistanceInTunnel() > goalPos + 0.05) transform = transform.add(new Double3D(-1.0 * Constants.DRONE_SPEED, 0, 0));
 		
 		// Go where the signal is the lowest
-		float followerSignal = com.getSignalStrength(drone.getFollowerID());
-		float leaderSignal   = com.getSignalStrength(drone.getLeaderID());
+		updateHistory(com.getSignalStrength(drone.getFollowerID()), com.getSignalStrength(drone.getLeaderID()));
 		transform = transform.add(new Double3D((followerSignal < leaderSignal ? 1.0 : -1.0) * Constants.DRONE_SPEED, 0, 0));
 		
 		// Avoid collisions between drones based on signal quality (can't be too good)
