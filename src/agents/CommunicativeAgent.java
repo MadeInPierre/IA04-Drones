@@ -26,4 +26,8 @@ public class CommunicativeAgent implements Steppable {
 	public void receiveMessage(DroneMessage msg) {
 		communicator.receiveMessage(msg);
 	}
+	
+	public void log(String text) {
+		System.out.println("[Agent=" + getID() + "] " + text);
+	}
 }

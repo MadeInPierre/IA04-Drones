@@ -85,10 +85,8 @@ public class SignalManager implements Steppable {
 			img = ImageIO.read(imgPath);
 
 			if (img.getWidth() != originalLossField.length || img.getHeight() != originalLossField[0].length) {
-				Image tmp = img.getScaledInstance(originalLossField.length, originalLossField[0].length,
-						Image.SCALE_DEFAULT);
-				BufferedImage newImg = new BufferedImage(originalLossField.length, originalLossField[0].length,
-						img.getType());
+				Image tmp = img.getScaledInstance(originalLossField.length, originalLossField[0].length, Image.SCALE_DEFAULT);
+				BufferedImage newImg = new BufferedImage(originalLossField.length, originalLossField[0].length, img.getType());
 				Graphics2D g2d = newImg.createGraphics();
 				g2d.drawImage(tmp, 0, 0, null);
 				g2d.dispose();
@@ -136,7 +134,7 @@ public class SignalManager implements Steppable {
 //		return getPathLoss(lossExponent, distance);
 //	}
 	
-	public float getSignalLoss(CommunicativeAgent agent1, CommunicativeAgent agent2) { // TODO constants
+	public float getSignalLoss(CommunicativeAgent agent1, CommunicativeAgent agent2) {
 		// tmp variables
 		Random r = new Random();
 		float d1 = (agent1 instanceof DroneAgent) ? (float)((DroneAgent)agent1).getDistanceInTunnel() : 0f;

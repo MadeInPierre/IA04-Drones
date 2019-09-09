@@ -49,9 +49,9 @@ public class DroneAgent extends CommunicativeAgent {
 			setDroneState(DroneState.FLYING);
 			setLeaderID(-1);
 		}
-//		if(newRole == DroneRole.RTH) 
-//			if(getDroneState() == DroneState.FLYING)
-//				flyingManager.setFlyingStateForced(FlyingState.SEEK_SIGNAL_DIR);
+		if(newRole == DroneRole.RTH) 
+			if(getDroneState() == DroneState.FLYING)
+				flyingManager.setFlyingStateForced(FlyingState.RTH);
 		droneRole = newRole;
 	}
 	
@@ -122,13 +122,22 @@ public class DroneAgent extends CommunicativeAgent {
 				DroneMessage newMsg = new DroneMessage(this, this.leaderID, msg.getPerformative());
 				newMsg.setContent(msg.getContent());
 				newMsg.setTitle(msg.getTitle());
-				if (!communicator.sendMessageToDrone(newMsg))
-					setFlyingState(FlyingState.WAIT_RECONNECT);
+				communicator.sendMessageToDrone(newMsg);
+					//setFlyingState(FlyingState.WAIT_RECONNECT);
+				if(flyingManager.getFlyingState() != FlyingState.GOTO_STRAIGHT)
+					garbageMessages.add(msg); // Don't remove the message when used by GotoStraightBehavior, removed there
+			}
+			
+			if (!isHead() && msg.getTitle() == "tunnel_dist" && msg.getPerformative() == Performative.INFORM) {
+				DroneMessage distmsg = new DroneMessage(this, getFollowerID(), Performative.INFORM);
+				distmsg.setTitle(msg.getTitle());
+				distmsg.setContent(msg.getContent());
+				communicator.sendMessageToDrone(distmsg);
 				garbageMessages.add(msg);
 			}
 			
 			// Switch between leader and follower
-			if (msg.getTitle() == "switch_chain" && msg.getPerformative() == Performative.REQUEST) {
+			/*if (msg.getTitle() == "switch_chain" && msg.getPerformative() == Performative.REQUEST) { //TODO update
 				DroneMessage newMsg = new DroneMessage(this, this.leaderID, msg.getPerformative());
 				newMsg.setTitle(msg.getTitle());
 				communicator.sendMessageToDrone(newMsg);
@@ -148,9 +157,9 @@ public class DroneAgent extends CommunicativeAgent {
 				
 				// Seek for the follower
 				if(getDroneState() == DroneState.FLYING) 
-					flyingManager.setFlyingStateForced(FlyingState.SEEK_SIGNAL_DIR);
+					flyingManager.setFlyingStateForced(FlyingState.GOTO_STRAIGHT); //update
 				garbageMessages.add(msg);
-			}
+			}*/
 
 			if (msg.getTitle() == "rth" && msg.getPerformative() == Performative.REQUEST) {
 				setLeaderID(Integer.parseInt(msg.getContent())); // Message was sent by the base, follow it
@@ -194,6 +203,12 @@ public class DroneAgent extends CommunicativeAgent {
 //			if(followerStatus != null && followerStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
 //				setFlyingState(FlyingState.ROLLBACK);
 //			}
+			if(getDroneRole() == DroneRole.HEAD) { // Get the distance back to the operator for stats
+				DroneMessage distmsg = new DroneMessage(this, getFollowerID(), Performative.INFORM);
+				distmsg.setTitle("tunnel_dist");
+				distmsg.setContent(String.valueOf(flyingManager.getDistanceInTunnel()));
+				communicator.sendMessageToDrone(distmsg);
+			}
 			break;
 		}
 		case CRASHED: {
@@ -225,10 +240,7 @@ public class DroneAgent extends CommunicativeAgent {
 		
 		// Cleanup messages
 		communicator.clearStatuses();
-	}
-	
-	public void log(String text) {
-		System.out.println("[Drone=" + getID() + "] " + text);
+		communicator.clearMessages();
 	}
 	
 	public boolean isHead() {

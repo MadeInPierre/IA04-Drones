@@ -59,11 +59,16 @@ public class Communicator {
 	
 	public void removeMessage(DroneMessage message) {
 		for(DroneMessage m : inbox) {
-			if(message == m) {
+			if(message.getMessageID() == m.getMessageID()) {
 				inbox.remove(m);
-				break;
+				return;
 			}
 		}
+		System.out.println("Warning: couldn't find message to delete " + message.getTitle());
+	}
+	
+	public void clearMessages() {
+		inbox.clear();
 	}
 	
 	public boolean sendMessageToDrone(DroneMessage msg) {

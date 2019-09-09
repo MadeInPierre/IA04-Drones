@@ -33,7 +33,6 @@ public class HeadMoveBehavior extends FlyingBehavior {
 				destroy = mes;
 				//Lecture du message de mouvement du drone de tête
 				String move = mes.getContent();
-				String delims = " ";
 				String[] tokens = move.split(";");
 
 				String sx = tokens[0];

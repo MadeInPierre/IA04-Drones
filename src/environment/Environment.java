@@ -13,6 +13,7 @@ import agents.drone.DroneAgent.DroneState;
 import agents.drone.DroneFlyingManager.FlyingState;
 import agents.operator.OperatorAgent;
 import main.Constants;
+import sim.display.RateAdjuster;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
 import sim.util.Double2D;
@@ -66,7 +67,7 @@ public class Environment extends SimState {
 			rotateDrone((DroneAgent)yard.getAllObjects().get(i), (float)Constants.SPAWN_POS.getZ());
 		}
 
-		headDrone = (DroneAgent) yard.getAllObjects().get(0);
+		headDrone = (DroneAgent)yard.getAllObjects().get(0);
 		headDrone.setDroneRole(DroneRole.HEAD);
 //		headDrone.setDroneState(DroneState.FLYING);
 //		headDrone.setFlyingState(FlyingState.SEEK_TUNNEL_DIR);

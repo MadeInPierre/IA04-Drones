@@ -19,6 +19,7 @@ import sim.display.Console;
 import sim.display.Controller;
 import sim.display.Display2D;
 import sim.display.GUIState;
+import sim.display.RateAdjuster;
 import sim.engine.SimState;
 import sim.portrayal.Portrayal2D;
 import sim.portrayal.continuous.ContinuousPortrayal2D;
@@ -43,7 +44,11 @@ public class Gui extends GUIState {
 		Environment model = Environment.get();
 		Gui vid = new Gui(model);
 		Console c = new Console(vid);
+		
+		vid.scheduleRepeatingImmediatelyAfter(new RateAdjuster(100.0)); // FPS Cap
+		
 		c.setVisible(true);
+		c.pressPlay();
 	}
 
 	public Gui() {

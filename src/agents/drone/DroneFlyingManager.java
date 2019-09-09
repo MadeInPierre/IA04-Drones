@@ -9,9 +9,8 @@ import agents.drone.DroneAgent.DroneState;
 import agents.drone.behaviors.FlyingBehavior;
 import agents.drone.behaviors.GotoStraightBehavior;
 import agents.drone.behaviors.HeadMoveBehavior;
-import agents.drone.behaviors.KeepDistanceBehavior;
+import agents.drone.behaviors.ReturnToHomeBehavior;
 import agents.drone.behaviors.RollbackBehavior;
-import agents.drone.behaviors.SeekDirectionBehavior;
 import agents.drone.behaviors.SeekTunnelBehavior;
 import agents.drone.behaviors.WaitReconnectBehavior;
 import environment.Environment;
@@ -24,16 +23,16 @@ public class DroneFlyingManager {
 		IDLE,          		// Drone isn't flying (OperationState != FLYING)
 		HEAD_MOVE,			// Follow the operator's commands
 		
-		// 2D Mode
-		SEEK_SIGNAL_DIR,	// Seeking which direction to choose
-		KEEP_SIGNAL_DIST,	// Normal mode: signal direction found, moving in a straight line to keep signal quality
+//		SEEK_SIGNAL_DIR,	// Seeking which direction to choose
+//		KEEP_SIGNAL_DIST,	// Normal mode: signal direction found, moving in a straight line to keep signal quality
 		
-		// 1D Mode
 		SEEK_TUNNEL_DIR,	// Seeking which direction to choose to follow the tunnel 
 		GOTO_STRAIGHT,  	// Normal mode: move in a straight line and try to get to an absolute position in the tunnel
 		
 		WAIT_RECONNECT, 	// Lost connection, waiting for the next drone to come back
 		ROLLBACK,     		// Lost connection, rolling back its position until reconnected
+		
+		RTH					// Follow the previously follower drone, and land when close to the base
 	};
 	private FlyingState flyingState;
 	
@@ -58,12 +57,6 @@ public class DroneFlyingManager {
 		case HEAD_MOVE:
 			currentBehavior = new HeadMoveBehavior(drone);
 			break;
-		case SEEK_SIGNAL_DIR:
-			currentBehavior = new SeekDirectionBehavior(drone);
-			break;
-		case KEEP_SIGNAL_DIST:
-			currentBehavior = new KeepDistanceBehavior(drone);
-			break;
 		case SEEK_TUNNEL_DIR:
 			currentBehavior = new SeekTunnelBehavior(drone);
 			break;
@@ -75,6 +68,9 @@ public class DroneFlyingManager {
 			break;
 		case ROLLBACK:
 			currentBehavior = new RollbackBehavior(drone);
+			break;
+		case RTH:
+			currentBehavior = new ReturnToHomeBehavior(drone);
 			break;
 		}
 	}
@@ -94,10 +90,13 @@ public class DroneFlyingManager {
 	private void updateHistory(Double3D newTransform) {
 		if(newTransform.equals(new Double3D(0, 0, 0))) return; // ignore when we're not moving
 		trajectoryHistory.add(newTransform);
-		distanceInTunnel += newTransform.getX();
 
 		if(trajectoryHistory.size() >= Constants.HISTORY_DURATION)
 			trajectoryHistory.remove(0);
+	}
+	
+	private void updateDistanceInTunnel(Double3D newTransform) {
+		distanceInTunnel += newTransform.getX();
 	}
 	
 	private void clearHistory() {
@@ -118,14 +117,14 @@ public class DroneFlyingManager {
 		
 		// Process distance sensors
 		Double3D collisionTransform = new Double3D(0, 0, 0);
-		if(currentBehavior.enableCollisions()) collisionTransform = calculateCollisionTransform(com);
+		if(currentBehavior.enableCollisions()) collisionTransform = calculateCollisionTransform(com, behaviorTransform);
 		
 		// Merge moving decisions for a final transform
 		Double3D transform = behaviorTransform.add(collisionTransform.multiply(Constants.DRONE_COLLISION_SENSOR_WEIGHT));
 
-		if (flyingState != FlyingState.ROLLBACK) {
+		if (flyingState != FlyingState.ROLLBACK)
 			updateHistory(transform); // Save transform in translation history
-		}
+		updateDistanceInTunnel(transform);
 
 		// Potentially switch to a new behavior
 		setFlyingState(currentBehavior.transitionTo());
@@ -137,7 +136,7 @@ public class DroneFlyingManager {
 	}
 	
 	
-	private Double3D calculateCollisionTransform(Communicator com) {
+	private Double3D calculateCollisionTransform(Communicator com, Double3D currentTransform) {
 		Double3D collisionTransform = new Double3D(0, 0, 0);
 
 		CollisionsSensor[] sensors = drone.getCollisionSensors();
@@ -158,9 +157,9 @@ public class DroneFlyingManager {
 		}
 		
 		// Braitenberg turning
-		if(trajectoryHistory.size() > 0)
-		collisionTransform = collisionTransform.add(new Double3D(0, 0, (trajectoryHistory.get(trajectoryHistory.size() - 1).x >= 0 ? 1.0 : -1.0) * 
-																	   (sensors[1].getDistance(com) - sensors[3].getDistance(com)) * 0.3f));
+		collisionTransform = collisionTransform.add(new Double3D(0, 0, (currentTransform.getX() >= 0 ? 1.0 : -1.0) * 
+																	   (sensors[1].getDistance(com) - sensors[3].getDistance(com)) *
+																	   Constants.DRONE_TURN_SPEED));
 		
 		// Can't go faster than the drone speed in all cases
 		if(collisionTransform.length() > Constants.DRONE_SPEED)

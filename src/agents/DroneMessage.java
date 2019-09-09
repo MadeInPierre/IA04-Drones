@@ -14,10 +14,12 @@ public class DroneMessage {
 	 */
 	
 	public final static int BROADCAST = -42; // ID used in destinationID (sends to everyone in reach except the agent itself)
-	private int destinationID;
+	protected static int idCounter = 0;
 	
+	private int destinationID;
 	private CommunicativeAgent sender;
 	private long step;
+	private int messageID;
 	
 	public enum Performative {
 		INFORM,
@@ -32,10 +34,15 @@ public class DroneMessage {
 	private float signalStrength; // set by the Environment, indicates the signal quality when this message has been sent
 	
 	public DroneMessage(CommunicativeAgent sender, int destinationID, Performative perf) {
+		this.messageID = idCounter++;
 		this.destinationID = destinationID;
 		this.performative = perf;
 		this.sender = sender;
 		step = 0;
+	}
+	
+	public int getMessageID() {
+		return messageID;
 	}
 	
 	public void setStep(long step) {

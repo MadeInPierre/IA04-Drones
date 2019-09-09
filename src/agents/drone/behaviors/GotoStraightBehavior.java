@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import agents.Communicator;
 import agents.DroneMessage;
+import agents.DroneMessage.Performative;
 import agents.drone.CollisionsSensor;
 import agents.drone.DroneAgent;
 import agents.drone.DroneAgent.DroneRole;
@@ -17,7 +18,12 @@ public class GotoStraightBehavior extends FlyingBehavior {
 	private ArrayList<Float> leaderHistory;
 	float followerSignal, leaderSignal;
 	
-//	private float goalPos = 15;
+	private enum Mode {
+		FOLLOW,
+		GOTO
+	}
+	private Mode mode = Mode.FOLLOW;
+	private float gotoPos = -1;
 	
 	public GotoStraightBehavior(DroneAgent drone) {
 		super(drone);
@@ -36,20 +42,53 @@ public class GotoStraightBehavior extends FlyingBehavior {
 		leaderSignal   = (float)leaderHistory.stream().mapToDouble(val -> val).average().orElse(0.0);
 	}
 	
+	private void resetHistory() {
+		followerHistory.clear();
+		leaderHistory.clear();
+	}
+	
 	public Double3D stepTransform(Communicator com) {
 		Double3D transform = new Double3D(0, 0, 0);
 		
 		// Stop going straight if there's an obstacle ahead and seek
-		CollisionsSensor[] sensors = drone.getCollisionSensors();
-		if(sensors[0].getDistance(com) <= Constants.DRONE_COLLISION_SENSOR_TRIGGER_DISTANCE) askForSeek = true;
+		// CollisionsSensor[] sensors = drone.getCollisionSensors();
+		// if(sensors[0].getDistance(com) <= Constants.DRONE_COLLISION_SENSOR_TRIGGER_DISTANCE) askForSeek = true;
 		
-		// Go forward or backward according to the goal position
-//		if     (drone.getDistanceInTunnel() < goalPos - 0.05) transform = transform.add(new Double3D(       Constants.DRONE_SPEED, 0, 0));
-//		else if(drone.getDistanceInTunnel() > goalPos + 0.05) transform = transform.add(new Double3D(-1.0 * Constants.DRONE_SPEED, 0, 0));
-		
-		// Go where the signal is the lowest
 		updateHistory(com.getSignalStrength(drone.getFollowerID()), com.getSignalStrength(drone.getLeaderID()));
-		transform = transform.add(new Double3D((followerSignal < leaderSignal ? 1.0 : -1.0) * Constants.DRONE_SPEED, 0, 0));
+		
+		// Movement decision
+		switch(mode) {
+			case FOLLOW: { // Go where the signal is the lowest
+				if(Math.abs(followerSignal - leaderSignal) > Constants.DRONE_EXPECTED_SIGNAL_STD)
+					transform = transform.add(new Double3D((followerSignal < leaderSignal ? 1.0 : -1.0) * Constants.DRONE_SPEED, 0, 0));
+				else {
+					// If the head moves, move too
+					for(DroneMessage msg : com.getMessages()) {
+						if (msg.getTitle() == "moveHead" && msg.getPerformative() == Performative.REQUEST) {
+							transform = new Double3D(Constants.DRONE_SPEED, 0, 0);
+							com.removeMessage(msg);
+							break;
+						}
+					}
+				}
+				break;
+			}
+			case GOTO: { // Go forward or backward according to the goal position
+				if(gotoPos == -1) { mode = Mode.FOLLOW; break; }
+				
+				if(drone.getDistanceInTunnel() < gotoPos - 0.05)
+					transform = transform.add(new Double3D( Constants.DRONE_SPEED, 0, 0));
+				else if(drone.getDistanceInTunnel() > gotoPos + 0.05)
+					transform = transform.add(new Double3D(-Constants.DRONE_SPEED, 0, 0));
+				else {
+					gotoPos = -1;
+					mode = Mode.FOLLOW;
+				}
+				break;
+			}
+		}
+		
+		
 		
 		// Avoid collisions between drones based on signal quality (can't be too good)
 		if(transform.getX() < 0 && com.getSignalStrength(drone.getFollowerID()) < Constants.DRONE_BEST_SIGNAL_LOSS)

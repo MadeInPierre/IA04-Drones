@@ -4,6 +4,9 @@ import agents.CommunicativeAgent;
 import agents.DroneMessage;
 import agents.DroneMessage.Performative;
 import agents.drone.DroneAgent;
+import agents.drone.DroneAgent.DroneRole;
+import agents.drone.DroneAgent.DroneState;
+import agents.drone.DroneFlyingManager.FlyingState;
 import environment.Environment;
 import main.Constants;
 import sim.engine.SimState;
@@ -15,6 +18,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.util.ArrayList;
 import java.util.Optional;
 
 public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyListener {
@@ -60,6 +64,9 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 		case KeyEvent.VK_H: // si la touche enfoncée est H
 			rth = true;
 			break;
+		case KeyEvent.VK_Q: // si la touche enfoncée est H
+			System.exit(1);
+			break;
 		}
 	}
 
@@ -77,6 +84,17 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 	}
 
 	public void step(SimState state) {
+		// Process messages
+		ArrayList<DroneMessage> garbageMessages = new ArrayList<DroneMessage>();
+		for(DroneMessage msg : communicator.getMessages()) {
+			if (msg.getTitle() == "tunnel_dist" && msg.getPerformative() == Performative.INFORM) {
+//				System.out.println(msg.getContent());
+				garbageMessages.add(msg);
+			}
+		}
+		for(DroneMessage msg : garbageMessages) communicator.removeMessage(msg);
+		
+		
 		// Send usual status message (used by others for signal strength)
 		DroneMessage statusmsg = new DroneMessage(this, DroneMessage.BROADCAST, Performative.INFORM);
 		statusmsg.setTitle("status");
