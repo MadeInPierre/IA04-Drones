@@ -49,22 +49,22 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 		switch (codeDeLaTouche) // Les valeurs sont contenue dans KeyEvent. Elles commencent par VK_ et
 								// finissent par le nom de la touche
 		{
-		case KeyEvent.VK_UP: // si la touche enfoncée est celle du haut
+		case KeyEvent.VK_UP:
 			y = -Constants.DRONE_SPEED;
 			break;
-		case KeyEvent.VK_LEFT: // si la touche enfoncée est celle de gauche
+		case KeyEvent.VK_LEFT:
 			x = -Constants.DRONE_SPEED;
 			break;
-		case KeyEvent.VK_RIGHT: // si la touche enfoncée est celle de droite
+		case KeyEvent.VK_RIGHT:
 			x = Constants.DRONE_SPEED;
 			break;
-		case KeyEvent.VK_DOWN: // si la touche enfoncée est celle du bas
+		case KeyEvent.VK_DOWN:
 			y = Constants.DRONE_SPEED;
 			break;
-		case KeyEvent.VK_H: // si la touche enfoncée est H
+		case KeyEvent.VK_H:
 			rth = true;
 			break;
-		case KeyEvent.VK_Q: // si la touche enfoncée est H
+		case KeyEvent.VK_Q:
 			System.exit(1);
 			break;
 		}
@@ -84,6 +84,8 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 	}
 
 	public void step(SimState state) {
+		Optional<CommunicativeAgent> tail = Environment.get().getSignalManager().getClosestAgent(this); // TODO real association
+		
 		// Process messages
 		ArrayList<DroneMessage> garbageMessages = new ArrayList<DroneMessage>();
 		for(DroneMessage msg : communicator.getMessages()) {
@@ -94,16 +96,19 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 		}
 		for(DroneMessage msg : garbageMessages) communicator.removeMessage(msg);
 		
+		if(tail.isPresent() && communicator.getLastStatusFrom(tail.get().getID()) != null) 
+			log(String.valueOf(communicator.getLastStatusFrom(tail.get().getID()).getContent()));
+		
 		
 		// Send usual status message (used by others for signal strength)
 		DroneMessage statusmsg = new DroneMessage(this, DroneMessage.BROADCAST, Performative.INFORM);
 		statusmsg.setTitle("status");
 		communicator.sendMessageToDrone(statusmsg);
 
+//		y = -Constants.DRONE_SPEED; // TODO remove
 		String mesContent = "x " + x + ";y " + y;
 
 		if (x != 0 || y != 0) {
-			Optional<CommunicativeAgent> tail = Environment.get().getSignalManager().getClosestAgent(this);
 			if (tail.isPresent()) {
 				DroneMessage msg = new DroneMessage(this, tail.get().getID(), DroneMessage.Performative.REQUEST);
 				msg.setTitle("moveHead");
@@ -113,7 +118,6 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 		}
 		
 		if (rth == true && rth_fired == false) {
-			Optional<CommunicativeAgent> tail = Environment.get().getSignalManager().getClosestAgent(this);
 			if (tail.isPresent()) {
 				// Ask for the whole chain to switch followers and leaders
 				DroneMessage msg = new DroneMessage(this, tail.get().getID(), DroneMessage.Performative.REQUEST);

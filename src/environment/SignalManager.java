@@ -155,7 +155,7 @@ public class SignalManager implements Steppable {
 		// Calculating Multipath loss
 		float multipathLoss = Constants.SIGNAL_MULTIPATH_LOSS_AMP * (float)Math.sin(Constants.SIGNAL_MULTIPATH_LOSS_PER * tunnel_distance);
 		
-		float loss = pathLoss + shadowingLoss + multipathLoss + Constants.SIGNAL_RANDOM_LOSS_STD * (float)r.nextGaussian(); // final result with a random noise
+		float loss = pathLoss + shadowingLoss + multipathLoss;// + Constants.SIGNAL_RANDOM_LOSS_STD * (float)r.nextGaussian(); // final result with a random noise
 		return (loss > 0) ? loss : 0f;
 	}
 

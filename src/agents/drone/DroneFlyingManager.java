@@ -150,7 +150,7 @@ public class DroneFlyingManager {
 
 				Double3D vector = distance < Constants.DRONE_COLLISION_SENSOR_MINIMUM_DISTANCE ?
 						new Double3D(0, 0, 0) :
-						new Double3D(Math.cos((double) angle), Math.sin((double) angle), 0).multiply(-1 / distance / distance);
+						new Double3D(Math.cos((double) angle), Math.sin((double) angle), 0).multiply(-2f / distance / distance);
 
 				collisionTransform = collisionTransform.add(vector);
 			}

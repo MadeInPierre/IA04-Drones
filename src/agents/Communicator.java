@@ -22,13 +22,12 @@ public class Communicator {
 	
 	public void receiveMessage(DroneMessage msg) {
 		if(msg.getTitle() == "status") {
-			//System.out.println("Adding status from " + msg.getSenderID());
 			lastStatuses.put(msg.getSenderID(), msg);
 		} else {
-			if(inbox.size() > Constants.DRONE_MAX_INBOX_MSGS) inbox.remove(0);
+			if(inbox.size() > Constants.DRONE_MAX_INBOX_MSGS) 
+				inbox.remove(0);
 			inbox.add(msg);
 		}
-		//System.out.println("Agent " + msg.getDestinationID() + " got message title=" + msg.getTitle() + " at step=" + msg.getStep());
 	}
 	
 	public ArrayList<DroneMessage> getMessages() {
@@ -36,8 +35,6 @@ public class Communicator {
 	}
 	
 	public DroneMessage getLastStatusFrom(int id) {
-		//System.out.println(lastStatuses.keySet().toString());
-		//System.out.println(id);
 		return lastStatuses.get(id);
 	}
 
@@ -49,8 +46,7 @@ public class Communicator {
 				return env.getSignalManager().getSignalLoss(owner, a);
 			}
 		}
-
-		return -1; // En cas d'id invalide;
+		return -1; // If invalid id
 	}
 	
 	public void clearStatuses() {

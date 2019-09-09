@@ -47,7 +47,7 @@ public class HeadMoveBehavior extends FlyingBehavior {
 				transform = new Double3D(forward, 0, 0); // controls for 1D navigation
 				
 				if(forward > 0 && com.getSignalStrength(drone.getFollowerID()) > Constants.DRONE_DANGER_SIGNAL_LOSS) {
-					transform = new Double3D(0, 0, 0); // Do not let the user go forward if the local signal is too low (head too fast for the chain probably)
+					transform = new Double3D(); // Do not let the user go forward if the local signal is too low (head too fast for the chain probably)
 				}
 				break;
 			}

@@ -171,16 +171,26 @@ public class DroneAgent extends CommunicativeAgent {
 		for(DroneMessage msg : garbageMessages) communicator.removeMessage(msg);
 		
 		// Send usual status message (used by others for signal strength)
-		DroneMessage msg = new DroneMessage(this, DroneMessage.BROADCAST, Performative.INFORM);
-		msg.setTitle("status");
-		communicator.sendMessageToDrone(msg);
+		{
+			DroneMessage statusmsg = new DroneMessage(this, DroneMessage.BROADCAST, Performative.INFORM);
+			statusmsg.setTitle("status");
+			
+			DroneMessage followStatus = communicator.getLastStatusFrom(getFollowerID());
+			String content = String.format("%.1f", (followStatus != null) ? followStatus.getStrength() : 0);
+			if(!isHead()) {
+				DroneMessage leaderStatus = communicator.getLastStatusFrom(getLeaderID());
+				content += String.valueOf((leaderStatus != null) ? "," + leaderStatus.getContent() : "-");
+			} else content += ";";
+			statusmsg.setContent(content);
+			communicator.sendMessageToDrone(statusmsg);
+		}
 		
 		// Status behaviors
 		switch(droneState) {
 		case IDLE: {
 			break;
 		}
-		case ARMED: {// listen for the leader's signal, fly if too low
+		case ARMED: { // listen for the leader's signal, fly if too low
 			DroneMessage leaderStatus = communicator.getLastStatusFrom(getLeaderID());
 			if(leaderStatus != null) {
 				if(leaderStatus.getStrength() > Constants.DRONE_ARMED_SIGNAL_LOSS) {
@@ -199,10 +209,10 @@ public class DroneAgent extends CommunicativeAgent {
 //			if(leaderStatus != null && leaderStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
 //				setFlyingState(FlyingState.WAIT_RECONNECT);
 //			}
-//			DroneMessage followerStatus = communicator.getLastStatusFrom(getFollowerID());
-//			if(followerStatus != null && followerStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
-//				setFlyingState(FlyingState.ROLLBACK);
-//			}
+			DroneMessage followerStatus = communicator.getLastStatusFrom(getFollowerID());
+			if(followerStatus != null && followerStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
+				setFlyingState(FlyingState.ROLLBACK);
+			}
 			if(getDroneRole() == DroneRole.HEAD) { // Get the distance back to the operator for stats
 				DroneMessage distmsg = new DroneMessage(this, getFollowerID(), Performative.INFORM);
 				distmsg.setTitle("tunnel_dist");
