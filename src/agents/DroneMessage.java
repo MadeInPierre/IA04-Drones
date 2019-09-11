@@ -1,6 +1,7 @@
 package agents;
 
 import agents.drone.DroneAgent;
+import environment.Environment;
 
 public class DroneMessage {
 	/*
@@ -38,15 +39,11 @@ public class DroneMessage {
 		this.destinationID = destinationID;
 		this.performative = perf;
 		this.sender = sender;
-		step = 0;
+		this.step = Environment.get().schedule.getSteps();
 	}
 	
 	public int getMessageID() {
 		return messageID;
-	}
-	
-	public void setStep(long step) {
-		this.step = step;
 	}
 	
 	public long getStep() {

@@ -111,7 +111,7 @@ public class SignalManager implements Steppable {
 	private float getPathLoss(float lossExponent, float distance) {
 		if (distance <= this.step)
 			return 0;
-		return (float) (10 * lossExponent * Math.log10(distance));
+		return (float) Math.max((10 * lossExponent * Math.log10(distance)), 0f);
 	}
 
 	private float getExponentLoss(Double2D pos1, Double2D pos2) {
@@ -150,12 +150,14 @@ public class SignalManager implements Steppable {
 		float pathLoss = getPathLoss(pathLossExponent, tunnel_distance);
 
 		// Calculating Shadowing loss
-		float shadowingLoss = Constants.SIGNAL_SHADOWING_LOSS * turning_distance;
+		float shadowingLoss = Math.max(Constants.SIGNAL_SHADOWING_LOSS * turning_distance, 0f);
 		
 		// Calculating Multipath loss
 		float multipathLoss = Constants.SIGNAL_MULTIPATH_LOSS_AMP * (float)Math.sin(Constants.SIGNAL_MULTIPATH_LOSS_PER * tunnel_distance);
 		
-		float loss = pathLoss + shadowingLoss + multipathLoss;// + Constants.SIGNAL_RANDOM_LOSS_STD * (float)r.nextGaussian(); // final result with a random noise
+		float loss = Constants.DRONE_BEST_SIGNAL_LOSS 
+				     + pathLoss + shadowingLoss + multipathLoss
+				     + Constants.SIGNAL_RANDOM_LOSS_STD * (float)r.nextGaussian(); // final result with a random noise
 		return (loss > 0) ? loss : 0f;
 	}
 

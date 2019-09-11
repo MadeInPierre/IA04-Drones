@@ -41,6 +41,8 @@ public class DroneAgent extends CommunicativeAgent {
 	private CollisionsSensor[] collisionSensors;
 	private DroneFlyingManager flyingManager;
 	
+	protected float currentSpeed = 0f;
+	
 	public void setDroneRole(DroneRole newRole) {
 //		if(droneRole == DroneRole.HEAD && newRole == DroneRole.FOLLOWER)
 //			flyingManager.setFlyingState(FlyingState.SEEK_TUNNEL_DIR);
@@ -89,8 +91,8 @@ public class DroneAgent extends CommunicativeAgent {
 		followerID = newID;
 	}
 	
-	public double getDistanceInTunnel() {
-		return flyingManager.getDistanceInTunnel();
+	public float getDistanceInTunnel() {
+		return (float)flyingManager.getDistanceInTunnel();
 	}
 	
 	// MAIN FUNCTIONS
@@ -108,7 +110,7 @@ public class DroneAgent extends CommunicativeAgent {
 		}
 	}
 
-	public void step(SimState state) {
+	public void step(SimState state) {		
 		// Process messages
 		ArrayList<DroneMessage> garbageMessages = new ArrayList<DroneMessage>();
 		for(DroneMessage msg : communicator.getMessages()) {
@@ -246,10 +248,11 @@ public class DroneAgent extends CommunicativeAgent {
 		}
 		
 		// Update position
-		if(droneState == DroneState.FLYING) flyingManager.stepTransform(communicator);
+		if(droneState == DroneState.FLYING) currentSpeed = flyingManager.stepTransform(communicator);
+		else currentSpeed = 0f;
 		
 		// Cleanup messages
-		communicator.clearStatuses();
+//		communicator.clearStatuses();
 		communicator.clearMessages();
 	}
 	
@@ -266,4 +269,6 @@ public class DroneAgent extends CommunicativeAgent {
 	}
 
 	public Double3D popTrajectoryHistory() { return flyingManager.popTrajectoryHistory(); }
+	
+	public float getSpeed() { return currentSpeed; }
 }

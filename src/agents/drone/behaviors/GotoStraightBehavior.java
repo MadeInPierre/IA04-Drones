@@ -25,6 +25,8 @@ public class GotoStraightBehavior extends FlyingBehavior {
 	private Mode mode = Mode.FOLLOW;
 	private float gotoPos = -1;
 	
+	private boolean balancing = false;
+	
 	public GotoStraightBehavior(DroneAgent drone) {
 		super(drone);
 		followerHistory = new ArrayList<Float>();
@@ -54,18 +56,34 @@ public class GotoStraightBehavior extends FlyingBehavior {
 		// CollisionsSensor[] sensors = drone.getCollisionSensors();
 		// if(sensors[0].getDistance(com) <= Constants.DRONE_COLLISION_SENSOR_TRIGGER_DISTANCE) askForSeek = true;
 		
-		updateHistory(com.getSignalStrength(drone.getFollowerID()), com.getSignalStrength(drone.getLeaderID()));
+		updateHistory(com.getFilteredStrengthFrom(drone.getFollowerID()), com.getFilteredStrengthFrom(drone.getLeaderID()));
+//		followerSignal = com.getFilteredStrengthFrom(drone.getFollowerID());
+//		leaderSignal   = com.getFilteredStrengthFrom(drone.getLeaderID());
+//		drone.log(followerSignal + " " + leaderSignal);
 		
 		// Movement decision
 		switch(mode) {
 			case FOLLOW: { // Go where the signal is the lowest
-				if(Math.abs(followerSignal - leaderSignal) > Constants.DRONE_EXPECTED_SIGNAL_STD)
+				if(Math.abs(followerSignal - leaderSignal) > Constants.DRONE_EXPECTED_SIGNAL_STD) {
+					balancing = true;
 					transform = transform.add(new Double3D((followerSignal < leaderSignal ? 1.0 : -1.0) * Constants.DRONE_SPEED, 0, 0));
+				}
 				else {
+//					if(balancing == true) { // if we just regained a stable middle position, move a bit more (goto the center of the zone)
+//						gotoPos = drone.getDistanceInTunnel() + .5f;
+//						mode = Mode.GOTO;
+//						balancing = false;
+//						break;
+//					}
+					if(Math.abs(followerSignal - leaderSignal) > 1f) // small balancing for precise positioning
+						transform = transform.add(new Double3D((followerSignal < leaderSignal ? 1.0 : -1.0) * Constants.DRONE_SPEED / 10f, 0, 0));
+					
+					balancing = false;
 					// If the head moves, move too
 					for(DroneMessage msg : com.getMessages()) {
 						if (msg.getTitle() == "moveHead" && msg.getPerformative() == Performative.REQUEST) {
-							transform = new Double3D(Constants.DRONE_SPEED, 0, 0);
+							double move = -Double.parseDouble(msg.getContent().split(";")[1].replace("y ", ""));
+							transform = new Double3D(move/2f, 0, 0);
 							com.removeMessage(msg);
 							break;
 						}

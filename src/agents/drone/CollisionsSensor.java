@@ -36,6 +36,6 @@ public class CollisionsSensor {
 
 		Double2D collisionPoint = cm.firstPathPointColliding(p1, p2);
 
-		return (collisionPoint != null) ? collisionPoint.subtract(p1).length() : getRange();
+		return (collisionPoint != null) ? collisionPoint.subtract(p1).length() : getRange() - .1f;
 	}
 }

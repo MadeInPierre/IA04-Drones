@@ -81,6 +81,8 @@ public class Environment extends SimState {
 		if(yard.getAllObjects().size() > 1) {
 			DroneAgent d = (DroneAgent) yard.getAllObjects().get(1);
 			d.setDroneState(DroneState.ARMED);
+		}
+		if(yard.getAllObjects().size() >= 1) {
 			DroneAgent tailDrone = (DroneAgent) yard.getAllObjects().get(yard.size() - 1);
 			tailDrone.setFollowerID(operator.getID());
 		}

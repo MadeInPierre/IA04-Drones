@@ -96,8 +96,8 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 		}
 		for(DroneMessage msg : garbageMessages) communicator.removeMessage(msg);
 		
-		if(tail.isPresent() && communicator.getLastStatusFrom(tail.get().getID()) != null) 
-			log(String.valueOf(communicator.getLastStatusFrom(tail.get().getID()).getContent()));
+//		if(tail.isPresent() && communicator.getLastStatusFrom(tail.get().getID()) != null) 
+//			log(String.valueOf(communicator.getLastStatusFrom(tail.get().getID()).getContent()));
 		
 		
 		// Send usual status message (used by others for signal strength)
@@ -105,7 +105,7 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 		statusmsg.setTitle("status");
 		communicator.sendMessageToDrone(statusmsg);
 
-//		y = -Constants.DRONE_SPEED; // TODO remove
+//		y = -Constants.DRONE_SPEED; // for tests only
 		String mesContent = "x " + x + ";y " + y;
 
 		if (x != 0 || y != 0) {

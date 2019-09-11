@@ -46,7 +46,8 @@ public class SignalEdgePortrayal extends SimpleEdgePortrayal2D {
 		CommunicativeAgent to   = (CommunicativeAgent) ((Edge) o).getTo();
 
 		if (toDraw(from, to)) {
-			logSignals(from, to, w);
+			DroneAgent d = (from.getID() > to.getID()) ? (DroneAgent)from : (DroneAgent)to;
+			logSignals(from, to, w, d.getCommunicator().getFilteredStrengthFrom(d.getLeaderID()));
 			
 			if (w > Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
 				setShape(SHAPE_THIN_LINE);
@@ -88,18 +89,19 @@ public class SignalEdgePortrayal extends SimpleEdgePortrayal2D {
 		return Math.max(1 - ((Edge) o).getWeight() / Constants.DRONE_MAXIMUM_SIGNAL_LOSS, 0f);
 	}
 	
-	private void logSignals(CommunicativeAgent from, CommunicativeAgent to, double w) {
+	private void logSignals(CommunicativeAgent from, CommunicativeAgent to, double signal, double filteredSignal) {
 //		System.out.print("(" + from.getID() + "," + to.getID() + ",");
 //		if(from instanceof DroneAgent) System.out.print(((DroneAgent)from).getDistanceInTunnel() + ","); else System.out.print("0.0,");
 //		if(to   instanceof DroneAgent) System.out.print(((DroneAgent)to  ).getDistanceInTunnel() + ","); else System.out.print("0.0,");
-//		System.out.println(w + ")");
+//		System.out.println(signal + "," + filteredSignal + ")");
 		
-	    if(w < Constants.DRONE_MAXIMUM_SIGNAL_LOSS) 
-	    	printWriter.printf("%d,%d,%f,%f,%f\n", from.getID(), 
-	    										   to.getID(), 
-	    										   (from instanceof DroneAgent) ? ((DroneAgent)from).getDistanceInTunnel() : 0, 
-	    										   (to   instanceof DroneAgent) ? ((DroneAgent)to  ).getDistanceInTunnel() : 0, 
-	    										   w);
+	    if(signal < Constants.DRONE_MAXIMUM_SIGNAL_LOSS || filteredSignal < Constants.DRONE_MAXIMUM_SIGNAL_LOSS) 
+	    	printWriter.printf("%d,%d,%d,%f,%f,%f,%f\n", Environment.get().schedule.getSteps(),
+		    										   from.getID(), 
+		    										   to.getID(), 
+		    										   (from instanceof DroneAgent) ? ((DroneAgent)from).getDistanceInTunnel() : 0, 
+		    										   (to   instanceof DroneAgent) ? ((DroneAgent)to  ).getDistanceInTunnel() : 0, 
+		    										   signal, filteredSignal);
 	}
 
 }

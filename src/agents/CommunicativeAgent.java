@@ -30,4 +30,8 @@ public class CommunicativeAgent implements Steppable {
 	public void log(String text) {
 		System.out.println("[Agent=" + getID() + "] " + text);
 	}
+	
+	public Communicator getCommunicator() {
+		return communicator;
+	}
 }

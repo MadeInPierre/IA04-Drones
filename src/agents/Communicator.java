@@ -8,21 +8,37 @@ import agents.DroneMessage.Performative;
 import agents.drone.DroneAgent;
 import environment.Environment;
 import main.Constants;
+import utils.KalmanFilter;
 
 public class Communicator {
 	private ArrayList<DroneMessage> inbox;
+	
 	private Map<Integer, DroneMessage> lastStatuses;
+	private Map<Integer, KalmanFilter> filteredStatuses;
+	
 	private CommunicativeAgent owner;
 	
 	public Communicator(CommunicativeAgent owner) {
 		inbox = new ArrayList<DroneMessage>();
 		lastStatuses = new HashMap<>();
+		filteredStatuses = new HashMap<>();
 		this.owner = owner;
 	}
 	
 	public void receiveMessage(DroneMessage msg) {
 		if(msg.getTitle() == "status") {
+			// register last status message
 			lastStatuses.put(msg.getSenderID(), msg);
+			
+			// Calculate new filtered value
+			if(filteredStatuses.containsKey(msg.getSenderID())) {
+				double u = (owner instanceof DroneAgent) ? ((DroneAgent)owner).getSpeed() : 0f ;
+				filteredStatuses.get(msg.getSenderID()).filter(msg.getStrength(), u);
+			}
+			else {
+				double B = (owner instanceof DroneAgent) ? 3f : 0f ;
+				filteredStatuses.put(msg.getSenderID(), new KalmanFilter(0.01, 3, 1, B, 1)); // 0.001, 3, 1, 2.5, 1
+			}
 		} else {
 			if(inbox.size() > Constants.DRONE_MAX_INBOX_MSGS) 
 				inbox.remove(0);
@@ -36,6 +52,18 @@ public class Communicator {
 	
 	public DroneMessage getLastStatusFrom(int id) {
 		return lastStatuses.get(id);
+	}
+	
+	public float getFilteredStrengthFrom(int id) {
+		if(!lastStatuses.containsKey(id) || !filteredStatuses.containsKey(id))
+				return Float.NaN;
+		
+		long age = Environment.get().schedule.getSteps() - lastStatuses.get(id).getStep();
+		if(age > Constants.DRONE_NOMSGS_DISCONNECT_STEPS) { 
+			filteredStatuses.get(id).reset();
+			return Float.NaN;
+		}
+		return (float)filteredStatuses.get(id).getLastMeasurement();
 	}
 
 	public float getSignalStrength(int id) {
@@ -80,8 +108,6 @@ public class Communicator {
 				m.setContent(msg.getContent());
 				
 				m.setStrength(env.getSignalManager().getSignalLoss(m.getSender(), a));
-				//System.out.println("Setting strength to message strength=" + m.getStrength() + " between agent=" + m.getSenderID() + " to agent=" + m.getDestinationID() + "/" + a.getID());
-				m.setStep(env.schedule.getSteps());
 				
 				if(m.getStrength() < Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
 					a.receiveMessage(m);

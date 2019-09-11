@@ -103,7 +103,7 @@ public class DroneFlyingManager {
 		trajectoryHistory.clear();
 	}
 	
-	public void stepTransform(Communicator com) {
+	public float stepTransform(Communicator com) {
 		// Process messages
 		ArrayList<DroneMessage> inbox = com.getMessages();
 		for(DroneMessage msg : inbox) {
@@ -133,6 +133,8 @@ public class DroneFlyingManager {
 		Environment env = Environment.get();
 		env.rotateDrone(drone, (float)transform.z);
 		env.translateDrone(drone, new Double2D(transform.x, transform.y));
+		
+		return (float)new Double2D(transform.x, transform.y).length() * ((transform.x >= 0) ? 1f : -1f);
 	}
 	
 	
@@ -150,7 +152,7 @@ public class DroneFlyingManager {
 
 				Double3D vector = distance < Constants.DRONE_COLLISION_SENSOR_MINIMUM_DISTANCE ?
 						new Double3D(0, 0, 0) :
-						new Double3D(Math.cos((double) angle), Math.sin((double) angle), 0).multiply(-2f / distance / distance);
+						new Double3D(Math.cos((double) angle), Math.sin((double) angle), 0).multiply(-1f / distance / distance);
 
 				collisionTransform = collisionTransform.add(vector);
 			}
@@ -160,10 +162,13 @@ public class DroneFlyingManager {
 		collisionTransform = collisionTransform.add(new Double3D(0, 0, (currentTransform.getX() >= 0 ? 1.0 : -1.0) * 
 																	   (sensors[1].getDistance(com) - sensors[3].getDistance(com)) *
 																	   Constants.DRONE_TURN_SPEED));
+//		drone.log(sensors[1].getDistance(com) + " " + sensors[3].getDistance(com) + " " + (sensors[1].getDistance(com) - sensors[3].getDistance(com)));
 		
 		// Can't go faster than the drone speed in all cases
-		if(collisionTransform.length() > Constants.DRONE_SPEED)
+		if((new Double3D(collisionTransform.getX(), collisionTransform.getY(), 0)).length() > Constants.DRONE_SPEED)
 			collisionTransform = collisionTransform.normalize().multiply(Constants.DRONE_SPEED);
+//		if((new Double3D(collisionTransform.getX(), collisionTransform.getY(), 0)).length() < .02f)
+//			collisionTransform = new Double3D();
 		
 		return collisionTransform;
 	}
