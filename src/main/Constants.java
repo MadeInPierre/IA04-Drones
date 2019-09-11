@@ -53,7 +53,7 @@ public class Constants {
 
 	// Drone loss
     public static final float DRONE_RTH_SIGNAL_LOSS     = 40f;  //dB, loss before landing near the base during rth
-    public static final float DRONE_ARMED_SIGNAL_LOSS   = 70f;  //dB, threshold between armed and flying
+    public static final float DRONE_ARMED_SIGNAL_LOSS   = 60f;  //dB, threshold between armed and flying
     public static final float DRONE_DANGER_SIGNAL_LOSS  = 90f;  //dB, loss before triggering a disconnection scenario
     public static final float DRONE_MAXIMUM_SIGNAL_LOSS = 100f; //dB, loss before signal is completely lost
     public static final float DRONE_BEST_SIGNAL_LOSS    = 35f;  //dB, loss before drone can't go closer to the other drone

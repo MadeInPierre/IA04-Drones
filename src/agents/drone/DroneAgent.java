@@ -177,8 +177,8 @@ public class DroneAgent extends CommunicativeAgent {
 			DroneMessage statusmsg = new DroneMessage(this, DroneMessage.BROADCAST, Performative.INFORM);
 			statusmsg.setTitle("status");
 			
-			DroneMessage followStatus = communicator.getLastStatusFrom(getFollowerID());
-			String content = String.format("%.1f", (followStatus != null) ? followStatus.getStrength() : 0);
+			float followerStrength = communicator.getFilteredStrengthFrom(getLeaderID());
+			String content = String.format("%.1f", (!Float.isNaN(followerStrength)) ? followerStrength : 0f);
 			if(!isHead()) {
 				DroneMessage leaderStatus = communicator.getLastStatusFrom(getLeaderID());
 				content += String.valueOf((leaderStatus != null) ? "," + leaderStatus.getContent() : "-");
@@ -193,16 +193,14 @@ public class DroneAgent extends CommunicativeAgent {
 			break;
 		}
 		case ARMED: { // listen for the leader's signal, fly if too low
-			DroneMessage leaderStatus = communicator.getLastStatusFrom(getLeaderID());
-			if(leaderStatus != null) {
-				if(leaderStatus.getStrength() > Constants.DRONE_ARMED_SIGNAL_LOSS) {
-					DroneMessage armmsg = new DroneMessage(this, getFollowerID(), Performative.REQUEST);
-					armmsg.setTitle("arm");
-					communicator.sendMessageToDrone(armmsg);
-					droneState = DroneState.FLYING;
-					log("Detected signal low, now flying!");
-					setFlyingState(FlyingState.GOTO_STRAIGHT);
-				}
+			float leaderStrength = communicator.getFilteredStrengthFrom(getLeaderID());
+			if(!Float.isNaN(leaderStrength) && leaderStrength > Constants.DRONE_ARMED_SIGNAL_LOSS) {
+				DroneMessage armmsg = new DroneMessage(this, getFollowerID(), Performative.REQUEST);
+				armmsg.setTitle("arm");
+				communicator.sendMessageToDrone(armmsg);
+				droneState = DroneState.FLYING;
+				log("Detected signal low, now flying!");
+				setFlyingState(FlyingState.GOTO_STRAIGHT);
 			}
 			break;
 		}
@@ -211,8 +209,8 @@ public class DroneAgent extends CommunicativeAgent {
 //			if(leaderStatus != null && leaderStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
 //				setFlyingState(FlyingState.WAIT_RECONNECT);
 //			}
-			DroneMessage followerStatus = communicator.getLastStatusFrom(getFollowerID());
-			if(followerStatus != null && followerStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
+			float followerStrength = communicator.getFilteredStrengthFrom(getLeaderID());
+			if(!Float.isNaN(followerStrength) && followerStrength > Constants.DRONE_DANGER_SIGNAL_LOSS) {
 				setFlyingState(FlyingState.ROLLBACK);
 			}
 			if(getDroneRole() == DroneRole.HEAD) { // Get the distance back to the operator for stats
@@ -228,7 +226,7 @@ public class DroneAgent extends CommunicativeAgent {
 		}
 		}
 		
-		if(droneRole == DroneRole.RTH) {
+		if(droneRole == DroneRole.RTH) { // TODO update
 			DroneMessage lastStatus = communicator.getLastStatusFrom(getLeaderID());
 			float strength = Float.MAX_VALUE;
 			if(lastStatus != null) strength = lastStatus.getStrength();
