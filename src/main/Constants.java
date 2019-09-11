@@ -57,11 +57,15 @@ public class Constants {
     public static final float DRONE_DANGER_SIGNAL_LOSS  = 90f;  //dB, loss before triggering a disconnection scenario
     public static final float DRONE_MAXIMUM_SIGNAL_LOSS = 100f; //dB, loss before signal is completely lost
     public static final float DRONE_BEST_SIGNAL_LOSS    = 35f;  //dB, loss before drone can't go closer to the other drone
-    // Signal filtering
-    public static final float DRONE_EXPECTED_SIGNAL_STD = 3f;   // dB, Drone tries to ignore this amount of Gaussian noise
+    // Kalman filtering
+    public static final float DRONE_SIGNAL_KALMAN_R 	= 0.01f;// Expected internal Kalman noise
+    public static final float DRONE_SIGNAL_KALMAN_Q 	= 3f;   // Expected raw RSSI noise for Kalman
+    public static final float DRONE_SIGNAL_KALMAN_B 	= 3f;   // Evolution of signal when the drone moves
+    // Additional signal filtering
+    public static final float DRONE_EXPECTED_SIGNAL_STD = 3f;   // dB, Drone tries to ignore this amount of Gaussian noise (after Kalman filter)
     public static final int   DRONE_SIGNAL_MEAN_STEPS 	= 2;    // Number of signal measures we take the mean from
     
-    public static final int   DRONE_NOMSGS_DISCONNECT_STEPS = 2; // Steps without a status message before we consider we lost signal
+    public static final int   DRONE_NOMSGS_DISCONNECT_STEPS = 3;// Steps without a status message before we consider we lost signal
 
     // Drone general params
     public static final float N_DRONES 								  = 8;

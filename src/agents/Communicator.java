@@ -36,8 +36,10 @@ public class Communicator {
 				filteredStatuses.get(msg.getSenderID()).filter(msg.getStrength(), u);
 			}
 			else {
-				double B = (owner instanceof DroneAgent) ? 3f : 0f ;
-				filteredStatuses.put(msg.getSenderID(), new KalmanFilter(0.01, 3, 1, B, 1)); // 0.001, 3, 1, 2.5, 1
+				double B = (owner instanceof DroneAgent) ? Constants.DRONE_SIGNAL_KALMAN_B : 0f ;
+				filteredStatuses.put(msg.getSenderID(), new KalmanFilter(Constants.DRONE_SIGNAL_KALMAN_R, 
+																		 Constants.DRONE_SIGNAL_KALMAN_Q, 
+																		 1, B, 1));
 			}
 		} else {
 			if(inbox.size() > Constants.DRONE_MAX_INBOX_MSGS) 
