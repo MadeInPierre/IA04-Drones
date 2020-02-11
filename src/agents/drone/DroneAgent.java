@@ -209,7 +209,7 @@ public class DroneAgent extends CommunicativeAgent {
 //			if(leaderStatus != null && leaderStatus.getStrength() > Constants.DRONE_DANGER_SIGNAL_LOSS) {
 //				setFlyingState(FlyingState.WAIT_RECONNECT);
 //			}
-			float followerStrength = communicator.getFilteredStrengthFrom(getLeaderID());
+			float followerStrength = communicator.getFilteredStrengthFrom(getFollowerID());
 			if(!Float.isNaN(followerStrength) && followerStrength > Constants.DRONE_DANGER_SIGNAL_LOSS) {
 				setFlyingState(FlyingState.ROLLBACK);
 			}

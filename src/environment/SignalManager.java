@@ -98,7 +98,7 @@ public class SignalManager implements Steppable {
 					int r = (img.getRGB(x, y) >> 16) & 0xff;
 					// map red 0->255 to signal MIN -> MAX
 					float q = Constants.SIGNAL_MIN_LOSS + (float) r / 255f * (Constants.SIGNAL_MAX_LOSS - Constants.SIGNAL_MIN_LOSS);
-					if(r >= 254) { q = Constants.SIGNAL_WALL_LOSS; }
+					if(r >= 254) { q = Constants.SIGNAL_WALL_LOSS; System.out.println("max");}
 					this.originalLossField[x][y] = q;
 				}
 			}
@@ -147,7 +147,7 @@ public class SignalManager implements Steppable {
 		
 		// Calculating Path Loss
 		float pathLossExponent = getExponentLoss(env.getDronePos(agent1), env.getDronePos(agent2));
-		float pathLoss = getPathLoss(pathLossExponent, tunnel_distance);
+		float pathLoss = getPathLoss(pathLossExponent, (float)env.getDronePos(agent1).distance(env.getDronePos(agent2)));
 
 		// Calculating Shadowing loss
 		float shadowingLoss = Math.max(Constants.SIGNAL_SHADOWING_LOSS * turning_distance, 0f);
@@ -155,9 +155,7 @@ public class SignalManager implements Steppable {
 		// Calculating Multipath loss
 		float multipathLoss = Constants.SIGNAL_MULTIPATH_LOSS_AMP * (float)Math.sin(Constants.SIGNAL_MULTIPATH_LOSS_PER * tunnel_distance);
 		
-		float loss = Constants.DRONE_BEST_SIGNAL_LOSS 
-				     + pathLoss + shadowingLoss + multipathLoss
-				     + Constants.SIGNAL_RANDOM_LOSS_STD * (float)r.nextGaussian(); // final result with a random noise
+		float loss = Constants.DRONE_BEST_SIGNAL_LOSS + pathLoss + shadowingLoss + /*multipathLoss*/ + Constants.SIGNAL_RANDOM_LOSS_STD * (float)r.nextGaussian();
 		return (loss > 0) ? loss : 0f;
 	}
 
@@ -188,7 +186,7 @@ public class SignalManager implements Steppable {
 	@Override
 	public void step(SimState arg0) {
 		if (arg0.schedule.getSteps() % 50 == 0)
-			updateGaussianNoise();
+			;//updateGaussianNoise();
 		updateNetwork();
 	}
 
@@ -196,13 +194,15 @@ public class SignalManager implements Steppable {
 		Random r = new Random();
 		for (int x = 0; x < signalLossField.getWidth(); x++) {
 			for (int y = 0; y < signalLossField.getHeight(); y++) {
-				double q = originalLossField[x][y] + r.nextGaussian() * Constants.SIGNAL_STD_LOSS;
-				if (q < Constants.SIGNAL_MIN_LOSS)
-					q = Constants.SIGNAL_MIN_LOSS;
-				else if (q > Constants.SIGNAL_MAX_LOSS)
-					q = Constants.SIGNAL_MAX_LOSS;
+				if(originalLossField[x][y] != Constants.SIGNAL_MIN_LOSS) {
+					double q = originalLossField[x][y] + r.nextGaussian() * Constants.SIGNAL_STD_LOSS;
+					if (q < Constants.SIGNAL_MIN_LOSS)
+						q = Constants.SIGNAL_MIN_LOSS;
+					else if (q > Constants.SIGNAL_MAX_LOSS)
+						q = Constants.SIGNAL_MAX_LOSS;
 
-				if(signalLossField.get(x,  y) < Constants.SIGNAL_WALL_LOSS - 0.1) signalLossField.set(x, y, q);
+					if(signalLossField.get(x,  y) < Constants.SIGNAL_WALL_LOSS - 0.1) signalLossField.set(x, y, q);
+				}
 			}
 		}
 	}

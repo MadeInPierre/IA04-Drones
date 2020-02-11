@@ -61,11 +61,11 @@ public class Environment extends SimState {
 		droneAngles = new HashMap<DroneAgent, Float>();
 
 		// Add agents
-		operator = new OperatorAgent();
 		for(int i = 0; i < Constants.N_DRONES; i++) {
 			addDrone(new Double2D(Constants.SPAWN_POS.getX(), Constants.SPAWN_POS.getY())); // Followers
 			rotateDrone((DroneAgent)yard.getAllObjects().get(i), (float)Constants.SPAWN_POS.getZ());
 		}
+		operator = new OperatorAgent((DroneAgent)yard.getAllObjects().get(Constants.N_DRONES - 1));
 
 		headDrone = (DroneAgent)yard.getAllObjects().get(0);
 		headDrone.setDroneRole(DroneRole.HEAD);

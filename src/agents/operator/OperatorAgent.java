@@ -25,8 +25,12 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 	public static double x, y;
 	public boolean rth = false; // Return to Home mode : all drones autonomous go back to land at home
 	public boolean rth_fired = false;
+	
+	private DroneAgent tail;
 
-	public OperatorAgent() {
+	public OperatorAgent(DroneAgent tail) {
+		this.tail = tail;
+
 		Frame[] frames = JFrame.getFrames();
 		JFrame frame;
 		for (int i = 0; i < frames.length; i++) {
@@ -84,6 +88,7 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 	}
 
 	public void step(SimState state) {
+		//y = -Constants.DRONE_SPEED;
 		Optional<CommunicativeAgent> tail = Environment.get().getSignalManager().getClosestAgent(this); // TODO real association
 		
 		// Process messages
@@ -134,6 +139,10 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 			}
 		}
 
+	}
+	
+	public DroneAgent getTail() {
+		return tail;
 	}
 
 }

@@ -45,7 +45,7 @@ public class Gui extends GUIState {
 		Gui vid = new Gui(model);
 		Console c = new Console(vid);
 		
-		vid.scheduleRepeatingImmediatelyAfter(new RateAdjuster(100.0)); // FPS Cap
+		vid.scheduleRepeatingImmediatelyAfter(new RateAdjuster(150)); // FPS Cap
 		
 		c.setVisible(true);
 		c.pressPlay();
@@ -140,7 +140,7 @@ public class Gui extends GUIState {
 	}
 
 	private Portrayal2D getDronePortrayal() {
-		return new DronePortrayal("img/drone.png", Color.white, true);
+		return new DronePortrayal("img/drone2.png", Color.white, true);
 	}
 
 }

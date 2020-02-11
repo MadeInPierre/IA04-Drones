@@ -117,7 +117,8 @@ public class DroneFlyingManager {
 		
 		// Process distance sensors
 		Double3D collisionTransform = new Double3D(0, 0, 0);
-		if(currentBehavior.enableCollisions()) collisionTransform = calculateCollisionTransform(com, behaviorTransform);
+//		if(currentBehavior.enableCollisions())
+			collisionTransform = calculateCollisionTransform(com, behaviorTransform);
 		
 		// Merge moving decisions for a final transform
 		Double3D transform = behaviorTransform.add(collisionTransform.multiply(Constants.DRONE_COLLISION_SENSOR_WEIGHT));
@@ -159,9 +160,14 @@ public class DroneFlyingManager {
 		}
 		
 		// Braitenberg turning
-		collisionTransform = collisionTransform.add(new Double3D(0, 0, (currentTransform.getX() >= 0 ? 1.0 : -1.0) * 
-																	   (sensors[1].getDistance(com) - sensors[3].getDistance(com)) *
-																	   Constants.DRONE_TURN_SPEED));
+		if(currentTransform.getX() < -0.001 || currentTransform.getX() > 0.001) {
+			double turning = (currentTransform.getX() >= 0 ? 1.0 : -1.0) * (sensors[1].getDistance(com) - sensors[3].getDistance(com)) * Constants.DRONE_TURN_SPEED;
+			collisionTransform = collisionTransform.add(new Double3D(0, 0, turning));
+			
+			if(drone.getID() == 1)
+				System.out.println(String.format("%.2f", turning));
+		}
+
 //		drone.log(sensors[1].getDistance(com) + " " + sensors[3].getDistance(com) + " " + (sensors[1].getDistance(com) - sensors[3].getDistance(com)));
 		
 		// Can't go faster than the drone speed in all cases

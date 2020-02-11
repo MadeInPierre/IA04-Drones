@@ -46,7 +46,7 @@ public class SignalEdgePortrayal extends SimpleEdgePortrayal2D {
 		CommunicativeAgent to   = (CommunicativeAgent) ((Edge) o).getTo();
 
 		if (toDraw(from, to)) {
-			DroneAgent d = (from.getID() > to.getID()) ? (DroneAgent)from : (DroneAgent)to;
+			DroneAgent d = (from.getID() < to.getID()) ? (DroneAgent)from : (DroneAgent)to;
 			logSignals(from, to, w, d.getCommunicator().getFilteredStrengthFrom(d.getLeaderID()));
 			
 			if (w > Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
@@ -64,17 +64,13 @@ public class SignalEdgePortrayal extends SimpleEdgePortrayal2D {
 
 	private boolean toDraw(CommunicativeAgent from, CommunicativeAgent to) {
 		if (from instanceof OperatorAgent) {
-			Optional<CommunicativeAgent> closest = Environment.get().getSignalManager().getClosestAgent(from);
-			if (closest.isPresent() && to == closest.get())
-				return true;
-			else
-				return false;
+			DroneAgent drone = (DroneAgent)to;
+			OperatorAgent operator = (OperatorAgent)from;
+			return drone.getID() == operator.getTail().getID();
 		} else if (to instanceof OperatorAgent) {
-			Optional<CommunicativeAgent> closest = Environment.get().getSignalManager().getClosestAgent(to);
-			if (closest.isPresent() && from == closest.get())
-				return true;
-			else
-				return false;
+			DroneAgent drone = (DroneAgent)from;
+			OperatorAgent operator = (OperatorAgent)to;
+			return drone.getID() == operator.getTail().getID();
 		} else if (from instanceof DroneAgent && to instanceof DroneAgent) {
 			if (to.getID() == ((DroneAgent) from).getLeaderID() || from.getID() == ((DroneAgent) to).getLeaderID())
 				return true;
@@ -95,13 +91,17 @@ public class SignalEdgePortrayal extends SimpleEdgePortrayal2D {
 //		if(to   instanceof DroneAgent) System.out.print(((DroneAgent)to  ).getDistanceInTunnel() + ","); else System.out.print("0.0,");
 //		System.out.println(signal + "," + filteredSignal + ")");
 		
+		int id = from.getID() > to.getID() ? to.getID() : from.getID();
+		
 	    if(signal < Constants.DRONE_MAXIMUM_SIGNAL_LOSS || filteredSignal < Constants.DRONE_MAXIMUM_SIGNAL_LOSS) 
-	    	printWriter.printf("%d,%d,%d,%f,%f,%f,%f\n", Environment.get().schedule.getSteps(),
-		    										   from.getID(), 
-		    										   to.getID(), 
-		    										   (from instanceof DroneAgent) ? ((DroneAgent)from).getDistanceInTunnel() : 0, 
-		    										   (to   instanceof DroneAgent) ? ((DroneAgent)to  ).getDistanceInTunnel() : 0, 
-		    										   signal, filteredSignal);
+	    	printWriter.printf("%d,%d,%d,%d,%f,%f,%f,%f\n", id, 
+	    											   		Environment.get().schedule.getSteps(),
+	    											   		from.getID(), 
+	    											   		to.getID(), 
+	    											   		(from instanceof DroneAgent) ? ((DroneAgent)from).getDistanceInTunnel() : 0, 
+	    											   		(to   instanceof DroneAgent) ? ((DroneAgent)to  ).getDistanceInTunnel() : 0, 
+	    											   		signal, 
+	    											   		filteredSignal);
 	}
 
 }

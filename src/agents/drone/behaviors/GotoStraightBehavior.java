@@ -75,8 +75,8 @@ public class GotoStraightBehavior extends FlyingBehavior {
 //						balancing = false;
 //						break;
 //					}
-					if(Math.abs(followerSignal - leaderSignal) > 1f) // small balancing for precise positioning
-						transform = transform.add(new Double3D((followerSignal < leaderSignal ? 1.0 : -1.0) * Constants.DRONE_SPEED / 10f, 0, 0));
+					if(Math.abs(followerSignal - leaderSignal) > .5f) // small balancing for precise positioning
+						transform = transform.add(new Double3D((followerSignal < leaderSignal ? 1.0 : -1.0) * Constants.DRONE_SPEED, 0, 0));
 					
 					balancing = false;
 					// If the head moves, move too
