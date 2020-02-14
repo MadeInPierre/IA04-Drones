@@ -13,6 +13,7 @@ import agents.drone.DroneAgent.DroneState;
 import agents.drone.DroneFlyingManager.FlyingState;
 import agents.operator.OperatorAgent;
 import main.Constants;
+import sim.display.Console;
 import sim.display.RateAdjuster;
 import sim.engine.SimState;
 import sim.field.continuous.Continuous2D;
@@ -26,6 +27,9 @@ public class Environment extends SimState {
 	private Map<DroneAgent, Float> droneAngles;
 	private DroneAgent headDrone;
 	private OperatorAgent operator;
+	
+	private Console console;
+	private int currentRun = 0;
 
 	private static Environment instance = new Environment(System.currentTimeMillis());
 
@@ -52,6 +56,14 @@ public class Environment extends SimState {
 
 	public Continuous2D getYard() {
 		return yard;
+	}
+	
+	public void setConsole(Console c) {
+		this.console = c;
+	}
+	
+	public int getCurrentRun() {
+		return currentRun;
 	}
 
 	public void start() {
@@ -171,7 +183,7 @@ public class Environment extends SimState {
 			if (!a2.isPresent())
 				return false;
 			
-			if (signalManager.getSignalLoss(a1, a2.get()) > Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
+			if (signalManager.getSignalLoss(a1, a2.get(), true) > Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
 				return false;
 			
 			if (((DroneAgent) a2.get()).isHead())
@@ -181,5 +193,16 @@ public class Environment extends SimState {
 			int l = ((DroneAgent)a1).getLeaderID();
 			a2 = getAgents().stream().filter(o -> o.getID() == l).findFirst();
 		}
+	}
+	
+	public void reset() {
+//		for(DroneAgent drone : getDrones()) {
+//			yard.setObjectLocation(drone, new Double2D(Constants.SPAWN_POS.getX(), Constants.SPAWN_POS.getY()));
+//		}
+		
+		console.pressStop();
+		currentRun++;
+		CommunicativeAgent.idCounter = 0;
+		console.pressPlay();
 	}
 }

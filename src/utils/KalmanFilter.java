@@ -69,7 +69,7 @@ public class KalmanFilter {
      * @param u The controlled input value
      * @return The filtered value
      */
-    public double filter(double measurement, double u){
+    public double filter(double measurement, double u, int id){
 
         if (Double.isNaN(this.x)) {
             this.x = (1 / this.C) * measurement;
@@ -77,7 +77,7 @@ public class KalmanFilter {
         }else {
             double predX = (this.A * this.x) + (this.B * u);
             double predCov = ((this.A * this.cov) * this.A) + this.R;
-
+            
             // Kalman gain
             double K = predCov * this.C * (1 / ((this.C * predCov * this.C) + this.Q));
 
@@ -96,8 +96,8 @@ public class KalmanFilter {
      * @param measurement The measurement value to be filtered
      * @return The filtered value
      */
-    public double filter(double measurement){
-        return filter(measurement, 0);
+    public double filter(double measurement, int id){
+        return filter(measurement, 0, id);
     }
     
 
@@ -107,6 +107,10 @@ public class KalmanFilter {
      */
     public double getLastMeasurement(){
         return isInit ? this.x : Double.NaN;
+    }
+    
+    public double getLastNoise(){
+        return isInit ? this.cov : Double.NaN;
     }
     
     /**

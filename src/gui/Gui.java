@@ -45,7 +45,8 @@ public class Gui extends GUIState {
 		Gui vid = new Gui(model);
 		Console c = new Console(vid);
 		
-		vid.scheduleRepeatingImmediatelyAfter(new RateAdjuster(150)); // FPS Cap
+		//vid.scheduleRepeatingImmediatelyAfter(new RateAdjuster(150)); // FPS Cap
+		model.setConsole(c);
 		
 		c.setVisible(true);
 		c.pressPlay();
@@ -92,7 +93,7 @@ public class Gui extends GUIState {
 
 		display.reset();
 		display.setBackdrop(Color.white);
-		addBackgroundImage();
+//		addBackgroundImage();
 		display.repaint();
 	}
 
@@ -104,11 +105,11 @@ public class Gui extends GUIState {
 		displayFrame.setTitle("Environment Display");
 		c.registerFrame(displayFrame);
 		displayFrame.setVisible(true);
-		display.attach(collisionPortrayal, "collision", false);
-		display.attach(signalPortrayal, "signal", false);
-		display.attach(collisionSensorPortrayal, "collision sensors");
+//		display.attach(collisionPortrayal, "collision", false);
+//		display.attach(signalPortrayal, "signal", false);
+//		display.attach(collisionSensorPortrayal, "collision sensors");
 		display.attach(signalNetworkPortrayal, "signal network");
-		display.attach(yardPortrayal, "agents");
+//		display.attach(yardPortrayal, "agents");
 	}
 
 	public void quit() {
@@ -141,6 +142,6 @@ public class Gui extends GUIState {
 
 	private Portrayal2D getDronePortrayal() {
 		return new DronePortrayal("img/drone2.png", Color.white, true);
-	}
+	} 
 
 }

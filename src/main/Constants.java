@@ -10,12 +10,12 @@ public class Constants {
 //	public static final Double3D SPAWN_POS = new Double3D(3, 5, 0); // start
 //  public static final Double3D SPAWN_POS = new Double3D(5, 15, -1.5792); // 90 angle
 //
-	public static final String IMAGE   		   = "img/maps/map_misc.jpg";
-	public static final String SIGNAL_IMAGE    = "img/maps/map_misc_signal.png";
-	public static final String COLLISION_IMAGE = "img/maps/map_misc_collisions.png";
+//	public static final String IMAGE   		   = "img/maps/map_misc.jpg";
+//	public static final String SIGNAL_IMAGE    = "img/maps/map_misc_signal.png";
+//	public static final String COLLISION_IMAGE = "img/maps/map_misc_collisions.png";
 //	public static final Double3D SPAWN_POS = new Double3D(42.5, 4.5, 0); // 90 turn
-//	public static final Double3D SPAWN_POS = new Double3D(47.5, 6, (float)Math.PI / 2); // straight
-	public static final Double3D SPAWN_POS = new Double3D(3, 11, 0); // start
+////	public static final Double3D SPAWN_POS = new Double3D(47.5, 6, (float)Math.PI / 2); // straight
+////	public static final Double3D SPAWN_POS = new Double3D(3, 11, 0); // start
 	
 //	public static final String IMAGE   		   = "img/cave.jpg";
 //	public static final String SIGNAL_IMAGE    = "img/signal.bmp";
@@ -28,10 +28,11 @@ public class Constants {
 ////	public static final Double3D SPAWN_POS = new Double3D(5, 33, (float)Math.PI / -4); // start
 //	public static final Double3D SPAWN_POS = new Double3D(12, 29.25, 0); // start after death turn
 	
-//	public static final String IMAGE   		   = "img/maps/map_localmin2.png";
-//	public static final String SIGNAL_IMAGE    = "img/maps/map_localmin2_collisions.png";
-//	public static final String COLLISION_IMAGE = "img/maps/map_localmin2_collisions.png";
-//	public static final Double3D SPAWN_POS = new Double3D(5, 33.5, (float)Math.PI / -4);
+	public static final String IMAGE   		   = "img/maps/map_localmin2.png";
+	public static final String SIGNAL_IMAGE    = "img/maps/map_localmin3_collisions.png";
+	public static final String COLLISION_IMAGE = "img/maps/map_localmin3_collisions.png";
+//	public static final Double3D SPAWN_POS = new Double3D(5, 33.5, (float)Math.PI / -4); // straight
+	public static final Double3D SPAWN_POS = new Double3D(12, 33.5, (float)Math.PI); // 90
 	
 //	public static final String IMAGE   		   = "img/maps/fig/map_fig_white.png";
 //	public static final String SIGNAL_IMAGE    = "img/maps/fig/map_fig_collisions.png";
@@ -47,7 +48,7 @@ public class Constants {
 	// Signal
 	public static final float SIGNAL_MAP_STEP 			= .1f;  // map units, signal map evaluation resolution
 	// Normal path loss
-	public static final float SIGNAL_MIN_LOSS 			= 2f;   // dB
+	public static final float SIGNAL_MIN_LOSS 			= 1.5f;   // dB
 	public static final float SIGNAL_MAX_LOSS 			= 5f;   // dB
 	public static final float SIGNAL_WALL_LOSS 			= 4f;   // dB
 	public static final float SIGNAL_STD_LOSS 			= 3f;   // dB
@@ -69,18 +70,18 @@ public class Constants {
     public static final float DRONE_MAXIMUM_SIGNAL_LOSS = 100f; //dB, loss before signal is completely lost
     public static final float DRONE_BEST_SIGNAL_LOSS    = 35f;  //dB, loss before drone can't go closer to the other drone
     // Kalman filtering
-    public static final float DRONE_SIGNAL_KALMAN_R 	= 0.01f;// Expected internal Kalman noise
-    public static final float DRONE_SIGNAL_KALMAN_Q 	= 3f;   // Expected raw RSSI noise for Kalman
-    public static final float DRONE_SIGNAL_KALMAN_B 	= 3f;   // Evolution of signal when the drone moves
+    public static final float DRONE_SIGNAL_KALMAN_R 	= .1f;	// Expected internal Kalman noise
+    public static final float DRONE_SIGNAL_KALMAN_Q 	= 5f;   // Expected raw RSSI noise for Kalman
+    public static final float DRONE_SIGNAL_KALMAN_B 	= 80f; // Evolution of signal when the drone moves
     // Additional signal filtering
-    public static final float DRONE_EXPECTED_SIGNAL_STD = 3f;   // dB, Drone tries to ignore this amount of Gaussian noise (after Kalman filter)
+    public static final float DRONE_EXPECTED_SIGNAL_STD = 0f;   // dB, Drone tries to ignore this amount of Gaussian noise (after Kalman filter)
     public static final int   DRONE_SIGNAL_MEAN_STEPS 	= 2;    // Number of signal measures we take the mean from
     
     public static final int   DRONE_NOMSGS_DISCONNECT_STEPS = 3;// Steps without a status message before we consider we lost signal
 
     // Drone general params
-    public static final int   N_DRONES 								  = 8;
-    public static final float DRONE_SPEED                             = .03f;	// Map units per step
+    public static final int   N_DRONES 								  = 4;
+    public static final float DRONE_SPEED                             = .01f;	// Map units per step
     public static final float DRONE_TURN_SPEED                        = 1.f;    // No unit
 	public static final float DRONE_COLLISION_SENSOR_RANGE 			  = 3f; 	// Distance in map units
 	public static final float DRONE_COLLISION_SENSOR_TRIGGER_DISTANCE = 3.2f;	// Distance at which correction will start to be applied

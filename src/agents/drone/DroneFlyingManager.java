@@ -113,7 +113,8 @@ public class DroneFlyingManager {
 		
 		// Apply current movement strategy
 		Double3D behaviorTransform = new Double3D();
-		if(forceHover == false) behaviorTransform = currentBehavior.stepTransform(com);
+		if(forceHover == false) 
+			behaviorTransform = currentBehavior.stepTransform(com);
 		
 		// Process distance sensors
 		Double3D collisionTransform = new Double3D(0, 0, 0);
@@ -163,9 +164,6 @@ public class DroneFlyingManager {
 		if(currentTransform.getX() < -0.001 || currentTransform.getX() > 0.001) {
 			double turning = (currentTransform.getX() >= 0 ? 1.0 : -1.0) * (sensors[1].getDistance(com) - sensors[3].getDistance(com)) * Constants.DRONE_TURN_SPEED;
 			collisionTransform = collisionTransform.add(new Double3D(0, 0, turning));
-			
-			if(drone.getID() == 1)
-				System.out.println(String.format("%.2f", turning));
 		}
 
 //		drone.log(sensors[1].getDistance(com) + " " + sensors[3].getDistance(com) + " " + (sensors[1].getDistance(com) - sensors[3].getDistance(com)));

@@ -5,6 +5,8 @@ import java.awt.Graphics2D;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Optional;
 
 import agents.CommunicativeAgent;
@@ -25,7 +27,10 @@ public class SignalEdgePortrayal extends SimpleEdgePortrayal2D {
 		super(null, Color.WHITE);
 		
 		try {
-			fileWriter = new FileWriter("2d_signals.txt");
+//			SimpleDateFormat format = new SimpleDateFormat("MM-dd-HH:mm:ss");
+//			String dateString = format.format(new Date());
+			
+			fileWriter = new FileWriter("logs/2d_signals_" + Environment.get().getCurrentRun() + ".txt");
 			printWriter = new PrintWriter(fileWriter);
 		} catch(Exception e) {}
 	}
@@ -41,20 +46,23 @@ public class SignalEdgePortrayal extends SimpleEdgePortrayal2D {
 
 	@Override
 	public void draw(Object o, Graphics2D g, DrawInfo2D i) {
-		double w = ((Edge) o).getWeight();
 		CommunicativeAgent from = (CommunicativeAgent) ((Edge) o).getFrom();
 		CommunicativeAgent to   = (CommunicativeAgent) ((Edge) o).getTo();
+		double rawSignal = ((Edge) o).getWeight();
+		double trueSignal = Environment.get().getSignalManager().getSignalLoss(from, to, false);
 
 		if (toDraw(from, to)) {
 			DroneAgent d = (from.getID() < to.getID()) ? (DroneAgent)from : (DroneAgent)to;
-			logSignals(from, to, w, d.getCommunicator().getFilteredStrengthFrom(d.getLeaderID()));
 			
-			if (w > Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
+			if (Environment.get().schedule.getSteps() % 30 == 0)
+				logSignals(from, to, rawSignal, d.getCommunicator().getFilteredStrengthFrom(d.getFollowerID()), trueSignal);
+			
+			if (rawSignal > Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
 				setShape(SHAPE_THIN_LINE);
 				this.fromPaint = this.toPaint = Color.black;
 			} else {
 				setShape(SHAPE_LINE_BUTT_ENDS);
-				float f = (float) Math.max(Math.min((w / Constants.DRONE_MAXIMUM_SIGNAL_LOSS), 1), 0);
+				float f = (float) Math.max(Math.min((rawSignal / Constants.DRONE_MAXIMUM_SIGNAL_LOSS), 1), 0);
 				this.fromPaint = this.toPaint = new Color(f, 1 - f, 0f);
 			}
 			super.draw(o, g, i);
@@ -85,23 +93,19 @@ public class SignalEdgePortrayal extends SimpleEdgePortrayal2D {
 		return Math.max(1 - ((Edge) o).getWeight() / Constants.DRONE_MAXIMUM_SIGNAL_LOSS, 0f);
 	}
 	
-	private void logSignals(CommunicativeAgent from, CommunicativeAgent to, double signal, double filteredSignal) {
-//		System.out.print("(" + from.getID() + "," + to.getID() + ",");
-//		if(from instanceof DroneAgent) System.out.print(((DroneAgent)from).getDistanceInTunnel() + ","); else System.out.print("0.0,");
-//		if(to   instanceof DroneAgent) System.out.print(((DroneAgent)to  ).getDistanceInTunnel() + ","); else System.out.print("0.0,");
-//		System.out.println(signal + "," + filteredSignal + ")");
-		
+	private void logSignals(CommunicativeAgent from, CommunicativeAgent to, double rawSignal, double filteredSignal, double trueSignal) {
 		int id = from.getID() > to.getID() ? to.getID() : from.getID();
-		
-	    if(signal < Constants.DRONE_MAXIMUM_SIGNAL_LOSS || filteredSignal < Constants.DRONE_MAXIMUM_SIGNAL_LOSS) 
-	    	printWriter.printf("%d,%d,%d,%d,%f,%f,%f,%f\n", id, 
-	    											   		Environment.get().schedule.getSteps(),
+
+		if(trueSignal < Constants.DRONE_MAXIMUM_SIGNAL_LOSS || filteredSignal < Constants.DRONE_MAXIMUM_SIGNAL_LOSS) 
+	    	printWriter.printf("%d,%f,%d,%d,%f,%f,%f,%f,%f\n", id, 
+	    											   		(float)(Environment.get().schedule.getSteps()) / 150.0,
 	    											   		from.getID(), 
 	    											   		to.getID(), 
 	    											   		(from instanceof DroneAgent) ? ((DroneAgent)from).getDistanceInTunnel() : 0, 
 	    											   		(to   instanceof DroneAgent) ? ((DroneAgent)to  ).getDistanceInTunnel() : 0, 
-	    											   		signal, 
-	    											   		filteredSignal);
+	    											   		rawSignal,
+	    											   		filteredSignal,
+	    											   		trueSignal);
 	}
 
 }

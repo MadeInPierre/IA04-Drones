@@ -110,7 +110,7 @@ public class DroneAgent extends CommunicativeAgent {
 		}
 	}
 
-	public void step(SimState state) {		
+	public void step(SimState state) {
 		// Process messages
 		ArrayList<DroneMessage> garbageMessages = new ArrayList<DroneMessage>();
 		for(DroneMessage msg : communicator.getMessages()) {
@@ -173,6 +173,7 @@ public class DroneAgent extends CommunicativeAgent {
 		for(DroneMessage msg : garbageMessages) communicator.removeMessage(msg);
 		
 		// Send usual status message (used by others for signal strength)
+		if (state.schedule.getSteps() % 30 == 0)
 		{
 			DroneMessage statusmsg = new DroneMessage(this, DroneMessage.BROADCAST, Performative.INFORM);
 			statusmsg.setTitle("status");

@@ -134,7 +134,7 @@ public class SignalManager implements Steppable {
 //		return getPathLoss(lossExponent, distance);
 //	}
 	
-	public float getSignalLoss(CommunicativeAgent agent1, CommunicativeAgent agent2) {
+	public float getSignalLoss(CommunicativeAgent agent1, CommunicativeAgent agent2, boolean enableGaussian) {
 		// tmp variables
 		Random r = new Random();
 		float d1 = (agent1 instanceof DroneAgent) ? (float)((DroneAgent)agent1).getDistanceInTunnel() : 0f;
@@ -155,14 +155,17 @@ public class SignalManager implements Steppable {
 		// Calculating Multipath loss
 		float multipathLoss = Constants.SIGNAL_MULTIPATH_LOSS_AMP * (float)Math.sin(Constants.SIGNAL_MULTIPATH_LOSS_PER * tunnel_distance);
 		
-		float loss = Constants.DRONE_BEST_SIGNAL_LOSS + pathLoss + shadowingLoss + /*multipathLoss*/ + Constants.SIGNAL_RANDOM_LOSS_STD * (float)r.nextGaussian();
+		float loss = Constants.DRONE_BEST_SIGNAL_LOSS + pathLoss + shadowingLoss /*+ multipathLoss*/;
+		
+		if(enableGaussian)
+			loss += Constants.SIGNAL_RANDOM_LOSS_STD * (float)r.nextGaussian();
 		return (loss > 0) ? loss : 0f;
 	}
 
 	public Map<CommunicativeAgent, Float> getAgentsInRange(CommunicativeAgent agent) {
 		Map<CommunicativeAgent, Float> ret = new HashMap<CommunicativeAgent, Float>();
 		for (CommunicativeAgent d : Environment.get().getAgents()) {
-			float loss = getSignalLoss(agent, d);
+			float loss = getSignalLoss(agent, d, true);
 			if (loss < Constants.DRONE_MAXIMUM_SIGNAL_LOSS)
 				ret.put(d, loss);
 		}
@@ -170,7 +173,7 @@ public class SignalManager implements Steppable {
 	}
 	
 	public Optional<CommunicativeAgent> getClosestAgent(CommunicativeAgent agent) {
-		return env.getAgents().stream().sorted(Comparator.comparing(o -> getSignalLoss(o, agent)))
+		return env.getAgents().stream().sorted(Comparator.comparing(o -> getSignalLoss(o, agent, true)))
 		.filter(o -> o != agent).findFirst();
 
 	}
@@ -212,7 +215,7 @@ public class SignalManager implements Steppable {
 		for (int i = 0; i < edges.length; i++) {
 			for (int j = i + 1; j < edges[0].length; j++) {
 				edges[i][j].setWeight(getSignalLoss((CommunicativeAgent)edges[i][j].getFrom(), 
-													(CommunicativeAgent)edges[i][j].getTo()));
+													(CommunicativeAgent)edges[i][j].getTo(), true));
 			}
 		}
 	}

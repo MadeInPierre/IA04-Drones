@@ -6,6 +6,7 @@ import java.util.Map;
 
 import agents.DroneMessage.Performative;
 import agents.drone.DroneAgent;
+import agents.operator.OperatorAgent;
 import environment.Environment;
 import main.Constants;
 import utils.KalmanFilter;
@@ -32,8 +33,24 @@ public class Communicator {
 			
 			// Calculate new filtered value
 			if(filteredStatuses.containsKey(msg.getSenderID())) {
-				double u = (owner instanceof DroneAgent) ? ((DroneAgent)owner).getSpeed() : 0f ;
-				filteredStatuses.get(msg.getSenderID()).filter(msg.getStrength(), u);
+				double u = 0;
+				if(msg.getSender() instanceof OperatorAgent)
+					u = 0;//-((DroneAgent)owner).getSpeed();
+				else if(owner instanceof OperatorAgent)
+					u = 0;//((DroneAgent)msg.getSender()).getSpeed();
+				else {
+					double senderSpeed = (msg.getSender() instanceof DroneAgent) ? ((DroneAgent)msg.getSender()).getSpeed() : 0f ;
+					double ownSpeed    = (owner instanceof DroneAgent) ? ((DroneAgent)owner).getSpeed() : 0f ;
+					
+					u = senderSpeed - ownSpeed;
+					if(msg.getSender().getID() > owner.getID())
+						u *= -1f;
+				}
+				
+				filteredStatuses.get(msg.getSenderID()).filter(msg.getStrength(), u, ((CommunicativeAgent)owner).getID());
+				
+				
+//				System.out.println(filteredStatuses.get(msg.getSenderID()).getLastNoise());
 			}
 			else {
 				double B = (owner instanceof DroneAgent) ? Constants.DRONE_SIGNAL_KALMAN_B : 0f ;
@@ -57,6 +74,9 @@ public class Communicator {
 	}
 	
 	public float getFilteredStrengthFrom(int id) {
+		if(filteredStatuses.containsKey(id)) // TODO TEMP, REMOVE
+			return (float)filteredStatuses.get(id).getLastMeasurement();
+			
 		if(!lastStatuses.containsKey(id) || !filteredStatuses.containsKey(id))
 				return Float.NaN;
 		
@@ -73,7 +93,7 @@ public class Communicator {
 
 		for(CommunicativeAgent a : env.getAgents()) {
 			if (a.getID() == id) {
-				return env.getSignalManager().getSignalLoss(owner, a);
+				return env.getSignalManager().getSignalLoss(owner, a, true);
 			}
 		}
 		return -1; // If invalid id
@@ -109,7 +129,7 @@ public class Communicator {
 				m.setTitle(msg.getTitle());
 				m.setContent(msg.getContent());
 				
-				m.setStrength(env.getSignalManager().getSignalLoss(m.getSender(), a));
+				m.setStrength(env.getSignalManager().getSignalLoss(m.getSender(), a, true));
 				
 				if(m.getStrength() < Constants.DRONE_MAXIMUM_SIGNAL_LOSS) {
 					a.receiveMessage(m);

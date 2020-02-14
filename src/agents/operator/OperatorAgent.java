@@ -88,7 +88,10 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 	}
 
 	public void step(SimState state) {
-		//y = -Constants.DRONE_SPEED;
+		if (Environment.get().schedule.getSteps() < 6000)
+			y = -Constants.DRONE_SPEED;
+		else y = 0;
+
 		Optional<CommunicativeAgent> tail = Environment.get().getSignalManager().getClosestAgent(this); // TODO real association
 		
 		// Process messages
@@ -139,6 +142,11 @@ public class OperatorAgent extends CommunicativeAgent implements Steppable, KeyL
 			}
 		}
 
+		
+		
+		if(Environment.get().schedule.getSteps() >= 150 * 120) {
+			Environment.get().reset();
+		}
 	}
 	
 	public DroneAgent getTail() {
