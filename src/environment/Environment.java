@@ -1,8 +1,10 @@
 package environment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -71,12 +73,40 @@ public class Environment extends SimState {
 		
 		yard = new Continuous2D(.1d, Constants.MAP_WIDTH, Constants.MAP_HEIGHT);
 		droneAngles = new HashMap<DroneAgent, Float>();
+		
+		/*Random rand = new Random(42 + currentRun);
+		ArrayList<Float> weights = new ArrayList<Float>();
+		float sum = 0f, min = 5f, max = 30f;
+		for(int i = 0; i < Constants.N_DRONES; i++) {
+			float w = rand.nextFloat();
+			weights.add(w);
+			sum += w;
+			System.out.println(w);
+		}
 
 		// Add agents
+		float last = max;
 		for(int i = 0; i < Constants.N_DRONES; i++) {
-			addDrone(new Double2D(Constants.SPAWN_POS.getX(), Constants.SPAWN_POS.getY())); // Followers
+			if(i != 0) {
+				last -= (weights.get(i-1) / sum) * (max - min);
+				System.out.println(last);
+			}
+			addDrone(new Double2D(last, Constants.SPAWN_POS.getY())); // Followers
 			rotateDrone((DroneAgent)yard.getAllObjects().get(i), (float)Constants.SPAWN_POS.getZ());
-		}
+		}*/
+		
+		addDrone(new Double2D(30, Constants.SPAWN_POS.getY()));
+		rotateDrone((DroneAgent)yard.getAllObjects().get(0), (float)Constants.SPAWN_POS.getZ());
+		
+		addDrone(new Double2D(22, Constants.SPAWN_POS.getY()));
+		rotateDrone((DroneAgent)yard.getAllObjects().get(0), (float)Constants.SPAWN_POS.getZ());
+		
+		addDrone(new Double2D(17, Constants.SPAWN_POS.getY()));
+		rotateDrone((DroneAgent)yard.getAllObjects().get(0), (float)Constants.SPAWN_POS.getZ());
+		
+		addDrone(new Double2D(7, Constants.SPAWN_POS.getY()));
+		rotateDrone((DroneAgent)yard.getAllObjects().get(0), (float)Constants.SPAWN_POS.getZ());
+		
 		operator = new OperatorAgent((DroneAgent)yard.getAllObjects().get(Constants.N_DRONES - 1));
 
 		headDrone = (DroneAgent)yard.getAllObjects().get(0);

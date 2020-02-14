@@ -62,12 +62,12 @@ public class GotoStraightBehavior extends FlyingBehavior {
 		
 		if (Environment.get().schedule.getSteps() % 30 == 0) {
 //			updateHistory(com.getFilteredStrengthFrom(drone.getFollowerID()), com.getFilteredStrengthFrom(drone.getLeaderID()));
+
+//			followerSignal = com.getSignalStrength(drone.getFollowerID());
+//			leaderSignal   = com.getSignalStrength(drone.getLeaderID());
 			
-			followerSignal = com.getSignalStrength(drone.getFollowerID());
-			leaderSignal   = com.getSignalStrength(drone.getLeaderID());
-			
-			//followerSignal = com.getFilteredStrengthFrom(drone.getFollowerID());
-			//leaderSignal   = com.getFilteredStrengthFrom(drone.getLeaderID());
+			followerSignal = com.getFilteredStrengthFrom(drone.getFollowerID());
+			leaderSignal   = com.getFilteredStrengthFrom(drone.getLeaderID());
 		}
 		
 		// Movement decision

@@ -98,7 +98,7 @@ public class SignalManager implements Steppable {
 					int r = (img.getRGB(x, y) >> 16) & 0xff;
 					// map red 0->255 to signal MIN -> MAX
 					float q = Constants.SIGNAL_MIN_LOSS + (float) r / 255f * (Constants.SIGNAL_MAX_LOSS - Constants.SIGNAL_MIN_LOSS);
-					if(r >= 254) { q = Constants.SIGNAL_WALL_LOSS; System.out.println("max");}
+					if(r >= 254) { q = Constants.SIGNAL_WALL_LOSS; }
 					this.originalLossField[x][y] = q;
 				}
 			}
@@ -155,7 +155,7 @@ public class SignalManager implements Steppable {
 		// Calculating Multipath loss
 		float multipathLoss = Constants.SIGNAL_MULTIPATH_LOSS_AMP * (float)Math.sin(Constants.SIGNAL_MULTIPATH_LOSS_PER * tunnel_distance);
 		
-		float loss = Constants.DRONE_BEST_SIGNAL_LOSS + pathLoss + shadowingLoss /*+ multipathLoss*/;
+		float loss = Constants.DRONE_BEST_SIGNAL_LOSS + pathLoss /*+ shadowingLoss + multipathLoss*/;
 		
 		if(enableGaussian)
 			loss += Constants.SIGNAL_RANDOM_LOSS_STD * (float)r.nextGaussian();

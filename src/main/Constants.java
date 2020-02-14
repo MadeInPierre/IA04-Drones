@@ -31,8 +31,8 @@ public class Constants {
 	public static final String IMAGE   		   = "img/maps/map_localmin2.png";
 	public static final String SIGNAL_IMAGE    = "img/maps/map_localmin3_collisions.png";
 	public static final String COLLISION_IMAGE = "img/maps/map_localmin3_collisions.png";
-//	public static final Double3D SPAWN_POS = new Double3D(5, 33.5, (float)Math.PI / -4); // straight
-	public static final Double3D SPAWN_POS = new Double3D(12, 33.5, (float)Math.PI); // 90
+	public static final Double3D SPAWN_POS = new Double3D(5, 33.7, 0f); // straight
+//	public static final Double3D SPAWN_POS = new Double3D(12, 33.5, (float)Math.PI); // 90
 	
 //	public static final String IMAGE   		   = "img/maps/fig/map_fig_white.png";
 //	public static final String SIGNAL_IMAGE    = "img/maps/fig/map_fig_collisions.png";
@@ -48,7 +48,7 @@ public class Constants {
 	// Signal
 	public static final float SIGNAL_MAP_STEP 			= .1f;  // map units, signal map evaluation resolution
 	// Normal path loss
-	public static final float SIGNAL_MIN_LOSS 			= 1.5f;   // dB
+	public static final float SIGNAL_MIN_LOSS 			= 2.5f; // dB
 	public static final float SIGNAL_MAX_LOSS 			= 5f;   // dB
 	public static final float SIGNAL_WALL_LOSS 			= 4f;   // dB
 	public static final float SIGNAL_STD_LOSS 			= 3f;   // dB
@@ -74,7 +74,7 @@ public class Constants {
     public static final float DRONE_SIGNAL_KALMAN_Q 	= 5f;   // Expected raw RSSI noise for Kalman
     public static final float DRONE_SIGNAL_KALMAN_B 	= 80f; // Evolution of signal when the drone moves
     // Additional signal filtering
-    public static final float DRONE_EXPECTED_SIGNAL_STD = 0f;   // dB, Drone tries to ignore this amount of Gaussian noise (after Kalman filter)
+    public static final float DRONE_EXPECTED_SIGNAL_STD = .1f;   // dB, Drone tries to ignore this amount of Gaussian noise (after Kalman filter)
     public static final int   DRONE_SIGNAL_MEAN_STEPS 	= 2;    // Number of signal measures we take the mean from
     
     public static final int   DRONE_NOMSGS_DISCONNECT_STEPS = 3;// Steps without a status message before we consider we lost signal

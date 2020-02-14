@@ -109,7 +109,7 @@ public class Gui extends GUIState {
 //		display.attach(signalPortrayal, "signal", false);
 //		display.attach(collisionSensorPortrayal, "collision sensors");
 		display.attach(signalNetworkPortrayal, "signal network");
-//		display.attach(yardPortrayal, "agents");
+		display.attach(yardPortrayal, "agents");
 	}
 
 	public void quit() {

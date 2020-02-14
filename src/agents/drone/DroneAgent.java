@@ -111,6 +111,10 @@ public class DroneAgent extends CommunicativeAgent {
 	}
 
 	public void step(SimState state) {
+		if(getID() != 0) {
+			droneState = DroneState.FLYING;
+			setFlyingState(FlyingState.GOTO_STRAIGHT);
+		}
 		// Process messages
 		ArrayList<DroneMessage> garbageMessages = new ArrayList<DroneMessage>();
 		for(DroneMessage msg : communicator.getMessages()) {
