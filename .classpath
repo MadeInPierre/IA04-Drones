@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="C:/Users/pierr/Documents/Programming/ia04/IA04-Drones/lib/jackson-annotations-2.9.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pierr/Documents/Programming/ia04/IA04-Drones/lib/jackson-core-2.9.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pierr/Documents/Programming/ia04/IA04-Drones/lib/jackson-databind-2.9.4.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pierr/Documents/Programming/ia04/IA04-Drones/lib/jade4.5.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pierr/Documents/Programming/ia04/IA04-Drones/lib/jcommon-1.0.23.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pierr/Documents/Programming/ia04/IA04-Drones/lib/jfreechart-1.0.19.jar"/>
+	<classpathentry kind="lib" path="C:/Users/pierr/Documents/Programming/ia04/IA04-Drones/lib/mason.19.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
