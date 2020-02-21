@@ -51,48 +51,6 @@ def read_file(filename):
     f.close()
     return links
 
-'''
-def plot_pair_drones():
-    plt.scatter(pos_x, pos_y, c=signals, cmap='plasma')
-
-    r = range(int(max(pos_x + pos_y)))
-    plt.plot(r, r, c='k')
-    
-    plt.title('Position based signal logging')
-    plt.xlabel('p1')
-    plt.ylabel('p2')
-    plt.axis('equal')
-    plt.colorbar()
-
-def plot_distance_signal():
-    plt.scatter(pos_y, signals, s=1)
-    
-    plt.title('Position based signal logging')
-    plt.xlabel('Drone distance')
-    plt.ylabel('Quality')
-    plt.ylim(bottom=0, top=100)
-
-def plot_time_filter():
-    link_nb = 2
-    plt.plot(links.get(link_nb).steps, links.get(link_nb).signals, 
-            c='k',
-            linewidth=1,
-            label="Raw signal")
-
-    plt.plot(links.get(link_nb+1).steps, links.get(link_nb+1).signals_filtered, 
-            c='r',
-            linewidth=3,
-            label="Kalman filtered")
-
-    # plt.title('Time based signal logging')
-    plt.xlabel('Simulation step')
-    plt.ylabel('Simulated RSSI')
-    # plt.legend(loc='upper left', fontsize='small', ncol=5)
-    plt.legend(ncol=2, fontsize='small', loc='upper left')
-    plt.ylim(bottom=30, top=75)
-    plt.show()
-'''
-
 def plot_time_signal(ax, links, filtered=True):
     colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple'][::-1]
     labels= []
@@ -125,8 +83,11 @@ def plot_time_signal(ax, links, filtered=True):
     # plt.legend(loc='upper left', fontsize='small', ncol=5)
     # plt.legend(reversed(plt.legend().legendHandles), reversed(labels), ncol=5, fontsize='small', loc='upper left')
     # plt.ylim(bottom=30, top=75)
-    ax.set_xlim(0, 110)
-    ax.set_ylim(27, 83)
+    # ax.set_xlim(0, 110)
+    # ax.set_ylim(27, 83)
+
+    ax.set_xlim(0, 16)
+    ax.set_ylim(48, 63)
     plt.subplots_adjust(left=0.09, right=0.97, top=1.0, bottom=0.09)
 
 
@@ -208,15 +169,15 @@ def apply_boxplot_style(bp):
     colors = bmap.mpl_colors
 
     for i, e in enumerate(bp['medians']):
-        e.set(color='black', linewidth=3)
+        e.set(color='black', linewidth=5)
     for i, e in enumerate(bp['fliers']):
-        e.set(marker='+', linewidth=3)
+        e.set(marker='+', linewidth=5)
     for i, e in enumerate(bp['whiskers']):
-        e.set(color=colors[int(i / 2)], linewidth=3)
+        e.set(color=colors[int(i / 2)], linewidth=5)
     for i, e in enumerate(bp['caps']):
-        e.set(color=colors[int(i / 2)], linewidth=3)
+        e.set(color=colors[int(i / 2)], linewidth=5)
     for i, e in enumerate(bp['boxes']):
-        e.set(color=colors[i], linewidth=3)
+        e.set(color=colors[i], linewidth=5)
 
 
 def plot_stats(sets):
@@ -233,8 +194,8 @@ def plot_stats(sets):
     apply_boxplot_style(bp2)
     ax2.set_ylim(bottom=0, top=6)
 
-    ax1.set(xlabel="Convergence times (s)")
-    ax2.set(xlabel="Oscillations (var)")
+    ax1.set(ylabel="Convergence times (s)")
+    ax2.set(ylabel="Oscillations (var)")
 
     plt.subplots_adjust(left=0.075, right=0.98, top=0.8, bottom=0.17)
     plt.show()
@@ -272,14 +233,28 @@ if __name__ == "__main__":
     for s in sets:
         print("Set '{}' converges at {:.2f} with oscillations {:.2f}".format(s.name, np.mean(s.convergence_times), np.mean(s.oscillation_variances)))
 
+    fig, ax = plt.subplots(1, 1)
+    plot_time_signal(ax, read_file("logs/log_straight_conv.txt"))
+    plt.ylabel("Simulation time (s)")
+    plt.show()
 
+    fig, ax = plt.subplots(1, 1)
+    plot_time_signal(ax, read_file("logs/log_90_conv.txt"))
+    plt.ylabel("Simulated RSSI")
+    plt.show()
+
+    fig, ax = plt.subplots(1, 1)
+    plot_time_signal(ax, read_file("logs/log_180_conv.txt"))
+    plt.ylabel("Simulated RSSI")
+    plt.show()
+    
     fig, (ax1, ax2, ax3) = plt.subplots(3, 1)
     plot_time_signal(ax1, sets[0].simulations[5], filtered=False)
     plot_time_signal(ax2, sets[1].simulations[5], filtered=False)
     plot_time_signal(ax3, sets[2].simulations[5])
     fig.tight_layout()
     plt.subplots_adjust(left=0.075, right=0.98, top=0.98, bottom=0.05)
-    # fig.text(0.5, 0.04, 'common xlabel', ha='center', va='center')
+    # fig.text(0.5, 0.04, 'Simulation time (s)', ha='center', va='center')
     fig.text(0.02, 0.5, 'Simulated RSSI', ha='center', va='center', rotation='vertical')
     plt.show()
 
@@ -289,3 +264,48 @@ if __name__ == "__main__":
 
     plot_stats(sets)
 
+
+
+
+
+'''
+def plot_pair_drones():
+    plt.scatter(pos_x, pos_y, c=signals, cmap='plasma')
+
+    r = range(int(max(pos_x + pos_y)))
+    plt.plot(r, r, c='k')
+    
+    plt.title('Position based signal logging')
+    plt.xlabel('p1')
+    plt.ylabel('p2')
+    plt.axis('equal')
+    plt.colorbar()
+
+def plot_distance_signal():
+    plt.scatter(pos_y, signals, s=1)
+    
+    plt.title('Position based signal logging')
+    plt.xlabel('Drone distance')
+    plt.ylabel('Quality')
+    plt.ylim(bottom=0, top=100)
+
+def plot_time_filter():
+    link_nb = 2
+    plt.plot(links.get(link_nb).steps, links.get(link_nb).signals, 
+            c='k',
+            linewidth=1,
+            label="Raw signal")
+
+    plt.plot(links.get(link_nb+1).steps, links.get(link_nb+1).signals_filtered, 
+            c='r',
+            linewidth=3,
+            label="Kalman filtered")
+
+    # plt.title('Time based signal logging')
+    plt.xlabel('Simulation step')
+    plt.ylabel('Simulated RSSI')
+    # plt.legend(loc='upper left', fontsize='small', ncol=5)
+    plt.legend(ncol=2, fontsize='small', loc='upper left')
+    plt.ylim(bottom=30, top=75)
+    plt.show()
+'''
