@@ -46,7 +46,7 @@ def read_file(filename):
                 links[int(weightid)].signals_true.append(float(signal_true))
 
         except:
-            print("Ignored " + line[:-1])
+            # print("Ignored " + line[:-1])
             break
     f.close()
     return links
@@ -98,16 +98,19 @@ def plot_time_signal(links):
     labels= []
         
     for i, k in enumerate(reversed(list(links.keys()))):
+        # Raw RSSI
         plt.plot(links.get(k).times, links.get(k).signals_raw, 
             c=colors[i+1],
             linewidth=3,
             alpha=0.25,)
 
+        # Filtered RSSI
         plt.plot(links.get(k).times, links.get(k).signals_filtered, 
                 c=colors[i+1],
                 linewidth=3,
                 label="Link {}".format(str(k)))
         
+        # True RSSI
         plt.plot(links.get(k).times, links.get(k).signals_true, 
             c='k',
             linewidth=3,
@@ -116,11 +119,13 @@ def plot_time_signal(links):
         labels.append("Link {}".format(str(k)))
 
     # plt.title('Time based signal logging')
-    plt.xlabel('Simulation time (s)')
+    # plt.xlabel('Simulation time (s)')
     plt.ylabel('Simulated RSSI')
     # plt.legend(loc='upper left', fontsize='small', ncol=5)
-    plt.legend(reversed(plt.legend().legendHandles), reversed(labels), ncol=5, fontsize='small', loc='upper left')
+    # plt.legend(reversed(plt.legend().legendHandles), reversed(labels), ncol=5, fontsize='small', loc='upper left')
     # plt.ylim(bottom=30, top=75)
+    plt.xlim(0, 110)
+    plt.subplots_adjust(left=0.09, right=0.97, top=1.0, bottom=0.09)
     plt.show()
 
 
@@ -157,7 +162,7 @@ def simulations_stats(simulations):
 
         # Search for the convergence time
         n_steps = len(sim.get(list(sim.keys())[0]).times) - 1
-        for step in range(0, n_steps):
+        for step in range(int(n_steps / 10), n_steps):
             step_min = 200
             step_max = 0
 
@@ -166,14 +171,14 @@ def simulations_stats(simulations):
                     link_signal = sim.get(k).signals_true[step]
                     step_min = link_signal if link_signal < step_min else step_min
                     step_max = link_signal if link_signal > step_max else step_max
-                    if link_signal > 100:
+                    if link_signal > 100 or link_signal < 20:
                         success = False
 
-            if convergence_step == -1 and step_max - step_min < 5:
+            if convergence_step == -1 and step_max - step_min < 3: # 7 for exploration, 4 for convergence
                 convergence_step = step
                 convergence_time = sim.get(list(sim.keys())[0]).times[step]
         
-        if not success:
+        if not success or convergence_time < 2: # 10 for explorations, 2 for convergence
             print("    FAILED")
             continue
         
@@ -196,35 +201,66 @@ def simulations_stats(simulations):
     print("    Final variances : {}".format(np.around(oscillation_variances,2)))
     return convergence_times, oscillation_variances
 
+def apply_boxplot_style(bp):
+    import brewer2mpl
+    bmap = brewer2mpl.get_map('Set2', 'qualitative', 7)
+    colors = bmap.mpl_colors
 
-def plot_convergences(sets):
+    for i, e in enumerate(bp['medians']):
+        e.set(color='black', linewidth=3)
+    for i, e in enumerate(bp['fliers']):
+        e.set(marker='+', linewidth=3)
+    for i, e in enumerate(bp['whiskers']):
+        e.set(color=colors[int(i / 2)], linewidth=3)
+    for i, e in enumerate(bp['caps']):
+        e.set(color=colors[int(i / 2)], linewidth=3)
+    for i, e in enumerate(bp['boxes']):
+        e.set(color=colors[i], linewidth=3)
+
+
+def plot_stats(sets):
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+
     times = [s.convergence_times for s in sets]
     names = [s.name for s in sets]
-    plt.boxplot(times, labels=names)
-    plt.show()
+    bp1 = ax1.boxplot(times, labels=names)
+    apply_boxplot_style(bp1)
+    
 
-
-def plot_oscillations(sets):
     variances = [s.oscillation_variances for s in sets]
-    names = [s.name for s in sets]
-    plt.boxplot(variances, labels=names)
+    bp2 = ax2.boxplot(variances, labels=names)
+    apply_boxplot_style(bp2)
+    ax2.set_ylim(bottom=0, top=6)
+
+    plt.subplots_adjust(left=0.09, right=0.95, top=0.95, bottom=0.1)
     plt.show()
 
 
 if __name__ == "__main__":
-    matplotlib.rcParams.update({'font.size': 34})
+    matplotlib.rcParams.update({'font.size': 60})
     matplotlib.rcParams['mathtext.fontset'] = 'stix'
     matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
-    # set_names = ["90_notolerance", "90_5tolerance", "90_kalman"]
-    # set_names = ["conv_notolerance", "conv_5tolerance", "conv_kalman"]
-    set_names = ["fixed_notolerance", "fixed_5tolerance", "fixed_kalman"]
+    plt.rcParams['axes.spines.right'] = False
+    plt.rcParams['axes.spines.left'] = True
+    plt.rcParams['axes.spines.top'] = False
+    matplotlib.rcParams['axes.linewidth'] = 3
 
+    # plt.rcParams['xtick.major.size'] = 10
+    # plt.rcParams['xtick.major.width'] = 1
+    # plt.rcParams['xtick.minor.size'] = 10
+    # plt.rcParams['xtick.minor.width'] = 1
+    
+    set_folders = ["90_notolerance", "90_5tolerance", "90_kalman"] # 90 degree turn exploration
+    # set_folders = ["conv_notolerance", "conv_5tolerance", "conv_kalman"] # Straight line, set of random positions
+    # set_folders = ["fixed_notolerance", "fixed_5tolerance", "fixed_kalman"] # Straight line, same random position
+
+    set_names = ["$T_0$", "$T_5$", "$K$"]
 
     sets = []
-    for set_name in set_names:
-        s = Set(set_name)
-        for f in glob.glob(set_name + "/2d_signals_*.txt"):
+    for i, set_folder in enumerate(set_folders):
+        s = Set(set_names[i])
+        for f in glob.glob(set_folder + "/2d_signals_*.txt"):
             s.simulations.append(read_file(f))
         s.convergence_times, s.oscillation_variances = simulations_stats(s.simulations)
         sets.append(s)
@@ -232,9 +268,14 @@ if __name__ == "__main__":
     for s in sets:
         print("Set '{}' converges at {:.2f} with oscillations {:.2f}".format(s.name, np.mean(s.convergence_times), np.mean(s.oscillation_variances)))
 
-    plot_time_signal(read_file("logs/2d_signals_2.txt"))
-    plot_time_dist(read_file("logs/2d_signals_2.txt"))
 
-    plot_convergences(sets)
-    plot_oscillations(sets)
+    plot_time_signal(sets[0].simulations[0])
+    plot_time_signal(sets[1].simulations[0])
+    plot_time_signal(sets[2].simulations[0])
+
+    # plot_time_dist(sets[2].simulations[0])
+    # plot_time_signal(read_file("logs/2d_signals_2.txt"))
+    # plot_time_dist(read_file("logs/2d_signals_2.txt"))
+
+    plot_stats(sets)
 
