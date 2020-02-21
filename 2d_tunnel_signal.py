@@ -93,25 +93,26 @@ def plot_time_filter():
     plt.show()
 '''
 
-def plot_time_signal(links):
+def plot_time_signal(ax, links, filtered=True):
     colors = ['tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple'][::-1]
     labels= []
         
     for i, k in enumerate(reversed(list(links.keys()))):
         # Raw RSSI
-        plt.plot(links.get(k).times, links.get(k).signals_raw, 
+        ax.plot(links.get(k).times, links.get(k).signals_raw, 
             c=colors[i+1],
-            linewidth=3,
-            alpha=0.25,)
+            linewidth=4,
+            alpha= 0.25 if filtered else 0.25)
 
         # Filtered RSSI
-        plt.plot(links.get(k).times, links.get(k).signals_filtered, 
-                c=colors[i+1],
-                linewidth=3,
-                label="Link {}".format(str(k)))
+        if filtered:
+            ax.plot(links.get(k).times, links.get(k).signals_filtered, 
+                    c=colors[i+1],
+                    linewidth=4,
+                    label="Link {}".format(str(k)))
         
         # True RSSI
-        plt.plot(links.get(k).times, links.get(k).signals_true, 
+        ax.plot(links.get(k).times, links.get(k).signals_true, 
             c='k',
             linewidth=3,
             linestyle='--')
@@ -120,13 +121,13 @@ def plot_time_signal(links):
 
     # plt.title('Time based signal logging')
     # plt.xlabel('Simulation time (s)')
-    plt.ylabel('Simulated RSSI')
+    # plt.ylabel('Simulated RSSI')
     # plt.legend(loc='upper left', fontsize='small', ncol=5)
     # plt.legend(reversed(plt.legend().legendHandles), reversed(labels), ncol=5, fontsize='small', loc='upper left')
     # plt.ylim(bottom=30, top=75)
-    plt.xlim(0, 110)
+    ax.set_xlim(0, 110)
+    ax.set_ylim(27, 83)
     plt.subplots_adjust(left=0.09, right=0.97, top=1.0, bottom=0.09)
-    plt.show()
 
 
 def plot_time_dist(links):
@@ -232,12 +233,15 @@ def plot_stats(sets):
     apply_boxplot_style(bp2)
     ax2.set_ylim(bottom=0, top=6)
 
-    plt.subplots_adjust(left=0.09, right=0.95, top=0.95, bottom=0.1)
+    ax1.set(xlabel="Convergence times (s)")
+    ax2.set(xlabel="Oscillations (var)")
+
+    plt.subplots_adjust(left=0.075, right=0.98, top=0.8, bottom=0.17)
     plt.show()
 
 
 if __name__ == "__main__":
-    matplotlib.rcParams.update({'font.size': 60})
+    matplotlib.rcParams.update({'font.size': 50})
     matplotlib.rcParams['mathtext.fontset'] = 'stix'
     matplotlib.rcParams['font.family'] = 'STIXGeneral'
 
@@ -269,9 +273,15 @@ if __name__ == "__main__":
         print("Set '{}' converges at {:.2f} with oscillations {:.2f}".format(s.name, np.mean(s.convergence_times), np.mean(s.oscillation_variances)))
 
 
-    plot_time_signal(sets[0].simulations[0])
-    plot_time_signal(sets[1].simulations[0])
-    plot_time_signal(sets[2].simulations[0])
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1)
+    plot_time_signal(ax1, sets[0].simulations[5], filtered=False)
+    plot_time_signal(ax2, sets[1].simulations[5], filtered=False)
+    plot_time_signal(ax3, sets[2].simulations[5])
+    fig.tight_layout()
+    plt.subplots_adjust(left=0.075, right=0.98, top=0.98, bottom=0.05)
+    # fig.text(0.5, 0.04, 'common xlabel', ha='center', va='center')
+    fig.text(0.02, 0.5, 'Simulated RSSI', ha='center', va='center', rotation='vertical')
+    plt.show()
 
     # plot_time_dist(sets[2].simulations[0])
     # plot_time_signal(read_file("logs/2d_signals_2.txt"))
